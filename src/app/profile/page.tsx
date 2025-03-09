@@ -1,11 +1,9 @@
 "use client";
 
 import React from 'react';
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Box, Container, Flex, Button } from "@radix-ui/themes";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
-import useUser from "@/hooks/users/useUser";
 import useUserMatches from "@/hooks/matches/useUserMatches";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import RankCard from "@/components/profile/RankCard";
