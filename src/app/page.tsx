@@ -52,20 +52,6 @@ export default function Home() {
 				
 				<div className="flex flex-col gap-4">
 					<button
-						onClick={() => router.push("/profile")}
-						className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors"
-					>
-						View Profile
-					</button>
-					
-					<button
-						onClick={() => router.push("/leaderboard")}
-						className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-					>
-						Leaderboard
-					</button>
-					
-					<button
 						onClick={() => signOut({ callbackUrl: "/login" })}
 						className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
 					>

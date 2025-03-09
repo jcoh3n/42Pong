@@ -26,19 +26,19 @@ export function SidebarNavItem({
       <Flex 
         align="center" 
         justify="between" 
-        py="2" 
-        px="4"
+        py="3" 
+        px="6"
         style={{ 
           borderRadius: 'var(--radius-2)',
           backgroundColor: isActive ? 'var(--accent-3)' : 'transparent',
           color: isActive ? 'var(--accent-11)' : 'var(--gray-11)'
         }}
       >
-        <Flex align="center" gap="3">
+        <Flex align="center" gap="4">
           <Box style={{ color: isActive ? 'var(--accent-9)' : 'var(--gray-9)' }}>
             {icon}
           </Box>
-          <Text size="2" weight={isActive ? "medium" : "regular"}>
+          <Text size="3" weight={isActive ? "medium" : "regular"}>
             {label}
           </Text>
         </Flex>
