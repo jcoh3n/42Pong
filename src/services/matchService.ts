@@ -98,28 +98,52 @@ export class MatchService {
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    // Create query with pagination
-    const { data, error, count } = await this.getClient()
-      .from('Matches')
-      .select('*', { count: 'exact' })
-      .or(`user_1.eq.${userId},user_2.eq.${userId}`)
-      .order(sortBy, { ascending: sortOrder === 'asc' })
-      .range(from, to);
+    try {
+      // Get matches where user is player 1
+      const user1Matches = await this.getClient()
+        .from('Matches')
+        .select('*')
+        .eq('user_1', userId);
 
-    if (error) {
-      console.error(`Error fetching matches for user ${userId}:`, error);
+      // Get matches where user is player 2
+      const user2Matches = await this.getClient()
+        .from('Matches')
+        .select('*')
+        .eq('user_2', userId);
+
+      if (user1Matches.error) {
+        console.error(`Error fetching user1 matches for user ${userId}:`, user1Matches.error);
+        throw user1Matches.error;
+      }
+
+      if (user2Matches.error) {
+        console.error(`Error fetching user2 matches for user ${userId}:`, user2Matches.error);
+        throw user2Matches.error;
+      }
+
+      // Combine and sort matches
+      const allMatches = [...(user1Matches.data || []), ...(user2Matches.data || [])];
+      const sortedMatches = allMatches.sort((a, b) => {
+        if (sortOrder === 'asc') {
+          return a[sortBy] > b[sortBy] ? 1 : -1;
+        }
+        return a[sortBy] < b[sortBy] ? 1 : -1;
+      });
+
+      // Apply pagination
+      const paginatedMatches = sortedMatches.slice(from, to + 1);
+      
+      return {
+        data: paginatedMatches,
+        count: allMatches.length,
+        page,
+        pageSize,
+        hasMore: to < allMatches.length - 1
+      };
+    } catch (error) {
+      console.error(`Error in getMatchesByUserId for user ${userId}:`, error);
       throw error;
     }
-
-    const totalCount = count || 0;
-    
-    return {
-      data: data || [],
-      count: totalCount,
-      page,
-      pageSize,
-      hasMore: from + data.length < totalCount
-    };
   }
 
   async getMatchesWonByUserId(userId: string, options?: {

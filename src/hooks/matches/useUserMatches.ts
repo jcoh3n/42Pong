@@ -13,19 +13,22 @@ export default function useUserMatches(userId: string | undefined, options?: {
     page: options?.page || 1,
     pageSize: options?.pageSize || 10,
     sortBy: options?.sortBy || 'created_at' as keyof Match,
-    sortOrder: options?.sortOrder || 'asc' as 'asc' | 'desc'
+    sortOrder: options?.sortOrder || 'desc' as 'asc' | 'desc'
   });
 
   const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Match>>(
-    userId ? [`/api/users/${userId}/matches`, pagination] : null,
+    userId ? ['userMatches', userId, pagination] : null,
     () => {
-      return userId ? matchService.getMatchesByUserId(userId, pagination) : Promise.resolve({
-        data: [],
-        count: 0,
-        page: pagination.page,
-        pageSize: pagination.pageSize,
-        hasMore: false
-      });
+      if (!userId) {
+        return Promise.resolve({
+          data: [],
+          count: 0,
+          page: pagination.page,
+          pageSize: pagination.pageSize,
+          hasMore: false
+        });
+      }
+      return matchService.getMatchesByUserId(userId, pagination);
     }
   );
 
@@ -34,7 +37,7 @@ export default function useUserMatches(userId: string | undefined, options?: {
   };
 
   const setPageSize = (pageSize: number) => {
-    setPagination(prev => ({ ...prev, pageSize, page: 1 })); // Reset to first page when changing page size
+    setPagination(prev => ({ ...prev, pageSize, page: 1 }));
   };
 
   const setSorting = (sortBy: keyof Match, sortOrder: 'asc' | 'desc' = 'desc') => {

@@ -1,13 +1,14 @@
 import { UserService } from './userService';
 import { MatchService } from './matchService';
 import { ChallengeService } from './challengeService';
+import type { ChallengeStatus, ChallengeInsert, ChallengeUpdate } from './challengeService';
+import * as Types from './types';
 
 // Export types
-export type { User, UserInsert, UserUpdate } from './userService';
-export type { Match, MatchInsert, MatchUpdate } from './matchService';
-export type { Challenge, ChallengeInsert, ChallengeUpdate, ChallengeStatus } from './challengeService'; 
+export * from './types';
+export type { ChallengeStatus, ChallengeInsert, ChallengeUpdate };
 
-// Create service instances
+// Export service instances
 export const userService = new UserService();
 export const matchService = new MatchService();
 export const challengeService = new ChallengeService();

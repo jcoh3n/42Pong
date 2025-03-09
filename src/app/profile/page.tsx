@@ -1,99 +1,74 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import React from 'react';
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-
-// Définir le type pour les données utilisateur
-interface UserData {
-  id: string;
-  login: string;
-  name: string | null;
-  email: string | null;
-  image: string | null;
-}
+import { Box, Container, Flex } from "@radix-ui/themes";
+import useUser from "@/hooks/users/useUser";
+import useUserMatches from "@/hooks/matches/useUserMatches";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import RankCard from "@/components/profile/RankCard";
+import StatsCard from "@/components/profile/StatsCard";
 
 export default function Profile() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
+  
+  // Récupérer l'ID de l'utilisateur depuis la session
+  const userId = session?.user?.login;
+  const { user: currentUser, isLoading: isLoadingUser } = useUser(userId);
+  const { matches, isLoading: isLoadingMatches } = useUserMatches(currentUser?.id);
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-
-    if (status === "authenticated") {
-      fetch("/api/user")
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to fetch user data");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setUserData(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-          setLoading(false);
-        });
-    }
-  }, [status, router]);
-
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/" });
-  };
-
-  if (status === "loading" || loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-6 w-6 border-2 border-gray-900 rounded-full border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  if (!session) {
+  // Redirect if not authenticated
+  if (status === "unauthenticated") {
+    router.push("/login");
     return null;
   }
 
-  return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="flex flex-col items-center gap-6">
-        {userData?.image && (
-          <div className="relative h-24 w-24 rounded-full overflow-hidden">
-            <Image
-              src={userData.image}
-              alt="Profile"
-              fill
-              className="object-cover"
-            />
-          </div>
-        )}
-        
-        <div className="text-center">
-          <h2 className="text-xl font-medium">{userData?.name}</h2>
-          <p className="text-gray-600">@{userData?.login}</p>
-        </div>
+  // Show loading state
+  if (status === "loading" || isLoadingUser || isLoadingMatches) {
+    return (
+      <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
+        <Container size="3" py="9">
+          <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
+            <div className="animate-spin h-6 w-6 border-2 border-gray-900 rounded-full border-t-transparent"></div>
+          </Flex>
+        </Container>
+      </Box>
+    );
+  }
 
-        <div className="flex gap-4">
-          <button
-            onClick={() => router.push("/")}
-            className="px-4 py-2 text-black bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
-          >
-            Home
-          </button>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-black bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    </div>
+  // Calculate stats
+  const totalMatches = matches?.length || 0;
+  const wins = matches?.filter(match => match.winner_id === currentUser?.id).length || 0;
+  const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+
+  const stats = {
+    totalMatches,
+    wins,
+    winRate
+  };
+
+  return (
+    <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
+      <Container size="3" py="9">
+        <Flex direction="column" gap="6">
+          {currentUser && (
+            <>
+              <ProfileHeader user={currentUser} />
+              
+              <Flex gap="4" wrap="wrap">
+                <Box style={{ flex: "1 1 300px" }}>
+                  <RankCard user={currentUser} />
+                </Box>
+                <Box style={{ flex: "1 1 300px" }}>
+                  <StatsCard user={currentUser} stats={stats} />
+                </Box>
+              </Flex>
+            </>
+          )}
+        </Flex>
+      </Container>
+    </Box>
   );
 } 
