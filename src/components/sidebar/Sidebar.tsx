@@ -56,9 +56,9 @@ export default function Sidebar() {
             href="/" 
           />
           <SidebarNavItem 
-            icon={<DashboardIcon width="20" height="20" />} 
-            label="Dashboard" 
-            href="/dashboard" 
+            icon={<PersonIcon width="20" height="20" />} 
+            label="Profile" 
+            href="/profile" 
             hasAddButton 
             onAddClick={() => console.log("Add dashboard")} 
           />
@@ -70,7 +70,7 @@ export default function Sidebar() {
             onAddClick={() => console.log("Add game")} 
           />
           <SidebarNavItem 
-            icon={<PersonIcon width="20" height="20" />} 
+            icon={<ListBulletIcon width="20" height="20" />} 
             label="Leaderboard" 
             href="/leaderboard" 
           />
