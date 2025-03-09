@@ -38,7 +38,7 @@ export default function PreferencesCard({
         </Flex>
 
         <Flex direction="column" gap="4">
-          <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-neutral-700 transition-colors">
             <Box>
               <Text as="div" size="2" weight="bold">
                 Notifications
@@ -54,7 +54,7 @@ export default function PreferencesCard({
             />
           </Flex>
 
-          <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-neutral-700 transition-colors">
             <Box>
               <Text as="div" size="2" weight="bold">
                 Theme
@@ -76,7 +76,7 @@ export default function PreferencesCard({
             </Select.Root>
           </Flex>
 
-          <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-neutral-700 transition-colors">
             <Box>
               <Text as="div" size="2" weight="bold">
                 Language
