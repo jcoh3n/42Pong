@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import { 
-  ChallengeService, 
-  ChallengeInsert, 
-  Challenge 
-} from '@/services/challengeService';
+  challengeService, 
+  Challenge,
+  ChallengeInsert
+} from '@/services';
 import useChallenges from './useChallenges';
-
-// Challenge service instance
-const challengeService = new ChallengeService();
 
 export default function useCreateChallenge() {
   const [isLoading, setIsLoading] = useState(false);

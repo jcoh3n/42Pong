@@ -1,10 +1,7 @@
 import useSWR from 'swr';
-import { MatchService, Match } from '@/services/matchService';
+import { matchService, Match } from '@/services';
 import { PaginatedResponse } from '@/services/userService';
 import { useState } from 'react';
-
-// Match service instance
-const matchService = new MatchService();
 
 export default function useMatches(options?: {
   page?: number;

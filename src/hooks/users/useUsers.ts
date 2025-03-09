@@ -1,9 +1,7 @@
 import useSWR from 'swr';
-import { UserService, User, PaginatedResponse } from '@/services/userService';
+import { userService, User } from '@/services';
+import { PaginatedResponse } from '@/services/userService';
 import { useState } from 'react';
-
-// User service instance
-const userService = new UserService();
 
 export default function useUsers(options?: {
   page?: number;
