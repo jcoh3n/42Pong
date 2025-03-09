@@ -1,24 +1,25 @@
 "use client";
 
 import useSWR from 'swr';
-import { userService, User } from '@/services';
-import { PaginatedResponse } from '@/services/userService';
+import { userService } from '@/services';
+import { PaginatedResponse, User } from '@/services/userService';
 import { useState } from 'react';
+import { FetchedUser } from '@/services/userService';
 
 export default function useUsers(options?: {
   page?: number;
   pageSize?: number;
-  sortBy?: keyof User;
+  sortBy?: keyof FetchedUser;
   sortOrder?: 'asc' | 'desc';
 }) {
   const [pagination, setPagination] = useState({
     page: options?.page || 1,
     pageSize: options?.pageSize || 10,
-    sortBy: options?.sortBy || 'created_at' as keyof User,
+    sortBy: options?.sortBy || 'elo_score' as keyof FetchedUser,
     sortOrder: options?.sortOrder || 'desc' as 'asc' | 'desc'
   });
 
-  const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<User>>(
+  const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<FetchedUser>>(
     [`/api/users`, pagination],
     () => userService.getAllUsers(pagination)
   );
@@ -31,7 +32,7 @@ export default function useUsers(options?: {
     setPagination(prev => ({ ...prev, pageSize, page: 1 })); // Reset to first page when changing page size
   };
 
-  const setSorting = (sortBy: keyof User, sortOrder: 'asc' | 'desc' = 'desc') => {
+  const setSorting = (sortBy: keyof FetchedUser, sortOrder: 'asc' | 'desc' = 'desc') => {
     setPagination(prev => ({ ...prev, sortBy, sortOrder }));
   };
 

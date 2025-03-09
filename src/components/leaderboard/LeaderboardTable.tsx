@@ -1,12 +1,12 @@
 import { Table, Text, Flex, Badge } from "@radix-ui/themes";
 import Image from "next/image";
-import { type User } from "@/services/userService";
+import { FetchedUser } from "@/services/userService";
 import { PositionChange } from "./PositionChange";
 import "./leaderboard.css"; // We'll create this CSS file
 
 interface LeaderboardData {
   position: number;
-  user: User;
+  user: FetchedUser;
   positionChange: number;
   changeClass: string;
 }
@@ -26,6 +26,9 @@ export function LeaderboardTable({ data }: LeaderboardTableProps) {
           <Table.ColumnHeaderCell>
             <Text size="2" weight="medium">Name</Text>
           </Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell>
+            <Text size="2" weight="medium">Wins</Text>
+          </Table.ColumnHeaderCell>
           <Table.ColumnHeaderCell align="right" width="120px">
             <Text size="2" weight="medium">ELO</Text>
           </Table.ColumnHeaderCell>
@@ -38,9 +41,9 @@ export function LeaderboardTable({ data }: LeaderboardTableProps) {
             className={`leaderboard-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`}
           >
             <Table.Cell>
-              <Flex align="center" gap="2">
+              <Flex align="center" gap="2" justify="center">
                 <Text size="2" weight="medium">{item.position}</Text>
-                <PositionChange change={item.positionChange} />
+                {/* <PositionChange change={item.positionChange} /> */}
               </Flex>
             </Table.Cell>
             <Table.Cell>
@@ -55,6 +58,11 @@ export function LeaderboardTable({ data }: LeaderboardTableProps) {
                 </div>
                 <Text size="2" weight="medium">{item.user.login}</Text>
               </Flex>
+            </Table.Cell>
+            <Table.Cell>
+              <Text size="2" color="gray">
+                {item.user.wins} wins
+              </Text>
             </Table.Cell>
             <Table.Cell align="right">
               <Badge variant="soft" color="gray" radius="full">

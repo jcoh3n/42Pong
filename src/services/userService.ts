@@ -15,6 +15,10 @@ export interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
+export type FetchedUser = User & {
+	wins: number;
+}
+
 export class UserService {
   private getClient() {
     return createClient<Database>();
@@ -23,9 +27,9 @@ export class UserService {
   async getAllUsers(options?: { 
     page?: number; 
     pageSize?: number; 
-    sortBy?: keyof User; 
+    sortBy?: keyof FetchedUser;
     sortOrder?: 'asc' | 'desc' 
-  }): Promise<PaginatedResponse<User>> {
+  }): Promise<PaginatedResponse<FetchedUser>> {
     const {
       page = 1,
       pageSize = 10,
@@ -40,7 +44,10 @@ export class UserService {
     // Create query with pagination
     let query = this.getClient()
       .from('Users')
-      .select('*', { count: 'exact' })
+      .select(`
+		*,
+		Matches!winner_id(count)
+	`, { count: 'estimated' })
       .order(sortBy, { ascending: sortOrder === 'asc' })
       .range(from, to);
 
@@ -54,7 +61,10 @@ export class UserService {
     const totalCount = count || 0;
     
     return {
-      data: data || [],
+      data: data?.map(user => ({
+        ...user,
+        wins: user.Matches[0]?.count || 0
+      })) || [],
       count: totalCount,
       page,
       pageSize,

@@ -35,10 +35,9 @@ export type Database = {
           created_at: string
           finished_at: string | null
           id: string
-          sets: number
-          user_1: string
+          user_1_id: string
           user_1_score: number
-          user_2: string
+          user_2_id: string
           user_2_score: number
           winner_id: string | null
         }
@@ -46,10 +45,9 @@ export type Database = {
           created_at?: string
           finished_at?: string | null
           id?: string
-          sets: number
-          user_1: string
+          user_1_id: string
           user_1_score?: number
-          user_2: string
+          user_2_id: string
           user_2_score?: number
           winner_id?: string | null
         }
@@ -57,24 +55,23 @@ export type Database = {
           created_at?: string
           finished_at?: string | null
           id?: string
-          sets?: number
-          user_1?: string
+          user_1_id?: string
           user_1_score?: number
-          user_2?: string
+          user_2_id?: string
           user_2_score?: number
           winner_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "Matches_user_1_fkey"
-            columns: ["user_1"]
+            columns: ["user_1_id"]
             isOneToOne: false
             referencedRelation: "Users"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "Matches_user_2_fkey"
-            columns: ["user_2"]
+            columns: ["user_2_id"]
             isOneToOne: false
             referencedRelation: "Users"
             referencedColumns: ["id"]
