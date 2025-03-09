@@ -1,12 +1,10 @@
-import { Table, Text, Flex, Badge } from "@radix-ui/themes";
-import Image from "next/image";
-import { FetchedUser } from "@/services/userService";
+import { Table, Text, Flex, Badge, Avatar, Box } from "@radix-ui/themes";
+import { type User } from "@/services/userService";
 import { PositionChange } from "./PositionChange";
-import "./leaderboard.css"; // We'll create this CSS file
 
 interface LeaderboardData {
   position: number;
-  user: FetchedUser;
+  user: User;
   positionChange: number;
   changeClass: string;
 }
@@ -17,19 +15,47 @@ interface LeaderboardTableProps {
 
 export function LeaderboardTable({ data }: LeaderboardTableProps) {
   return (
-    <Table.Root variant="surface" className="leaderboard-table">
+    <Table.Root 
+      size="2" 
+      style={{ 
+        width: '100%',
+        borderCollapse: 'separate',
+        borderSpacing: 0
+      }}
+    >
       <Table.Header>
         <Table.Row>
-          <Table.ColumnHeaderCell width="100px">
+          <Table.ColumnHeaderCell 
+            width="100px"
+            style={{
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              padding: '12px 16px',
+            }}
+          >
             <Text size="2" weight="medium">Position</Text>
           </Table.ColumnHeaderCell>
-          <Table.ColumnHeaderCell>
+          <Table.ColumnHeaderCell
+            style={{
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              padding: '12px 16px',
+            }}
+          >
             <Text size="2" weight="medium">Name</Text>
           </Table.ColumnHeaderCell>
-          <Table.ColumnHeaderCell>
-            <Text size="2" weight="medium">Wins</Text>
-          </Table.ColumnHeaderCell>
-          <Table.ColumnHeaderCell align="right" width="120px">
+          <Table.ColumnHeaderCell 
+            align="right" 
+            width="120px"
+            style={{
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              padding: '12px 16px',
+            }}
+          >
             <Text size="2" weight="medium">ELO</Text>
           </Table.ColumnHeaderCell>
         </Table.Row>
@@ -38,31 +64,26 @@ export function LeaderboardTable({ data }: LeaderboardTableProps) {
         {data.map((item, index) => (
           <Table.Row 
             key={item.user.id} 
-            className={`leaderboard-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`}
+            style={{
+              transition: 'background-color 0.2s',
+            }}
           >
             <Table.Cell>
-              <Flex align="center" gap="2" justify="center">
+              <Flex align="center" gap="2">
                 <Text size="2" weight="medium">{item.position}</Text>
-                {/* <PositionChange change={item.positionChange} /> */}
+                <PositionChange change={item.positionChange} />
               </Flex>
             </Table.Cell>
             <Table.Cell>
               <Flex align="center" gap="3">
-                <div className="relative w-8 h-8 overflow-hidden rounded-full">
-                  <Image
-                    src={item.user.avatar_url || "https://via.placeholder.com/40"}
-                    alt={`${item.user.login}'s avatar`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                <Avatar
+                  size="2"
+                  src={item.user.avatar_url || "https://via.placeholder.com/40"}
+                  fallback={item.user.login.substring(0, 2).toUpperCase()}
+                  radius="full"
+                />
                 <Text size="2" weight="medium">{item.user.login}</Text>
               </Flex>
-            </Table.Cell>
-            <Table.Cell>
-              <Text size="2" color="gray">
-                {item.user.wins} wins
-              </Text>
             </Table.Cell>
             <Table.Cell align="right">
               <Badge variant="soft" color="gray" radius="full">
