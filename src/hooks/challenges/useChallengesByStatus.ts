@@ -22,7 +22,7 @@ export default function useChallengesByStatus(status: ChallengeStatus | undefine
 
   const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Challenge>>(
     status ? [`/api/challenges/status/${status}`, pagination] : null,
-    () => status ? challengeService.getChallengesByStatus(status, pagination) : null
+    () => status ? challengeService.getChallengesByStatus(status, pagination) : challengeService.getAllChallenges(pagination)
   );
 
   const goToPage = (page: number) => {
