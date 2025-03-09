@@ -11,44 +11,45 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import RankCard from "@/components/profile/RankCard";
 import StatsCard from "@/components/profile/StatsCard";
 
+// Composant de chargement réutilisable
+const LoadingSpinner = () => (
+  <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
+    <Container size="3" py="9">
+      <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
+        <div className="animate-spin h-6 w-6 border-2 border-gray-900 rounded-full border-t-transparent" />
+      </Flex>
+    </Container>
+  </Box>
+);
+
+// Fonction utilitaire pour calculer les statistiques
+const calculateStats = (matches = [], userId?: string) => {
+  const totalMatches = matches.length;
+  const wins = matches.filter(match => match.winner_id === userId).length;
+  const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+
+  return { totalMatches, wins, winRate };
+};
+
 export default function Profile() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  
-  // Récupérer l'ID de l'utilisateur depuis la session
   const userId = session?.user?.login;
   const { user: currentUser, isLoading: isLoadingUser } = useUser(userId);
   const { matches, isLoading: isLoadingMatches } = useUserMatches(currentUser?.id);
 
-  // Redirect if not authenticated
+  // Redirection si non authentifié
   if (status === "unauthenticated") {
     router.push("/login");
     return null;
   }
 
-  // Show loading state
+  // Affichage du chargement
   if (status === "loading" || isLoadingUser || isLoadingMatches) {
-    return (
-      <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-        <Container size="3" py="9">
-          <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
-            <div className="animate-spin h-6 w-6 border-2 border-gray-900 rounded-full border-t-transparent"></div>
-          </Flex>
-        </Container>
-      </Box>
-    );
+    return <LoadingSpinner />;
   }
 
-  // Calculate stats
-  const totalMatches = matches?.length || 0;
-  const wins = matches?.filter(match => match.winner_id === currentUser?.id).length || 0;
-  const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
-
-  const stats = {
-    totalMatches,
-    wins,
-    winRate
-  };
+  const stats = calculateStats(matches, currentUser?.id);
 
   return (
     <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
@@ -66,7 +67,6 @@ export default function Profile() {
           {currentUser && (
             <>
               <ProfileHeader user={currentUser} />
-              
               <Flex gap="4" wrap="wrap">
                 <Box style={{ flex: "1 1 300px" }}>
                   <RankCard user={currentUser} />
