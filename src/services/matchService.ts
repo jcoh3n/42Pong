@@ -124,10 +124,18 @@ export class MatchService {
       // Combine and sort matches
       const allMatches = [...(user1Matches.data || []), ...(user2Matches.data || [])];
       const sortedMatches = allMatches.sort((a, b) => {
+        const aValue = a[sortBy];
+        const bValue = b[sortBy];
+        
+        // Handle null/undefined values
+        if (aValue == null && bValue == null) return 0;
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
+        
         if (sortOrder === 'asc') {
-          return a[sortBy] > b[sortBy] ? 1 : -1;
+          return aValue > bValue ? 1 : -1;
         }
-        return a[sortBy] < b[sortBy] ? 1 : -1;
+        return aValue < bValue ? 1 : -1;
       });
 
       // Apply pagination
