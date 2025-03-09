@@ -76,34 +76,6 @@ export default function LeaderboardPage() {
             <Flex direction="column" gap="5">
               <Flex justify="between" align="center" py="4" px="6">
                 <Heading size="5">Leaderboard</Heading>
-                
-                <Flex gap="3" align="center">
-                  <Select.Root value={timeFrame} onValueChange={setTimeFrame}>
-                    <Select.Trigger aria-label="Time frame" />
-                    <Select.Content>
-                      <Select.Item value="daily">Daily</Select.Item>
-                      <Select.Item value="weekly">Weekly</Select.Item>
-                      <Select.Item value="monthly">Monthly</Select.Item>
-                      <Select.Item value="all-time">All Time</Select.Item>
-                    </Select.Content>
-                  </Select.Root>
-                  
-                  <DateRangeSelector />
-                  
-                  <Flex>
-                    <Avatar
-                      src={users[0]?.avatar_url || ""}
-                      fallback={users[0]?.login?.substring(0, 2) || ""}
-                      size="1"
-                      radius="full"
-                    />
-                    {users.length > 1 && (
-                      <Badge size="1" variant="solid" style={{ marginLeft: -5 }}>
-                        +{users.length - 1}
-                      </Badge>
-                    )}
-                  </Flex>
-                </Flex>
               </Flex>
 
               <Box>
