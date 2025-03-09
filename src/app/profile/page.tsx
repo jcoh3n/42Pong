@@ -10,6 +10,7 @@ import useUserMatches from "@/hooks/matches/useUserMatches";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import RankCard from "@/components/profile/RankCard";
 import StatsCard from "@/components/profile/StatsCard";
+import useCurrentUser from '@/hooks/useCurrentUser';
 
 interface Match {
   winner_id: string | null;
@@ -36,10 +37,8 @@ const calculateStats = (matches: Match[] = [], userId?: string) => {
 };
 
 export default function Profile() {
-  const { data: session } = useSession();
+  const { data: currentUser, isLoading: isLoadingUser } = useCurrentUser();
   const router = useRouter();
-  const userId = session?.user?.login;
-  const { user: currentUser, isLoading: isLoadingUser } = useUser(userId);
   const { matches, isLoading: isLoadingMatches } = useUserMatches(currentUser?.id);
 
   // Affichage du chargement
@@ -75,6 +74,7 @@ export default function Profile() {
               </Flex>
             </>
           )}
+
         </Flex>
       </Container>
     </Box>

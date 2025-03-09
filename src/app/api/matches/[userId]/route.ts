@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth/auth-options";
 import { matchService } from "@/services";
+import serverAuth from "@/lib/auth/serverAuth";
 
 // Valid column names for sorting
 type SortByColumn = "id" | "user_1_id" | "user_2_id" | "winner_id" | "created_at" | "finished_at" | "user_1_score" | "user_2_score";
@@ -10,9 +11,9 @@ export async function GET(
   request: Request
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const currentUser = await serverAuth();
     
-    if (!session || !session.user) {
+    if (!currentUser) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
