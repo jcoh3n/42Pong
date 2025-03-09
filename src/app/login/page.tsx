@@ -29,9 +29,7 @@ function LoginContent() {
     setError(null);
     
     try {
-      await signIn("42-school", { 
-        callbackUrl: "/profile"
-      });
+      await signIn("42-school");
     } catch (error) {
       console.error("Erreur de connexion:", error);
       setError("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
