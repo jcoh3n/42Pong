@@ -1,10 +1,7 @@
 import { useState } from 'react';
-import { MatchService, MatchUpdate, Match } from '@/services/matchService';
+import { matchService, Match, MatchUpdate } from '@/services';
 import useMatches from './useMatches';
 import useMatch from './useMatch';
-
-// Match service instance
-const matchService = new MatchService();
 
 export default function useUpdateMatch(matchId?: string) {
   const [isLoading, setIsLoading] = useState(false);

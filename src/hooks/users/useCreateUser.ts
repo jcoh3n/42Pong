@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { UserService, UserInsert, User } from '@/services/userService';
+import { userService, User, UserInsert } from '@/services';
 import useUsers from './useUsers';
-
-// User service instance
-const userService = new UserService();
 
 export default function useCreateUser() {
   const [isLoading, setIsLoading] = useState(false);

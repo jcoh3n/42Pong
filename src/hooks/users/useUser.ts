@@ -1,8 +1,5 @@
 import useSWR from 'swr';
-import { UserService, User } from '@/services/userService';
-
-// User service instance
-const userService = new UserService();
+import { userService, User } from '@/services';
 
 export default function useUser(userId: string | undefined) {
   const { data, error, isLoading, mutate } = useSWR<User | null>(

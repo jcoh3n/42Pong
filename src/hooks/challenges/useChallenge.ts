@@ -1,8 +1,5 @@
 import useSWR from 'swr';
-import { ChallengeService, Challenge } from '@/services/challengeService';
-
-// Challenge service instance
-const challengeService = new ChallengeService();
+import { challengeService, Challenge } from '@/services';
 
 export default function useChallenge(challengeId: string | undefined) {
   const { data, error, isLoading, mutate } = useSWR<Challenge | null>(

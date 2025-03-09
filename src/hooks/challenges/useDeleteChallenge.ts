@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { ChallengeService } from '@/services/challengeService';
+import { challengeService } from '@/services';
 import useChallenges from './useChallenges';
-
-// Challenge service instance
-const challengeService = new ChallengeService();
 
 export default function useDeleteChallenge() {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +10,7 @@ export default function useDeleteChallenge() {
   const deleteChallenge = async (challengeId: string): Promise<boolean> => {
     setIsLoading(true);
     setError(null);
-
+    
     try {
       const result = await challengeService.deleteChallenge(challengeId);
       // Invalidate the challenges cache

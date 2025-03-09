@@ -1,10 +1,7 @@
 import useSWR from 'swr';
-import { ChallengeService, Challenge } from '@/services/challengeService';
+import { challengeService, Challenge } from '@/services';
 import { PaginatedResponse } from '@/services/userService';
 import { useState } from 'react';
-
-// Challenge service instance
-const challengeService = new ChallengeService();
 
 export default function useChallenges(options?: {
   page?: number;
