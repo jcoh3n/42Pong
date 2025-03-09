@@ -56,21 +56,21 @@ export default function Sidebar() {
             href="/" 
           />
           <SidebarNavItem 
-            icon={<DashboardIcon width="16" height="16" />} 
-            label="Dashboard" 
-            href="/dashboard" 
+            icon={<PersonIcon width="16" height="16" />} 
+            label="Profile" 
+            href="/profile" 
             hasAddButton 
             onAddClick={() => console.log("Add dashboard")} 
           />
           <SidebarNavItem 
             icon={<ListBulletIcon width="16" height="16" />} 
-            label="Games" 
-            href="/games" 
+            label="Games"
+            href="/games"
             hasAddButton 
             onAddClick={() => console.log("Add game")} 
           />
           <SidebarNavItem 
-            icon={<PersonIcon width="16" height="16" />} 
+            icon={<ListBulletIcon width="16" height="16" />} 
             label="Leaderboard" 
             href="/leaderboard" 
           />
