@@ -51,7 +51,7 @@ export default function Sidebar() {
           <SidebarNavItem 
             icon={<HomeIcon width="20" height="20" />} 
             label="Home" 
-            href="/" 
+            href="/"
           />
           <SidebarNavItem 
             icon={<PersonIcon width="20" height="20" />} 
