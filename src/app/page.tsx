@@ -1,65 +1,35 @@
 "use client";
 
-import Image from "next/image";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Sidebar from "@/components/sidebar/Sidebar";
-import { Flex } from "@radix-ui/themes";
+import { 
+  Box, 
+  Container, 
+  Flex, 
+  Text 
+} from "@radix-ui/themes";
 
-export default function Home() {
-  const { data: session, status } = useSession();
+export default function HomePage() {
+  const { status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (status === "authenticated") {
+      router.push("/game");
+    } else if (status === "unauthenticated") {
       router.push("/login");
     }
   }, [status, router]);
 
-  if (status === "loading") {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null; // Will redirect in the useEffect
-  }
-
+  // Page de chargement pendant la vérification de l'authentification
   return (
-	<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-		<main className="flex flex-col gap-8 row-start-2 items-center">
-			<h1 className="text-3xl font-bold">Welcome to 42Pong</h1>
-			
-			{session?.user?.image && (
-			<Image
-				src={session.user.image}
-				alt="User profile"
-				width={100}
-				height={100}
-				className="rounded-full"
-			/>
-			)}
-			
-			<div className="text-center">
-				<p className="text-xl mb-2">Hello, {session?.user?.name || "User"}!</p>
-				<p className="text-sm text-gray-600 mb-6">
-					{session?.user?.email || "No email available"}
-				</p>
-				
-				<div className="flex flex-col gap-4">
-					<button
-						onClick={() => signOut({ callbackUrl: "/login" })}
-						className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
-					>
-						Sign Out
-					</button>
-				</div>
-			</div>
-		</main>
-	</div>
+    <Box className="min-h-screen bg-gray-50">
+      <Container size="3" py="9">
+        <Flex align="center" justify="center" className="min-h-[70vh]">
+          <Text size="3">Loading...</Text>
+        </Flex>
+      </Container>
+    </Box>
   );
 }
