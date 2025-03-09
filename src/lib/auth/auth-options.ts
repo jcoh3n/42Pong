@@ -4,16 +4,15 @@ import { userService } from "@/services";
 import { v4 as uuidv4 } from 'uuid';
 
 // Types pour l'authentification
-declare module "next-auth/jwt" {
-  interface JWT {
-    accessToken?: string;
-    refreshToken?: string;
-    expiresAt?: number;
-    user?: FortyTwoUser;
-  }
-}
-
 declare module "next-auth" {
+  interface User {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    login: string;
+  }
+
   interface Session {
     accessToken?: string;
     user: {
@@ -23,6 +22,15 @@ declare module "next-auth" {
       image?: string | null;
       login?: string;
     };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: number;
+    user?: FortyTwoUser;
   }
 }
 
@@ -46,13 +54,13 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       try {
         // Vérifier si l'utilisateur existe déjà
-        const existingUser = await userService.getUserByLogin(user.login as string);
+        const existingUser = await userService.getUserByLogin(user.login);
         if (existingUser) return true;
 
         // Créer le nouvel utilisateur
         await userService.createUser({
           id: uuidv4(),
-          login: user.login as string,
+          login: user.login,
           avatar_url: user.image || "",
           elo_score: 1000,
         });
