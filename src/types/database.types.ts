@@ -12,20 +12,20 @@ export type Database = {
       Challenge: {
         Row: {
           created_at: string
-          created_by: string | null
-          id: number
+          created_by: string
+          id: string
           status: Database["public"]["Enums"]["challenge_status"]
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
-          id?: number
+          created_by?: string
+          id?: string
           status?: Database["public"]["Enums"]["challenge_status"]
         }
         Update: {
           created_at?: string
-          created_by?: string | null
-          id?: number
+          created_by?: string
+          id?: string
           status?: Database["public"]["Enums"]["challenge_status"]
         }
         Relationships: []
@@ -34,7 +34,7 @@ export type Database = {
         Row: {
           created_at: string
           finished_at: string | null
-          id: number
+          id: string
           sets: number
           user_1: string
           user_1_score: number
@@ -45,7 +45,7 @@ export type Database = {
         Insert: {
           created_at?: string
           finished_at?: string | null
-          id?: number
+          id?: string
           sets: number
           user_1: string
           user_1_score?: number
@@ -56,7 +56,7 @@ export type Database = {
         Update: {
           created_at?: string
           finished_at?: string | null
-          id?: number
+          id?: string
           sets?: number
           user_1?: string
           user_1_score?: number

@@ -2,26 +2,64 @@ import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 
 // Define user-specific types
-type User = Database['public']['Tables']['Users']['Row'];
-type UserInsert = Database['public']['Tables']['Users']['Insert'];
-type UserUpdate = Database['public']['Tables']['Users']['Update'];
+export type User = Database['public']['Tables']['Users']['Row'];
+export type UserInsert = Database['public']['Tables']['Users']['Insert'];
+export type UserUpdate = Database['public']['Tables']['Users']['Update'];
+
+// Define pagination response type
+export interface PaginatedResponse<T> {
+  data: T[];
+  count: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
 
 export class UserService {
   private getClient() {
     return createClient<Database>();
   }
 
-  async getAllUsers(): Promise<User[]> {
-    const { data, error } = await this.getClient()
+  async getAllUsers(options?: { 
+    page?: number; 
+    pageSize?: number; 
+    sortBy?: keyof User; 
+    sortOrder?: 'asc' | 'desc' 
+  }): Promise<PaginatedResponse<User>> {
+    const {
+      page = 1,
+      pageSize = 10,
+      sortBy = 'created_at',
+      sortOrder = 'desc'
+    } = options || {};
+
+    // Calculate offset based on page and pageSize
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    // Create query with pagination
+    let query = this.getClient()
       .from('Users')
-      .select('*');
+      .select('*', { count: 'exact' })
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .range(from, to);
+
+    const { data, error, count } = await query;
 
     if (error) {
       console.error('Error fetching all users:', error);
       throw error;
     }
 
-    return data;
+    const totalCount = count || 0;
+    
+    return {
+      data: data || [],
+      count: totalCount,
+      page,
+      pageSize,
+      hasMore: from + data.length < totalCount
+    };
   }
 
   async getUserById(id: string): Promise<User | null> {
@@ -58,6 +96,43 @@ export class UserService {
     }
 
     return data;
+  }
+
+  async searchUsers(searchTerm: string, options?: {
+    page?: number;
+    pageSize?: number;
+  }): Promise<PaginatedResponse<User>> {
+    const {
+      page = 1,
+      pageSize = 10
+    } = options || {};
+
+    // Calculate offset based on page and pageSize
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    // Create query with pagination and search
+    const { data, error, count } = await this.getClient()
+      .from('Users')
+      .select('*', { count: 'exact' })
+      .or(`login.ilike.%${searchTerm}%`)
+      .order('elo_score', { ascending: false })
+      .range(from, to);
+
+    if (error) {
+      console.error('Error searching users:', error);
+      throw error;
+    }
+
+    const totalCount = count || 0;
+    
+    return {
+      data: data || [],
+      count: totalCount,
+      page,
+      pageSize,
+      hasMore: from + data.length < totalCount
+    };
   }
 
   async createUser(user: UserInsert): Promise<User> {

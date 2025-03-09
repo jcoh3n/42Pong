@@ -1,30 +1,69 @@
 import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
+import { PaginatedResponse } from "./userService";
 
 // Define match-specific types
-type Match = Database['public']['Tables']['Matches']['Row'];
-type MatchInsert = Database['public']['Tables']['Matches']['Insert'];
-type MatchUpdate = Database['public']['Tables']['Matches']['Update'];
+export type Match = Database['public']['Tables']['Matches']['Row'];
+export type MatchInsert = Database['public']['Tables']['Matches']['Insert'];
+export type MatchUpdate = Database['public']['Tables']['Matches']['Update'];
 
 export class MatchService {
   private getClient() {
     return createClient<Database>();
   }
 
-  async getAllMatches(): Promise<Match[]> {
-    const { data, error } = await this.getClient()
+  async getAllMatches(options?: { 
+    page?: number; 
+    pageSize?: number; 
+    sortBy?: keyof Match;
+    sortOrder?: 'asc' | 'desc';
+    onlyCompleted?: boolean;
+  }): Promise<PaginatedResponse<Match>> {
+    const {
+      page = 1,
+      pageSize = 10,
+      sortBy = 'created_at',
+      sortOrder = 'desc',
+      onlyCompleted = false
+    } = options || {};
+
+    // Calculate offset based on page and pageSize
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    // Create query with pagination
+    let query = this.getClient()
       .from('Matches')
-      .select('*');
+      .select('*', { count: 'exact' });
+      
+    // Add filters and ordering
+    if (onlyCompleted) {
+      query = query.not('finished_at', 'is', null);
+    }
+    
+    query = query
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .range(from, to);
+
+    const { data, error, count } = await query;
 
     if (error) {
       console.error('Error fetching all matches:', error);
       throw error;
     }
 
-    return data;
+    const totalCount = count || 0;
+    
+    return {
+      data: data || [],
+      count: totalCount,
+      page,
+      pageSize,
+      hasMore: from + data.length < totalCount
+    };
   }
 
-  async getMatchById(id: number): Promise<Match | null> {
+  async getMatchById(id: string): Promise<Match | null> {
     const { data, error } = await this.getClient()
       .from('Matches')
       .select('*')
@@ -42,32 +81,86 @@ export class MatchService {
     return data;
   }
 
-  async getMatchesByUserId(userId: string): Promise<Match[]> {
-    const { data, error } = await this.getClient()
+  async getMatchesByUserId(userId: string, options?: {
+    page?: number;
+    pageSize?: number;
+    sortBy?: keyof Match;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<PaginatedResponse<Match>> {
+    const {
+      page = 1,
+      pageSize = 10,
+      sortBy = 'created_at',
+      sortOrder = 'desc'
+    } = options || {};
+
+    // Calculate offset based on page and pageSize
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    // Create query with pagination
+    const { data, error, count } = await this.getClient()
       .from('Matches')
-      .select('*')
-      .or(`user_1.eq.${userId},user_2.eq.${userId}`);
+      .select('*', { count: 'exact' })
+      .or(`user_1.eq.${userId},user_2.eq.${userId}`)
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .range(from, to);
 
     if (error) {
       console.error(`Error fetching matches for user ${userId}:`, error);
       throw error;
     }
 
-    return data;
+    const totalCount = count || 0;
+    
+    return {
+      data: data || [],
+      count: totalCount,
+      page,
+      pageSize,
+      hasMore: from + data.length < totalCount
+    };
   }
 
-  async getMatchesWonByUserId(userId: string): Promise<Match[]> {
-    const { data, error } = await this.getClient()
+  async getMatchesWonByUserId(userId: string, options?: {
+    page?: number;
+    pageSize?: number;
+    sortBy?: keyof Match;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<PaginatedResponse<Match>> {
+    const {
+      page = 1,
+      pageSize = 10,
+      sortBy = 'created_at',
+      sortOrder = 'desc'
+    } = options || {};
+
+    // Calculate offset based on page and pageSize
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    // Create query with pagination
+    const { data, error, count } = await this.getClient()
       .from('Matches')
-      .select('*')
-      .eq('winner_id', userId);
+      .select('*', { count: 'exact' })
+      .eq('winner_id', userId)
+      .order(sortBy, { ascending: sortOrder === 'asc' })
+      .range(from, to);
 
     if (error) {
       console.error(`Error fetching matches won by user ${userId}:`, error);
       throw error;
     }
 
-    return data;
+    const totalCount = count || 0;
+    
+    return {
+      data: data || [],
+      count: totalCount,
+      page,
+      pageSize,
+      hasMore: from + data.length < totalCount
+    };
   }
 
   async createMatch(match: MatchInsert): Promise<Match> {
@@ -85,7 +178,7 @@ export class MatchService {
     return data;
   }
 
-  async updateMatch(id: number, updates: MatchUpdate): Promise<Match> {
+  async updateMatch(id: string, updates: MatchUpdate): Promise<Match> {
     const { data, error } = await this.getClient()
       .from('Matches')
       .update(updates)
@@ -101,14 +194,14 @@ export class MatchService {
     return data;
   }
 
-  async updateScores(id: number, user1Score: number, user2Score: number): Promise<Match> {
+  async updateScores(id: string, user1Score: number, user2Score: number): Promise<Match> {
     return this.updateMatch(id, { 
       user_1_score: user1Score, 
       user_2_score: user2Score 
     });
   }
 
-  async finishMatch(id: number, winnerId: string): Promise<Match> {
+  async finishMatch(id: string, winnerId: string): Promise<Match> {
     const finished_at = new Date().toISOString();
     return this.updateMatch(id, { 
       finished_at, 
@@ -116,7 +209,7 @@ export class MatchService {
     });
   }
 
-  async deleteMatch(id: number): Promise<boolean> {
+  async deleteMatch(id: string): Promise<boolean> {
     const { error } = await this.getClient()
       .from('Matches')
       .delete()

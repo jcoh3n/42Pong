@@ -10,4 +10,9 @@ export const challengeService = new ChallengeService();
 // Export service classes for direct usage if needed
 export { UserService } from './userService';
 export { MatchService } from './matchService';
-export { ChallengeService } from './challengeService'; 
+export { ChallengeService } from './challengeService';
+
+// Export types
+export type { User, UserInsert, UserUpdate } from './userService';
+export type { Match, MatchInsert, MatchUpdate } from './matchService';
+export type { Challenge, ChallengeInsert, ChallengeUpdate, ChallengeStatus } from './challengeService'; 
