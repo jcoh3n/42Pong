@@ -3,11 +3,9 @@
 import { Box, Flex, Separator, Text } from "@radix-ui/themes";
 import { 
   HomeIcon, 
-  DashboardIcon, 
   ListBulletIcon,
   PersonIcon,
   GearIcon,
-  InfoCircledIcon,
   ExitIcon
 } from "@radix-ui/react-icons";
 import { SidebarNavItem } from "./SidebarNavItem";
@@ -59,15 +57,11 @@ export default function Sidebar() {
             icon={<PersonIcon width="20" height="20" />} 
             label="Profile" 
             href="/profile" 
-            hasAddButton 
-            onAddClick={() => console.log("Add dashboard")} 
           />
           <SidebarNavItem 
             icon={<ListBulletIcon width="20" height="20" />} 
             label="Games" 
             href="/games" 
-            hasAddButton 
-            onAddClick={() => console.log("Add game")} 
           />
           <SidebarNavItem 
             icon={<ListBulletIcon width="20" height="20" />} 
@@ -86,11 +80,6 @@ export default function Sidebar() {
       <Box py="3">
         <Separator size="4" mb="3" />
         <Flex direction="column" gap="2">
-          <SidebarNavItem 
-            icon={<InfoCircledIcon width="20" height="20" />} 
-            label="Help & Information" 
-            href="/help" 
-          />
           <SidebarNavItem 
             icon={<ExitIcon width="20" height="20" />} 
             label="Log out" 
