@@ -1,28 +1,28 @@
-"use client";
+"USE CLIENT";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { 
-  Box, 
-  Container, 
-  Flex, 
-  Text 
-} from "@radix-ui/themes";
+IMPORT { USESESSION } FROM "NEXT-AUTH/REACT";
+IMPORT { USEROUTER } FROM "NEXT/NAVIGATION";
+IMPORT { USEEFFECT } FROM "REACT";
+IMPORT { 
+  BOX, 
+  CONTAINER, 
+  FLEX, 
+  TEXT 
+} FROM "@RADIX-UI/THEMES";
 
-export default function HomePage() {
-  const { status } = useSession();
-  const router = useRouter();
+EXPORT DEFAULT FUNCTION HOMEPAGE() {
+  CONST { STATUS } = USESESSION();
+  CONST ROUTER = USEROUTER();
 
   
 
-  return (
-    <Box className="min-h-screen">
-      <Container size="3" py="9">
-        <Flex align="center" justify="center" className="min-h-[70vh]">
-          <Text size="3">Loading...</Text>
-        </Flex>
-      </Container>
-    </Box>
+  RETURN (
+    <BOX CLASSNAME="MIN-H-SCREEN">
+      <CONTAINER SIZE="3" PY="9">
+        <FLEX ALIGN="CENTER" JUSTIFY="CENTER" CLASSNAME="MIN-H-[70VH]">
+          <TEXT SIZE="3">LOADING...</TEXT>
+        </FLEX>
+      </CONTAINER>
+    </BOX>
   );
 }
