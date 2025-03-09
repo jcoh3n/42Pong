@@ -51,60 +51,49 @@ export default function Profile() {
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent"></div>
+        <div className="animate-spin h-6 w-6 border-2 border-gray-900 rounded-full border-t-transparent"></div>
       </div>
     );
   }
 
   if (!session) {
-    return null; // Will redirect in the useEffect
+    return null;
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8">Votre Profil</h1>
-
-      {userData ? (
-        <div className="bg-white shadow-md rounded-lg p-8 max-w-md w-full">
-          {userData.image && (
-            <div className="flex justify-center mb-6">
-              <Image
-                src={userData.image}
-                alt="Profile"
-                width={120}
-                height={120}
-                className="rounded-full"
-              />
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold">{userData.name}</h2>
-              <p className="text-gray-600">@{userData.login}</p>
-              <p className="text-gray-600">{userData.email}</p>
-            </div>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center gap-6">
+        {userData?.image && (
+          <div className="relative h-24 w-24 rounded-full overflow-hidden">
+            <Image
+              src={userData.image}
+              alt="Profile"
+              fill
+              className="object-cover"
+            />
           </div>
-
-          <div className="mt-8 space-y-4">
-            <button
-              onClick={() => router.push("/")}
-              className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors"
-            >
-              Retour à l'accueil
-            </button>
-            
-            <button
-              onClick={handleLogout}
-              className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-colors"
-            >
-              Se déconnecter
-            </button>
-          </div>
+        )}
+        
+        <div className="text-center">
+          <h2 className="text-xl font-medium">{userData?.name}</h2>
+          <p className="text-gray-600">@{userData?.login}</p>
         </div>
-      ) : (
-        <p>Impossible de charger les données utilisateur</p>
-      )}
+
+        <div className="flex gap-4">
+          <button
+            onClick={() => router.push("/")}
+            className="px-4 py-2 text-black bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
+          >
+            Home
+          </button>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 text-black bg-white border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors shadow-sm"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
     </div>
   );
 } 

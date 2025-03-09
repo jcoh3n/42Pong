@@ -40,29 +40,30 @@ function LoginContent() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-md">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold">Bienvenue sur 42Pong</h1>
-          <p className="mt-2 text-gray-600">Connectez-vous pour continuer</p>
-        </div>
-        
-        {error && (
-          <div className="p-4 mt-4 text-red-700 bg-red-100 border border-red-400 rounded-md">
-            {error}
-          </div>
+    <div className="flex items-center justify-center min-h-screen">
+      <button
+        onClick={handleLogin}
+        disabled={isLoading}
+        className="flex items-center gap-3 bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-70 border border-gray-200 shadow-sm"
+      >
+        {isLoading ? (
+          "Connexion en cours..."
+        ) : (
+          <>
+            Login with
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/8/8d/42_Logo.svg"
+              alt="42 Logo"
+              className="h-6 w-6"
+            />
+          </>
         )}
-        
-        <div className="mt-8">
-          <button
-            onClick={handleLogin}
-            disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-70"
-          >
-            {isLoading ? "Connexion en cours..." : "Se connecter avec 42"}
-          </button>
+      </button>
+      {error && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 p-4 text-red-700 bg-red-100 border border-red-400 rounded-md">
+          {error}
         </div>
-      </div>
+      )}
     </div>
   );
 }
