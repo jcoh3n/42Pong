@@ -57,6 +57,13 @@ export default function Home() {
             </button>
             
             <button
+              onClick={() => router.push("/leaderboard")}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+            >
+              Leaderboard
+            </button>
+            
+            <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
             >
