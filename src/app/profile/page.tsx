@@ -36,20 +36,14 @@ const calculateStats = (matches: Match[] = [], userId?: string) => {
 };
 
 export default function Profile() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const userId = session?.user?.login;
   const { user: currentUser, isLoading: isLoadingUser } = useUser(userId);
   const { matches, isLoading: isLoadingMatches } = useUserMatches(currentUser?.id);
 
-  // Redirection si non authentifié
-  if (status === "unauthenticated") {
-    router.push("/login");
-    return null;
-  }
-
   // Affichage du chargement
-  if (status === "loading" || isLoadingUser || isLoadingMatches) {
+  if (isLoadingUser || isLoadingMatches) {
     return <LoadingSpinner />;
   }
 

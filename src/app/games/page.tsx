@@ -1,7 +1,5 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { 
   Box, 
   Container, 
@@ -13,26 +11,6 @@ import {
 } from "@radix-ui/themes";
 
 export default function GamePage() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  if (status === "loading") {
-    return (
-      <Box className="min-h-screen bg-gray-50">
-        <Container size="3" py="9">
-          <Flex align="center" justify="center" className="min-h-[70vh]">
-            <Text size="3">Loading...</Text>
-          </Flex>
-        </Container>
-      </Box>
-    );
-  }
-
-  if (status === "unauthenticated") {
-    router.push("/login");
-    return null;
-  }
-
   return (
     <Box className="min-h-screen">
       <Container size="3" py="9">
