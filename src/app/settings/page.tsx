@@ -7,14 +7,13 @@ import {
   Box, 
   Container, 
   Heading, 
-  Card, 
   Flex, 
   Text,
-  Switch,
-  Select,
-  Button,
+  Separator,
 } from "@radix-ui/themes";
 import { userService } from "@/services";
+import PreferencesCard from "./components/preferences_card";
+import AccountCard from "./components/account_card";
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
@@ -64,11 +63,26 @@ export default function SettingsPage() {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (session?.user?.email) {
+      const login = session.user.email.split('@')[0];
+      const user = await userService.getUserByLogin(login);
+      if (user) {
+        try {
+          await userService.deleteUser(user.id);
+          router.push('/login');
+        } catch (error) {
+          console.error('Error deleting account:', error);
+        }
+      }
+    }
+  };
+
   if (status === "loading") {
     return (
-      <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
+      <Box className="min-h-screen bg-gray-50">
         <Container size="3" py="9">
-          <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
+          <Flex align="center" justify="center" className="min-h-[70vh]">
             <Text size="3">Loading...</Text>
           </Flex>
         </Container>
@@ -82,100 +96,25 @@ export default function SettingsPage() {
   }
 
   return (
-    <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
+    <Box className="min-h-screen bg-gray-50">
       <Container size="3" py="9">
         <Flex direction="column" gap="6">
-          <Heading size="6">Settings</Heading>
+          <div className="space-y-1">
+            <Heading size="6">Settings</Heading>
+            <Text size="2" color="gray">
+              Manage your account settings and preferences
+            </Text>
+          </div>
 
-          <Card size="2">
-            <Flex direction="column" gap="5" p="5">
-              <Heading size="3">Preferences</Heading>
+          <Separator size="4" />
 
-              <Flex justify="between" align="center">
-                <Box>
-                  <Text as="div" size="2" weight="bold">
-                    Notifications
-                  </Text>
-                  <Text as="div" size="2" color="gray">
-                    Receive game and challenge notifications
-                  </Text>
-                </Box>
-                <Switch 
-                  checked={preferences.notifications} 
-                  onCheckedChange={(checked) => handlePreferenceChange('notifications', checked)}
-                />
-              </Flex>
+          <PreferencesCard 
+            preferences={preferences}
+            onPreferenceChange={handlePreferenceChange}
+            isSaving={isSaving}
+          />
 
-              <Flex justify="between" align="center">
-                <Box>
-                  <Text as="div" size="2" weight="bold">
-                    Theme
-                  </Text>
-                  <Text as="div" size="2" color="gray">
-                    Choose your preferred theme
-                  </Text>
-                </Box>
-                <Select.Root 
-                  value={preferences.theme} 
-                  onValueChange={(value) => handlePreferenceChange('theme', value)}
-                >
-                  <Select.Trigger />
-                  <Select.Content>
-                    <Select.Item value="system">System</Select.Item>
-                    <Select.Item value="light">Light</Select.Item>
-                    <Select.Item value="dark">Dark</Select.Item>
-                  </Select.Content>
-                </Select.Root>
-              </Flex>
-
-              <Flex justify="between" align="center">
-                <Box>
-                  <Text as="div" size="2" weight="bold">
-                    Language
-                  </Text>
-                  <Text as="div" size="2" color="gray">
-                    Select your preferred language
-                  </Text>
-                </Box>
-                <Select.Root 
-                  value={preferences.language} 
-                  onValueChange={(value) => handlePreferenceChange('language', value)}
-                >
-                  <Select.Trigger />
-                  <Select.Content>
-                    <Select.Item value="en">English</Select.Item>
-                    <Select.Item value="fr">Français</Select.Item>
-                  </Select.Content>
-                </Select.Root>
-              </Flex>
-
-              {isSaving && (
-                <Text size="2" color="gray" align="center">
-                  Saving changes...
-                </Text>
-              )}
-            </Flex>
-          </Card>
-
-          <Card size="2">
-            <Flex direction="column" gap="5" p="5">
-              <Heading size="3">Account</Heading>
-
-              <Flex justify="between" align="center">
-                <Box>
-                  <Text as="div" size="2" weight="bold">
-                    Delete Account
-                  </Text>
-                  <Text as="div" size="2" color="gray">
-                    Permanently delete your account and all data
-                  </Text>
-                </Box>
-                <Button color="red" variant="soft">
-                  Delete Account
-                </Button>
-              </Flex>
-            </Flex>
-          </Card>
+          <AccountCard onDeleteAccount={handleDeleteAccount} />
         </Flex>
       </Container>
     </Box>
