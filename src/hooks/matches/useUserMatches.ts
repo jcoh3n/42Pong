@@ -13,7 +13,7 @@ export default function useUserMatches(userId: string | undefined, options?: {
     page: options?.page || 1,
     pageSize: options?.pageSize || 10,
     sortBy: options?.sortBy || 'created_at' as keyof Match,
-    sortOrder: options?.sortOrder || 'desc' as 'asc' | 'desc'
+    sortOrder: options?.sortOrder || 'asc' as 'asc' | 'desc'
   });
 
   const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Match>>(

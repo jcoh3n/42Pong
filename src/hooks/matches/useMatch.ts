@@ -13,4 +13,4 @@ export default function useMatch(matchId: string | undefined) {
     error,
     mutate
   };
-} 
+}

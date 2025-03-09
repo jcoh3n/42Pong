@@ -12,7 +12,7 @@ interface ProtectedProps {
 }
 
 const Protected: React.FC<ProtectedProps> = ({ children }) => {
-  const { data: currentUser, isLoading } = useCurrentUser();
+  const { data: currentUser, isLoading, error } = useCurrentUser();
 
   if (isLoading) {
     return (
@@ -20,6 +20,18 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
         <Container size="3" py="9">
           <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
             <Text size="3">Loading...</Text>
+          </Flex>
+        </Container>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
+        <Container size="3" py="9">
+          <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
+            <Text size="3">Error: {error?.message}</Text>
           </Flex>
         </Container>
       </Box>
