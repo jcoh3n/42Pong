@@ -72,7 +72,7 @@ export default function LeaderboardPage() {
     <DashboardLayout>
       <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
         <Container size="3" py="9">
-          <Card size="2">
+          <Card size="2" style={{ width: '100%', height: '100%' }}>
             <Flex direction="column" gap="5">
               <Flex justify="between" align="center" py="4" px="6">
                 <Heading size="5">Leaderboard</Heading>
