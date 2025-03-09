@@ -1,6 +1,9 @@
-import type { OAuthConfig } from "next-auth/providers/oauth";
+import type { OAuthConfig, OAuthUserConfig } from "next-auth/providers/oauth";
 
-export function FortyTwoProvider(): OAuthConfig<any> {
+export function FortyTwoProvider(options?: Partial<OAuthUserConfig<any>>): OAuthConfig<any> {
+  // Utiliser FT_REDIRECT_URI s'il est défini, sinon utiliser NEXTAUTH_URL
+  const redirectUri = process.env.FT_REDIRECT_URI || `${process.env.NEXTAUTH_URL}/api/auth/callback/42-school`;
+  
   return {
     id: "42-school",
     name: "42",
@@ -9,28 +12,30 @@ export function FortyTwoProvider(): OAuthConfig<any> {
       url: "https://api.intra.42.fr/oauth/authorize",
       params: { 
         scope: "public",
-        client_id: process.env.NEXT_PUBLIC_42_CLIENT_ID,
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/42-school`
+        response_type: "code"
       }
     },
     token: {
       url: "https://api.intra.42.fr/oauth/token",
-      params: {
-        client_id: process.env.NEXT_PUBLIC_42_CLIENT_ID,
-        client_secret: process.env.FORTYTWO_CLIENT_SECRET,
-        redirect_uri: `${process.env.NEXTAUTH_URL}/api/auth/callback/42-school`
+      params: { 
+        grant_type: "authorization_code"
       }
     },
-    userinfo: "https://api.intra.42.fr/v2/me",
+    userinfo: {
+      url: "https://api.intra.42.fr/v2/me"
+    },
     clientId: process.env.NEXT_PUBLIC_42_CLIENT_ID,
     clientSecret: process.env.FORTYTWO_CLIENT_SECRET,
     profile(profile) {
+      // Simplification du profil pour ne garder que l'essentiel
       return {
         id: profile.id.toString(),
         name: profile.displayname || profile.login,
         email: profile.email,
-        image: profile.image?.link
+        image: profile.image?.link,
+        login: profile.login
       };
-    }
+    },
+    ...options
   };
 } 

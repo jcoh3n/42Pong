@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -35,10 +35,14 @@ export default function Profile() {
     }
   }, [status, router]);
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
+
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
+        <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent"></div>
       </div>
     );
   }
@@ -49,7 +53,7 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-8">Your Profile</h1>
+      <h1 className="text-3xl font-bold mb-8">Votre Profil</h1>
 
       {userData ? (
         <div className="bg-white shadow-md rounded-lg p-8 max-w-md w-full">
@@ -66,39 +70,31 @@ export default function Profile() {
           )}
 
           <div className="space-y-4">
-            <div>
-              <h2 className="text-xl font-semibold">{userData.displayname || userData.login}</h2>
+            <div className="text-center">
+              <h2 className="text-xl font-semibold">{userData.name}</h2>
+              <p className="text-gray-600">@{userData.login}</p>
               <p className="text-gray-600">{userData.email}</p>
             </div>
-
-            {userData.campus && (
-              <div>
-                <h3 className="font-medium">Campus</h3>
-                <p>{userData.campus[0]?.name || "Unknown"}</p>
-              </div>
-            )}
-
-            {userData.cursus_users && (
-              <div>
-                <h3 className="font-medium">Level</h3>
-                <p>
-                  {userData.cursus_users[0]?.level.toFixed(2) || "Unknown"}
-                </p>
-              </div>
-            )}
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 space-y-4">
             <button
               onClick={() => router.push("/")}
               className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors"
             >
-              Back to Home
+              Retour à l'accueil
+            </button>
+            
+            <button
+              onClick={handleLogout}
+              className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-colors"
+            >
+              Se déconnecter
             </button>
           </div>
         </div>
       ) : (
-        <p>Failed to load user data</p>
+        <p>Impossible de charger les données utilisateur</p>
       )}
     </div>
   );
