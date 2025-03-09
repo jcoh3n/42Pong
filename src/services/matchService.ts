@@ -103,13 +103,13 @@ export class MatchService {
       const user1Matches = await this.getClient()
         .from('Matches')
         .select('*')
-        .eq('user_1', userId);
+        .eq('user_1_id', userId);
 
       // Get matches where user is player 2
       const user2Matches = await this.getClient()
         .from('Matches')
         .select('*')
-        .eq('user_2', userId);
+        .eq('user_2_id', userId);
 
       if (user1Matches.error) {
         console.error(`Error fetching user1 matches for user ${userId}:`, user1Matches.error);
