@@ -59,4 +59,4 @@ export default function useUserMatches(userId: string | undefined, options?: {
     setPageSize,
     setSorting
   };
-} 
+}
