@@ -5,10 +5,19 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
+// Définir le type pour les données utilisateur
+interface UserData {
+  id: string;
+  login: string;
+  name: string | null;
+  email: string | null;
+  image: string | null;
+}
+
 export default function Profile() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

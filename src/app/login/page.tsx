@@ -1,10 +1,11 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function Login() {
+// Client component that uses useSearchParams
+function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
@@ -63,5 +64,28 @@ export default function Login() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading fallback for Suspense
+function LoginLoading() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-8">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-md">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Bienvenue sur 42Pong</h1>
+          <p className="mt-2 text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function Login() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginContent />
+    </Suspense>
   );
 } 

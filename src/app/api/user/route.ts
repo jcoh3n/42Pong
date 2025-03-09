@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
-import { get42UserData } from "@/utils/api";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth/auth-options";
 
 export async function GET() {
   try {
@@ -14,8 +13,8 @@ export async function GET() {
     // Utiliser directement les données de session au lieu de faire un appel API supplémentaire
     // Cela évite de surcharger l'API 42 avec des requêtes inutiles
     const userData = {
-      id: session.user.id,
-      login: session.user.login,
+      id: (session.user as any).id,
+      login: (session.user as any).login,
       name: session.user.name,
       email: session.user.email,
       image: session.user.image
