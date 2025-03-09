@@ -24,16 +24,9 @@ export default function RootLayout({
             <Protected>
 				<Flex style={{ width: '100%', height: '100vh' }}>
 					<Sidebar />
-					<Box style={{ 
-						flex: 1, 
-						display: 'flex', 
-						justifyContent: 'center', 
-						alignItems: 'center',
-						padding: '20px',
-						overflow: 'auto'
-					}}>
+					<div style={{ flex: 1, padding: '20px', width: '100%', height: '100%' }}>
 						{children}
-					</Box>
+					</div>
 				</Flex>
 			</Protected>
           </Theme>
