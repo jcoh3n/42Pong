@@ -12,7 +12,7 @@ import RankCard from "@/components/profile/RankCard";
 import StatsCard from "@/components/profile/StatsCard";
 
 interface Match {
-  winner_id: string;
+  winner_id: string | null;
 }
 
 // Composant de chargement réutilisable
