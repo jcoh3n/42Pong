@@ -1,6 +1,6 @@
 import { Flex, Text, Box } from "@radix-ui/themes";
 import Link from "next/link";
-// import { usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 interface SidebarNavItemProps {
@@ -18,9 +18,8 @@ export function SidebarNavItem({
   hasAddButton, 
   onAddClick 
 }: SidebarNavItemProps) {
-//   const pathname = usePathname();
-//   const isActive = pathname === href;
-  const isActive = false;
+  const pathname = usePathname();
+  const isActive = pathname === href;
   
   return (
     <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
