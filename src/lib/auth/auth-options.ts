@@ -1,37 +1,32 @@
 import type { NextAuthOptions } from "next-auth";
 import { FortyTwoProvider } from "./42-provider";
+import { userService } from "@/services";
+import { v4 as uuidv4 } from 'uuid';
 
-// Étendre le type JWT pour inclure les propriétés personnalisées
+// Types pour l'authentification
 declare module "next-auth/jwt" {
   interface JWT {
     accessToken?: string;
     refreshToken?: string;
     expiresAt?: number;
-    user?: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      login: string;
-    };
+    user?: FortyTwoUser;
   }
 }
 
-// Étendre le type Session pour inclure les propriétés personnalisées
 declare module "next-auth" {
   interface Session {
     accessToken?: string;
     user: {
+      id?: string;
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      id?: string;
       login?: string;
     };
   }
 }
 
-// Définir le type pour l'utilisateur 42
+// Type pour l'utilisateur 42
 interface FortyTwoUser {
   id: string;
   name?: string | null;
@@ -41,44 +36,56 @@ interface FortyTwoUser {
 }
 
 export const authOptions: NextAuthOptions = {
-  providers: [
-    FortyTwoProvider()
-  ],
+  providers: [FortyTwoProvider()],
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
     error: "/auth/error",
   },
   callbacks: {
+    async signIn({ user }) {
+      try {
+        // Vérifier si l'utilisateur existe déjà
+        const existingUser = await userService.getUserByLogin(user.login as string);
+        if (existingUser) return true;
+
+        // Créer le nouvel utilisateur
+        await userService.createUser({
+          id: uuidv4(),
+          login: user.login as string,
+          avatar_url: user.image || "",
+          elo_score: 1000,
+        });
+
+        return true;
+      } catch (error) {
+        console.error("[Auth] User creation error:", error);
+        return true; // Permettre la connexion même en cas d'erreur
+      }
+    },
+
     async jwt({ token, account, user }) {
-      // Persist the OAuth access_token and user data to the token right after signin
       if (account && user) {
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expiresAt = account.expires_at;
         token.user = user as FortyTwoUser;
       }
-      
       return token;
     },
+
     async session({ session, token }) {
-      // Send properties to the client, like an access_token and user data
-      session.accessToken = token.accessToken;
-      
-      // S'assurer que toutes les informations utilisateur sont disponibles dans la session
       if (token.user) {
+        session.accessToken = token.accessToken;
         session.user = {
+          id: token.user.id,
           name: token.user.name,
           email: token.user.email,
           image: token.user.image,
+          login: token.user.login,
         };
-        
-        // Ajouter des propriétés personnalisées à l'objet session
-        session.user.id = token.user.id;
-        session.user.login = token.user.login;
       }
-      
       return session;
     },
-  }
+  },
 }; 
