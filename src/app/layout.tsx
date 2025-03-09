@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <Theme accentColor="blue" grayColor="slate" scaling="100%" radius="medium">
+          <Theme accentColor="blue" appearance="dark" grayColor="slate" scaling="100%" radius="medium">
             <Protected>
 				<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
 					<Sidebar />
