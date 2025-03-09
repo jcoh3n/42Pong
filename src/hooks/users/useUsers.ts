@@ -1,3 +1,5 @@
+"use client";
+
 import useSWR from 'swr';
 import { userService, User } from '@/services';
 import { PaginatedResponse } from '@/services/userService';

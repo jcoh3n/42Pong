@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import Protected from "@/components/Protected";
+import { Theme } from "@radix-ui/themes";
+import "@radix-ui/themes/styles.css";
 
 export const metadata: Metadata = {
   title: "42Pong",
@@ -17,8 +19,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-			<Protected>{children}</Protected>
-		</AuthProvider>
+          <Theme accentColor="blue" grayColor="slate" scaling="100%" radius="medium">
+            <Protected>{children}</Protected>
+          </Theme>
+        </AuthProvider>
       </body>
     </html>
   );
