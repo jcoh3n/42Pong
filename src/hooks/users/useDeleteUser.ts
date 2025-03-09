@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { UserService } from '@/services/userService';
+import { userService } from '@/services';
 import useUsers from './useUsers';
-
-// User service instance
-const userService = new UserService();
 
 export default function useDeleteUser() {
   const [isLoading, setIsLoading] = useState(false);

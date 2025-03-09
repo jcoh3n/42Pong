@@ -1,10 +1,7 @@
 import { useState } from 'react';
-import { MatchService, MatchInsert, Match } from '@/services/matchService';
+import { matchService, Match, MatchInsert } from '@/services';
 import useMatches from './useMatches';
 import useUserMatches from './useUserMatches';
-
-// Match service instance
-const matchService = new MatchService();
 
 export default function useCreateMatch() {
   const [isLoading, setIsLoading] = useState(false);
