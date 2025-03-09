@@ -13,19 +13,13 @@ export default function Login() {
   useEffect(() => {
     const errorParam = searchParams.get("error");
     if (errorParam) {
-      switch (errorParam) {
-        case "OAuthSignin":
-          setError("Erreur lors de la connexion avec 42. Veuillez réessayer.");
-          break;
-        case "OAuthCallback":
-          setError("Erreur lors de la réponse de 42. Veuillez réessayer.");
-          break;
-        case "OAuthCreateAccount":
-          setError("Erreur lors de la création du compte. Veuillez réessayer.");
-          break;
-        default:
-          setError(`Erreur d'authentification: ${errorParam}`);
-      }
+      const errorMessages: Record<string, string> = {
+        OAuthSignin: "Erreur lors de la connexion avec 42. Veuillez réessayer.",
+        OAuthCallback: "Erreur lors de la réponse de 42. Veuillez réessayer.",
+        OAuthCreateAccount: "Erreur lors de la création du compte. Veuillez réessayer.",
+      };
+      
+      setError(errorMessages[errorParam] || `Erreur d'authentification: ${errorParam}`);
     }
   }, [searchParams]);
 
@@ -34,31 +28,9 @@ export default function Login() {
     setError(null);
     
     try {
-      // Générer un état aléatoire pour protéger contre les attaques CSRF
-      const state = Math.random().toString(36).substring(2, 15);
-      // Stocker l'état dans localStorage pour vérification ultérieure
-      localStorage.setItem('oauth_state', state);
-      
-      // Méthode 1: Utiliser NextAuth
       await signIn("42-school", { 
-        callbackUrl: "/profile",
-        state
+        callbackUrl: "/profile"
       });
-      
-      // Méthode 2: Redirection directe (décommentez si la méthode 1 ne fonctionne pas)
-      /*
-      const clientId = process.env.NEXT_PUBLIC_42_CLIENT_ID;
-      const redirectUri = process.env.NEXT_PUBLIC_FT_REDIRECT_URI || `${window.location.origin}/api/auth/callback/42-school`;
-      
-      const authUrl = new URL('https://api.intra.42.fr/oauth/authorize');
-      authUrl.searchParams.append('client_id', clientId || '');
-      authUrl.searchParams.append('redirect_uri', redirectUri);
-      authUrl.searchParams.append('response_type', 'code');
-      authUrl.searchParams.append('scope', 'public');
-      authUrl.searchParams.append('state', state);
-      
-      window.location.href = authUrl.toString();
-      */
     } catch (error) {
       console.error("Erreur de connexion:", error);
       setError("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");

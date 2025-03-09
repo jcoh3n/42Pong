@@ -6,16 +6,12 @@ export const authOptions: NextAuthOptions = {
   providers: [
     FortyTwoProvider()
   ],
-  debug: true, // Activer le mode debug pour voir plus d'informations
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
-    error: "/auth/error", // Page to display in case of errors
+    error: "/auth/error",
   },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      return true;
-    },
     async jwt({ token, account, user }) {
       // Persist the OAuth access_token and user data to the token right after signin
       if (account && user) {
@@ -23,18 +19,6 @@ export const authOptions: NextAuthOptions = {
         token.refreshToken = account.refresh_token;
         token.expiresAt = account.expires_at;
         token.user = user;
-      }
-      
-      // Check if the token is expired and needs to be refreshed
-      const now = Math.floor(Date.now() / 1000);
-      if (token.expiresAt && now > token.expiresAt) {
-        try {
-          // Implement token refresh logic here if needed
-          console.log("Token expired, should refresh");
-        } catch (error) {
-          console.error("Error refreshing access token", error);
-          // On error, return the existing token
-        }
       }
       
       return token;
@@ -56,28 +40,6 @@ export const authOptions: NextAuthOptions = {
       
       return session;
     },
-  },
-  events: {
-    async signIn(message) {
-      console.log("User signed in:", message);
-    },
-    async signOut(message) {
-      console.log("User signed out:", message);
-    },
-    async error(message) {
-      console.error("Auth error:", message);
-    }
-  },
-  logger: {
-    error(code, metadata) {
-      console.error("NextAuth error:", { code, metadata });
-    },
-    warn(code) {
-      console.warn("NextAuth warning:", code);
-    },
-    debug(code, metadata) {
-      console.log("NextAuth debug:", { code, metadata });
-    }
   }
 };
 
