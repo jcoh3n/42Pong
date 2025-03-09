@@ -11,6 +11,10 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import RankCard from "@/components/profile/RankCard";
 import StatsCard from "@/components/profile/StatsCard";
 
+interface Match {
+  winner_id: string;
+}
+
 // Composant de chargement réutilisable
 const LoadingSpinner = () => (
   <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
@@ -23,7 +27,7 @@ const LoadingSpinner = () => (
 );
 
 // Fonction utilitaire pour calculer les statistiques
-const calculateStats = (matches = [], userId?: string) => {
+const calculateStats = (matches: Match[] = [], userId?: string) => {
   const totalMatches = matches.length;
   const wins = matches.filter(match => match.winner_id === userId).length;
   const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
