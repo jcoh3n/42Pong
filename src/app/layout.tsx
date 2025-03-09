@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import Protected from "@/components/Protected";
-import { Theme } from "@radix-ui/themes";
+import { Box, Flex, Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
+import Sidebar from "@/components/sidebar/Sidebar";
 
 export const metadata: Metadata = {
   title: "42Pong",
@@ -20,7 +21,21 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <Theme accentColor="blue" grayColor="slate" scaling="100%" radius="medium">
-            <Protected>{children}</Protected>
+            <Protected>
+				<Flex style={{ width: '100%', height: '100vh' }}>
+					<Sidebar />
+					<Box style={{ 
+						flex: 1, 
+						display: 'flex', 
+						justifyContent: 'center', 
+						alignItems: 'center',
+						padding: '20px',
+						overflow: 'auto'
+					}}>
+						{children}
+					</Box>
+				</Flex>
+			</Protected>
           </Theme>
         </AuthProvider>
       </body>
