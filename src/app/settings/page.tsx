@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -14,13 +14,55 @@ import {
   Select,
   Button,
 } from "@radix-ui/themes";
+import { userService } from "@/services";
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [notifications, setNotifications] = useState(true);
-  const [theme, setTheme] = useState("system");
-  const [language, setLanguage] = useState("en");
+  const [preferences, setPreferences] = useState({
+    notifications: true,
+    theme: "system",
+    language: "en"
+  });
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const loadUserPreferences = async () => {
+      if (session?.user?.email) {
+        const login = session.user.email.split('@')[0];
+        const user = await userService.getUserByLogin(login);
+        if (user) {
+          setPreferences({
+            notifications: user.notifications || true,
+            theme: user.theme || "system",
+            language: user.language || "en"
+          });
+        }
+      }
+    };
+    loadUserPreferences();
+  }, [session]);
+
+  const handlePreferenceChange = async (key: string, value: any) => {
+    setPreferences(prev => ({ ...prev, [key]: value }));
+    setIsSaving(true);
+    
+    try {
+      if (session?.user?.email) {
+        const login = session.user.email.split('@')[0];
+        const user = await userService.getUserByLogin(login);
+        if (user) {
+          await userService.updateUser(user.id, {
+            [key]: value
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (status === "loading") {
     return (
@@ -59,8 +101,8 @@ export default function SettingsPage() {
                   </Text>
                 </Box>
                 <Switch 
-                  checked={notifications} 
-                  onCheckedChange={setNotifications} 
+                  checked={preferences.notifications} 
+                  onCheckedChange={(checked) => handlePreferenceChange('notifications', checked)}
                 />
               </Flex>
 
@@ -73,7 +115,10 @@ export default function SettingsPage() {
                     Choose your preferred theme
                   </Text>
                 </Box>
-                <Select.Root value={theme} onValueChange={setTheme}>
+                <Select.Root 
+                  value={preferences.theme} 
+                  onValueChange={(value) => handlePreferenceChange('theme', value)}
+                >
                   <Select.Trigger />
                   <Select.Content>
                     <Select.Item value="system">System</Select.Item>
@@ -92,7 +137,10 @@ export default function SettingsPage() {
                     Select your preferred language
                   </Text>
                 </Box>
-                <Select.Root value={language} onValueChange={setLanguage}>
+                <Select.Root 
+                  value={preferences.language} 
+                  onValueChange={(value) => handlePreferenceChange('language', value)}
+                >
                   <Select.Trigger />
                   <Select.Content>
                     <Select.Item value="en">English</Select.Item>
@@ -100,6 +148,12 @@ export default function SettingsPage() {
                   </Select.Content>
                 </Select.Root>
               </Flex>
+
+              {isSaving && (
+                <Text size="2" color="gray" align="center">
+                  Saving changes...
+                </Text>
+              )}
             </Flex>
           </Card>
 

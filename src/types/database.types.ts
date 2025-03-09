@@ -92,6 +92,9 @@ export type Database = {
           elo_score: number
           id: string
           login: string
+          theme: string
+          language: string
+          notifications: boolean
         }
         Insert: {
           avatar_url: string
@@ -99,6 +102,9 @@ export type Database = {
           elo_score?: number
           id?: string
           login: string
+          theme?: string
+          language?: string
+          notifications?: boolean
         }
         Update: {
           avatar_url?: string
@@ -106,6 +112,9 @@ export type Database = {
           elo_score?: number
           id?: string
           login?: string
+          theme?: string
+          language?: string
+          notifications?: boolean
         }
         Relationships: []
       }
