@@ -3,7 +3,8 @@
 import React from 'react';
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Box, Container, Flex } from "@radix-ui/themes";
+import { Box, Container, Flex, Button } from "@radix-ui/themes";
+import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import useUser from "@/hooks/users/useUser";
 import useUserMatches from "@/hooks/matches/useUserMatches";
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -53,6 +54,15 @@ export default function Profile() {
     <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
       <Container size="3" py="9">
         <Flex direction="column" gap="6">
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/")}
+            style={{ alignSelf: "flex-start", marginBottom: "1rem" }}
+          >
+            <ArrowLeftIcon width="16" height="16" />
+            Back to Home
+          </Button>
+
           {currentUser && (
             <>
               <ProfileHeader user={currentUser} />
