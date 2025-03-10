@@ -42,11 +42,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <Box
       className={`
-        w-[300px] h-full flex flex-col bg-background border-r border-gray-200 dark:border-gray-800
+        h-full flex flex-col bg-background border-r border-gray-200 dark:border-gray-800
         transition-opacity duration-300 ease-in-out
         ${!isDesktop && !isOpen ? 'opacity-0' : 'opacity-100'}
         ${!isDesktop && !isOpen ? 'hidden' : 'block'}
       `}
+      style={{ 
+        width: '100%',
+        height: '100%'
+      }}
     >
       {/* Logo and Title with Close button on mobile */}
       <Flex align="center" justify="between" px="5" py="4">
@@ -79,7 +83,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       <Separator size="4" />
       
       {/* Main Navigation */}
-      <Box py="3" style={{ flex: 1 }}>
+      <Box py="3" style={{ flex: 1, overflowY: 'auto' }}>
         <Flex direction="column" gap="2">
           <SidebarNavItem 
             icon={<HomeIcon width="20" height="20" />} 

@@ -28,6 +28,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 				top: 0,
 				zIndex: 10,
 				backgroundColor: 'var(--background)',
+				width: '100%'
 			}}
 		>
 			<Flex 

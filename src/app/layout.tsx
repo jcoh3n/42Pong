@@ -55,13 +55,28 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <ThemeLayout>
-            <Flex style={{ width: '100%', height: '100vh', overflow: 'hidden', flexDirection: 'row' }}>
+            <Flex 
+              style={{ 
+                width: '100%', 
+                height: '100vh', 
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'row'
+              }}
+            >
               {/* Sidebar - responsive */}
-              <div className={`
-                fixed inset-y-0 left-0 z-30 transform transition-transform duration-300 ease-in-out
-                lg:relative lg:translate-x-0
-                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-              `}>
+              <div 
+                className={`
+                  ${!isDesktop ? 'fixed inset-y-0 left-0 z-30' : 'relative'}
+                  transform transition-transform duration-300 ease-in-out
+                  ${!isDesktop && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+                `}
+                style={{ 
+                  width: '300px',
+                  flexShrink: 0,
+                  height: '100%'
+                }}
+              >
                 <Sidebar 
                   isOpen={isSidebarOpen} 
                   onClose={() => setIsSidebarOpen(false)} 
@@ -82,12 +97,9 @@ export default function RootLayout({
                   width: '100%', 
                   height: '100%', 
                   overflow: 'hidden', 
-                  flexDirection: 'column' 
+                  flexDirection: 'column',
+                  flexGrow: 1
                 }}
-                className={`
-                  transition-all duration-300 ease-in-out
-                  ${isDesktop && isSidebarOpen ? 'ml-[300px]' : 'ml-0'}
-                `}
               >
                 <Header onMenuClick={toggleSidebar} />
                 <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
