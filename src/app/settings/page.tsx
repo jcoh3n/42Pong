@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
   Box, 
@@ -14,47 +13,46 @@ import {
 import { userService } from "@/services";
 import PreferencesCard from "./components/preferences_card";
 import AccountCard from "./components/account_card";
+import useCurrentUser from "@/hooks/useCurrentUser";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: currentUser, isLoading: isLoadingUser, mutate: mutateCurrentUser } = useCurrentUser();
   const router = useRouter();
+  const [isSaving, setIsSaving] = useState(false);
+
   const [preferences, setPreferences] = useState({
-    notifications: true,
-    theme: "system",
+    notifications: currentUser?.notifications || true,
+    theme: global?.window?.localStorage.getItem('theme') as 'inherit' | 'dark' | 'light' || 'inherit',
     language: "en"
   });
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const loadUserPreferences = async () => {
-      if (session?.user?.email) {
-        const login = session.user.email.split('@')[0];
-        const user = await userService.getUserByLogin(login);
+      if (currentUser?.id) {
+        const user = await userService.getUserById(currentUser.id);
         if (user) {
           setPreferences({
             notifications: user.notifications || true,
-            theme: user.theme || "system",
+            theme: user.theme as 'inherit' | 'dark' | 'light' || 'inherit',
             language: user.language || "en"
           });
         }
       }
     };
     loadUserPreferences();
-  }, [session]);
+  }, [currentUser]);
 
   const handlePreferenceChange = async (key: string, value: any) => {
     setPreferences(prev => ({ ...prev, [key]: value }));
     setIsSaving(true);
     
     try {
-      if (session?.user?.email) {
-        const login = session.user.email.split('@')[0];
-        const user = await userService.getUserByLogin(login);
-        if (user) {
-          await userService.updateUser(user.id, {
-            [key]: value
-          });
-        }
+      if (currentUser?.id) {
+        await userService.updateUser(currentUser.id, {
+          [key]: value
+        });
+
+		mutateCurrentUser();
       }
     } catch (error) {
       console.error('Error saving preferences:', error);
@@ -64,19 +62,17 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (session?.user?.email) {
-      const login = session.user.email.split('@')[0];
-      const user = await userService.getUserByLogin(login);
-      if (user) {
-        try {
-          await userService.deleteUser(user.id);
-          router.push('/login');
+    if (currentUser?.id) {
+      try {
+        await userService.deleteUser(currentUser.id);
+        router.push('/login');
+
+		  mutateCurrentUser();
         } catch (error) {
           console.error('Error deleting account:', error);
         }
       }
-    }
-  };
+    };
 
   return (
     <Box className="min-h-screen">
@@ -94,7 +90,6 @@ export default function SettingsPage() {
           <PreferencesCard 
             preferences={preferences}
             onPreferenceChange={handlePreferenceChange}
-            isSaving={isSaving}
           />
 
           <AccountCard onDeleteAccount={handleDeleteAccount} />

@@ -25,11 +25,12 @@ export default function RankCard({ user }: RankCardProps) {
       width: "100%", 
       background: "linear-gradient(135deg, var(--violet-2), var(--violet-1))",
       border: "1px solid var(--violet-6)",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
     }}>
       <Flex direction="column" gap="4" p="6">
         <Flex align="center" gap="2">
           <StarFilledIcon width="20" height="20" color="var(--violet-9)" />
-          <Text size="3" weight="bold" style={{ color: "var(--violet-9)" }}>ELO Rating</Text>
+          <Text size="3" weight="bold" style={{ color: "var(--violet-9)", textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}>ELO Rating</Text>
         </Flex>
 
         <Flex direction="column" align="center" gap="2" style={{ padding: "1rem 0" }}>
@@ -52,7 +53,7 @@ export default function RankCard({ user }: RankCardProps) {
               {user?.elo_score || 1000}
             </Text>
           </Box>
-          <Text size="2" style={{ color: "var(--violet-11)", marginTop: "0.5rem" }}>
+          <Text size="2" style={{ color: "var(--violet-11)", marginTop: "0.5rem", textShadow: "0 1px 1px rgba(255, 255, 255, 0.5)" }}>
             {user?.elo_score ? 'Current Rating' : 'Default Rating'}
           </Text>
         </Flex>

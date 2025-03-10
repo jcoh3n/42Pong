@@ -18,11 +18,12 @@ export default function StatsCard({ user, stats }: StatsCardProps) {
       width: "100%",
       background: "linear-gradient(135deg, var(--blue-2), var(--blue-1))",
       border: "1px solid var(--blue-6)",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
     }}>
       <Flex direction="column" gap="4" p="6">
         <Flex align="center" gap="2">
           <BarChartIcon width="20" height="20" color="var(--blue-9)" />
-          <Text size="3" weight="bold" style={{ color: "var(--blue-9)" }}>Match Statistics</Text>
+          <Text size="3" weight="bold" style={{ color: "var(--blue-9)", textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)" }}>Match Statistics</Text>
         </Flex>
         
         <Grid columns="3" gap="4" style={{ padding: "1rem 0" }}>
@@ -43,7 +44,7 @@ export default function StatsCard({ user, stats }: StatsCardProps) {
           />
         </Grid>
 
-        <Text size="2" style={{ color: "var(--blue-11)", textAlign: "center" }}>
+        <Text size="2" style={{ color: "var(--blue-11)", textAlign: "center", textShadow: "0 1px 1px rgba(255, 255, 255, 0.5)" }}>
           Current Season • {new Date().getFullYear()}
         </Text>
       </Flex>
