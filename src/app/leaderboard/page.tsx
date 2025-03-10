@@ -17,6 +17,7 @@ import {
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
 import { DateRangeSelector } from "@/components/leaderboard/DateRangeSelector";
 import DashboardLayout from "../dashboard-layout";
+import Loading from "@/components/Loading";
 
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
@@ -54,21 +55,10 @@ export default function LeaderboardPage() {
   });
 
   if (status === "loading" || isLoading) {
-    return (
-      <DashboardLayout>
-        <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-          <Container size="3" py="9">
-            <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
-              <Text size="3">Loading...</Text>
-            </Flex>
-          </Container>
-        </Box>
-      </DashboardLayout>
-    );
+    return (<Loading />);
   }
 
   return (
-    <DashboardLayout>
       <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
         <Container size="3" py="9">
           <Card size="2" style={{ width: '100%', height: '100%' }}>
@@ -84,6 +74,5 @@ export default function LeaderboardPage() {
           </Card>
         </Container>
       </Box>
-    </DashboardLayout>
   );
 }

@@ -3,7 +3,7 @@
 import useCurrentUser from './useCurrentUser';
 
 export type Preferences = {
-	theme: 'inherit' | 'dark' | 'light',
+	theme: 'system' | 'dark' | 'light',
 	language: 'en' | 'fr',
 	notifications: boolean,
 }
@@ -19,9 +19,9 @@ export default function usePreferences (): Preferences {
 		|| (global?.window?.localStorage.getItem('notifications') as 'true' | 'false' === 'true' ? true : false )
 		|| true;
 
-	const theme = currentUser?.theme as 'inherit' | 'dark' | 'light'
-		|| global?.window?.localStorage.getItem('theme') as 'inherit' | 'dark' | 'light'
-		|| 'inherit';
+	const theme = currentUser?.theme as 'system' | 'dark' | 'light'
+		|| global?.window?.localStorage.getItem('theme') as 'system' | 'dark' | 'light'
+		|| 'system';
 	
 	// Save preferences to localStorage when user is available
 	if (!isLoading && currentUser && global?.window?.localStorage) {

@@ -62,7 +62,7 @@ export default function PreferencesCard({
             >
               <Select.Trigger className="w-32" />
               <Select.Content>
-                <Select.Item value="inherit">System</Select.Item>
+                <Select.Item value="system">System</Select.Item>
                 <Select.Item value="light">Light</Select.Item>
                 <Select.Item value="dark">Dark</Select.Item>
               </Select.Content>

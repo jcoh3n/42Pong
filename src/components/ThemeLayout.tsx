@@ -6,6 +6,7 @@ import useCurrentUser from '@/hooks/useCurrentUser';
 import { Theme } from '@radix-ui/themes';
 import { log } from 'console';
 import usePreferences from '@/hooks/usePreferences';
+import { ThemeProvider, useTheme } from "next-themes";
 
 export default function ThemeLayout({
   children,
@@ -15,14 +16,16 @@ export default function ThemeLayout({
 	const preferences = usePreferences();
 
   return (
-	<Theme
-		accentColor="blue"
-		appearance={preferences.theme}
-		grayColor="slate"
-		scaling="100%"
-		radius="medium"
-	>
-		{children}
-	</Theme>
+	<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+		<Theme
+			appearance={preferences.theme === 'system' ? 'inherit' : preferences.theme}
+			accentColor="blue"
+			grayColor="slate"
+			scaling="100%"
+			radius="medium"
+		>
+			{children}
+		</Theme>
+	</ThemeProvider>
   );
 }

@@ -1,11 +1,12 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, Suspense } from 'react';
 import Login from '@/app/login/page';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { Box, Text } from '@radix-ui/themes';
 import { Container } from '@radix-ui/themes';
 import { Flex } from '@radix-ui/themes';
+import Loading from './Loading';
 
 interface ProtectedProps {
   children: ReactNode;
@@ -15,22 +16,22 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
   const { data: currentUser, isLoading, error } = useCurrentUser();
 
   if (isLoading) {
-    return (
-          <Flex align="center" justify="center" style={{ height: "100%", width: "100%" }}>
-            <Text size="3">Loading...</Text>
-          </Flex>
-    );
+    return (<Loading />);
   }
 
-  if (!currentUser) {
+  if (error || !currentUser) {
     return (
-          <Flex align="center" justify="center" style={{ height: "100%", width: "100%" }}>
-            <Login />
-          </Flex>
+		<Flex align="center" justify="center" style={{ height: "100%", width: "100%" }}>
+		<Login />
+		</Flex>
 	);
   }
 
-  return <>{children}</>;
+  return(
+    <Suspense fallback={<Loading />}>
+      {children}
+    </Suspense>
+  );
 }
 
 export default Protected;

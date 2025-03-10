@@ -20,24 +20,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body>
         <AuthProvider>
-			<ThemeProvider attribute="class" enableSystem>
-				<ThemeLayout>
-					<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden', flexDirection: 'row' }}>
-						<Sidebar />
-						<Flex style={{ width: '100%', height: '100%', overflow: 'hidden', flexDirection: 'column' }}>
-							<Header />
-							<div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
-								<Protected>
-									{children}
-								</Protected>
-							</div>
-						</Flex>
+			<ThemeLayout>
+				<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden', flexDirection: 'row' }}>
+					<Sidebar />
+					<Flex style={{ width: '100%', height: '100%', overflow: 'hidden', flexDirection: 'column' }}>
+						<Header />
+						<div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+							<Protected>
+								{children}
+							</Protected>
+						</div>
 					</Flex>
-				</ThemeLayout>
-		    </ThemeProvider>
+				</Flex>
+			</ThemeLayout>
         </AuthProvider>
       </body>
     </html>

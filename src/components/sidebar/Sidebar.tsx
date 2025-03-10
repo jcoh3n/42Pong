@@ -10,10 +10,20 @@ import {
 } from "@radix-ui/react-icons";
 import { SidebarNavItem } from "./SidebarNavItem";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Sidebar() {
-	const router = useRouter();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [activeItem, setActiveItem] = useState(usePathname());
+
+  useEffect(() => {
+	setActiveItem(pathname);
+  }, [pathname])
+
+
+  
   return (
     <Box
       style={{ 
@@ -51,26 +61,36 @@ export default function Sidebar() {
             icon={<HomeIcon width="20" height="20" />} 
             label="Home" 
             href="/"
+            isActive={activeItem === '/'}
+            onItemClick={() => setActiveItem('/')}
           />
           <SidebarNavItem 
             icon={<PersonIcon width="20" height="20" />} 
             label="Profile" 
-            href="/profile" 
+            href="/profile"
+            isActive={activeItem === '/profile'}
+            onItemClick={() => setActiveItem('/profile')}
           />
           <SidebarNavItem 
             icon={<ListBulletIcon width="20" height="20" />} 
             label="Games" 
-            href="/games" 
+            href="/games"
+            isActive={activeItem === '/games'}
+            onItemClick={() => setActiveItem('/games')}
           />
           <SidebarNavItem 
             icon={<ListBulletIcon width="20" height="20" />} 
             label="Leaderboard" 
-            href="/leaderboard" 
+            href="/leaderboard"
+            isActive={activeItem === '/leaderboard'}
+            onItemClick={() => setActiveItem('/leaderboard')}
           />
           <SidebarNavItem 
             icon={<GearIcon width="20" height="20" />} 
             label="Settings" 
-            href="/settings" 
+            href="/settings"
+            isActive={activeItem === '/settings'}
+            onItemClick={() => setActiveItem('/settings')}
           />
         </Flex>
       </Box>
@@ -82,7 +102,7 @@ export default function Sidebar() {
           <SidebarNavItem 
             icon={<ExitIcon width="20" height="20" />} 
             label="Log out" 
-            href="/api/auth/signout" 
+            href="/api/auth/signout"
           />
         </Flex>
       </Box>

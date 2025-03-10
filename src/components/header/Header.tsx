@@ -4,7 +4,6 @@ import { Flex, Box, Avatar } from "@radix-ui/themes";
 import { SearchBar } from "./SearchBar";
 import { NotificationBell } from "./NotificationBell";
 import Link from "next/link";
-import { type User } from "@/services/types";
 import useCurrentUser from "@/hooks/useCurrentUser";
 
 export function Header() {
@@ -33,7 +32,7 @@ export function Header() {
 			>
 				{/* Left side - User Profile Picture */}
 				<Flex align="center" gap="2">
-					<Link href="/profile" prefetch style={{ textDecoration: 'none', color: 'inherit' }}>
+					<Link href="/profile" prefetch style={{ textDecoration: 'none', color: 'system' }}>
 						<Flex align="center" px='4' gap="2">
 							<Box style={{ 
 								display: 'flex', 
