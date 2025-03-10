@@ -16,21 +16,17 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
 
   if (isLoading) {
     return (
-        <Container size="3" py="9">
-          <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
+          <Flex align="center" justify="center" style={{ height: "100%", width: "100%" }}>
             <Text size="3">Loading...</Text>
           </Flex>
-        </Container>
     );
   }
 
   if (!currentUser) {
     return (
-        <Container size="3" py="9">
-          <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
+          <Flex align="center" justify="center" style={{ height: "100%", width: "100%" }}>
             <Login />
           </Flex>
-        </Container>
 	);
   }
 

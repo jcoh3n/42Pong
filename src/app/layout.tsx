@@ -6,7 +6,7 @@ import { Box, Flex, Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import Sidebar from "@/components/sidebar/Sidebar";
 import { ThemeProvider } from "next-themes";
-import ThemeLayout from "@/components/Layouts/ThemeLayout";
+import ThemeLayout from "@/components/ThemeLayout";
 
 export const metadata: Metadata = {
   title: "42Pong",
