@@ -44,7 +44,7 @@ export default function RootLayout({
             enableSystem={true}
             value={{ light: 'light', dark: 'dark' }}
           >
-            <Theme accentColor="blue" appearance="inherit" grayColor="slate" scaling="100%" radius="medium">
+            <Theme accentColor="blue" appearance="light" grayColor="slate" scaling="100%" radius="medium">
               <Protected>
                 <Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
                   <Sidebar />

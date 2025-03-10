@@ -13,7 +13,7 @@ export default function ThemeLayout({
   children: React.ReactNode;
 }>) {
 
-	const [theme, setTheme] = useState('inherit');
+	const [theme, setTheme] = useState<'light' | 'dark'>('light');
 	const { data: currentUser, isLoading } = useCurrentUser();
 
 	useEffect(() => {
@@ -21,13 +21,16 @@ export default function ThemeLayout({
 		if (!currentUser) return;
 
 		// Set theme based on user preferences if valid
-		if (currentUser?.theme && ['inherit', 'dark', 'light'].includes(currentUser.theme)) {
-			setTheme(currentUser.theme);
+		if (currentUser?.theme) {
+			if (currentUser.theme === 'dark' || currentUser.theme === 'light') {
+				setTheme(currentUser.theme);
+			}
+			// If 'inherit', we default to 'light'
 		}
 	}, [isLoading, currentUser]);
 
   return (
-	<Theme accentColor="blue" appearance={theme as 'inherit' | 'dark' | 'light'} grayColor="slate" scaling="100%" radius="medium">
+	<Theme accentColor="blue" appearance={theme} grayColor="slate" scaling="100%" radius="medium">
 		{children}
 	</Theme>
   );
