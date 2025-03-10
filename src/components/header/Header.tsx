@@ -27,9 +27,9 @@ export function Header() {
         py="3"
         style={{ height: '64px' }}
       >
-        {/* Left side - Logo */}
+        {/* Left side - User Profile Picture */}
         <Flex align="center" gap="2">
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link href="/profile" prefetch style={{ textDecoration: 'none', color: 'inherit' }}>
             <Flex align="center" gap="2">
               <Box style={{ 
                 display: 'flex', 
@@ -38,10 +38,14 @@ export function Header() {
                 width: '32px',
                 height: '32px'
               }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="24" height="24" rx="6" fill="black" />
-                  <path d="M7 13L10 10M10 10L7 7M10 10H16.5M14 7L17 10M17 10L14 13M17 10H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                {user && (
+                  <Avatar
+                    size="2"
+                    src={user.avatar_url || undefined}
+                    fallback={user.name?.[0] || "U"}
+                    radius="full"
+                  />
+                )}
               </Box>
             </Flex>
           </Link>

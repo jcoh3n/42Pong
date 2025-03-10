@@ -22,7 +22,7 @@ export function SidebarNavItem({
   const isActive = pathname === href;
   
   return (
-    <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <Link href={href} prefetch style={{ textDecoration: 'none', color: 'inherit' }}>
       <Flex 
         align="center" 
         justify="between" 
