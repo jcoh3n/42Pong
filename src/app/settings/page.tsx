@@ -14,50 +14,32 @@ import { userService } from "@/services";
 import PreferencesCard from "./components/preferences_card";
 import AccountCard from "./components/account_card";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import usePreferences from "@/hooks/usePreferences";
 
 export default function SettingsPage() {
   const { data: currentUser, isLoading: isLoadingUser, mutate: mutateCurrentUser } = useCurrentUser();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
 
-  const [preferences, setPreferences] = useState({
-    notifications: currentUser?.notifications || true,
-    theme: global?.window?.localStorage.getItem('theme') as 'inherit' | 'dark' | 'light' || 'inherit',
-    language: "en"
-  });
-
-  useEffect(() => {
-    const loadUserPreferences = async () => {
-      if (currentUser?.id) {
-        const user = await userService.getUserById(currentUser.id);
-        if (user) {
-          setPreferences({
-            notifications: user.notifications || true,
-            theme: user.theme as 'inherit' | 'dark' | 'light' || 'inherit',
-            language: user.language || "en"
-          });
-        }
-      }
-    };
-    loadUserPreferences();
-  }, [currentUser]);
+  const preferences = usePreferences();
 
   const handlePreferenceChange = async (key: string, value: any) => {
-    setPreferences(prev => ({ ...prev, [key]: value }));
+	if (isSaving) return ;
+
     setIsSaving(true);
 
     try {
-      if (currentUser?.id) {
-        await userService.updateUser(currentUser.id, {
-          [key]: value
-        });
+		if (currentUser?.id) {
+			await userService.updateUser(currentUser.id, {
+				[key]: value
+			});
 
-		mutateCurrentUser();
-      }
+			mutateCurrentUser();
+		}
     } catch (error) {
-      console.error('Error saving preferences:', error);
+      	console.error('Error saving preferences:', error);
     } finally {
-      setIsSaving(false);
+      	setIsSaving(false);
     }
   };
 

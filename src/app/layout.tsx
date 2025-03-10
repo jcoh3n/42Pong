@@ -31,8 +31,8 @@ export default function RootLayout({
 							<Header />
 							<div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
 								<Protected>
-								{children}
-							</Protected>
+									{children}
+								</Protected>
 							</div>
 						</Flex>
 					</Flex>

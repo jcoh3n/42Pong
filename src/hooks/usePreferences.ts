@@ -1,9 +1,5 @@
 'use client';
 
-import useSWR from 'swr';
-
-import fetcher from '@/libs/fetcher';
-import { useMemo } from 'react';
 import useCurrentUser from './useCurrentUser';
 
 export type Preferences = {
