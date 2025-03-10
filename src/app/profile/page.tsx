@@ -48,12 +48,13 @@ export default function Profile() {
 
   return (
     <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-      <Container size="3" py="9">
+      <Container size="3" py="9" className="shadow-sm">
         <Flex direction="column" gap="6">
           <Button
             variant="ghost"
             onClick={() => router.push("/")}
             style={{ alignSelf: "flex-start", marginBottom: "1rem" }}
+            className="shadow-sm hover:shadow-md transition-shadow"
           >
             <ArrowLeftIcon width="16" height="16" />
             Back to Home
@@ -67,7 +68,7 @@ export default function Profile() {
                   <RankCard user={currentUser} />
                 </Box>
                 <Box style={{ flex: "1 1 300px" }}>
-                  <StatsCard user={currentUser} stats={stats} />
+                	<StatsCard user={currentUser} stats={stats} />
                 </Box>
               </Flex>
             </>
