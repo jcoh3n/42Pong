@@ -12,8 +12,10 @@ export default function ThemeLayout({
   children: React.ReactNode;
 }>) {
 	const { data: currentUser, isLoading } = useCurrentUser();
-	const savedTheme = global?.window?.localStorage.getItem('theme') as 'inherit' | 'dark' | 'light' || 'inherit';
-	const [theme, setTheme] = useState<'inherit' | 'dark' | 'light'>(savedTheme);
+	const savedTheme = global?.window?.localStorage.getItem('theme') as 'system' | 'dark' | 'light' || 'system';
+	const [theme, setTheme] = useState<'dark' | 'light' | undefined>(
+		savedTheme === 'system' ? undefined : savedTheme as 'dark' | 'light'
+	);
 
 	useEffect(() => {
 		if (isLoading) return;
@@ -22,11 +24,10 @@ export default function ThemeLayout({
 		// Set theme based on user preferences if valid
 		if (currentUser?.theme && ['system', 'dark', 'light'].includes(currentUser.theme)) {
 			if (currentUser.theme === 'system') {
-				console.log('setting theme to inherit');
-				setTheme('inherit');
-				global?.window?.localStorage.setItem('theme', 'inherit');
+				setTheme(undefined);
+				global?.window?.localStorage.setItem('theme', 'system');
 			} else {
-				setTheme(currentUser.theme);
+				setTheme(currentUser.theme as 'dark' | 'light');
 				global?.window?.localStorage.setItem('theme', currentUser.theme);
 			}
 		}
@@ -35,7 +36,7 @@ export default function ThemeLayout({
   return (
 	<Theme
 		accentColor="blue"
-		appearance={theme as 'inherit' | 'dark' | 'light'}
+		appearance={theme}
 		grayColor="slate"
 		scaling="100%"
 		radius="medium"

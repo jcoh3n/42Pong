@@ -42,7 +42,7 @@ export default function PreferencesCard({
             </Box>
             <Switch 
               checked={preferences.notifications} 
-              onCheckedChange={(checked) => onPreferenceChange('notifications', checked)}
+              onCheckedChange={(checked: boolean) => onPreferenceChange('notifications', checked)}
               className="data-[state=checked]:bg-blue-600"
             />
           </Flex>
@@ -58,7 +58,7 @@ export default function PreferencesCard({
             </Box>
             <Select.Root 
               value={preferences.theme} 
-              onValueChange={(value) => onPreferenceChange('theme', value)}
+              onValueChange={(value: string) => onPreferenceChange('theme', value)}
             >
               <Select.Trigger className="w-32" />
               <Select.Content>
@@ -80,7 +80,7 @@ export default function PreferencesCard({
             </Box>
             <Select.Root 
               value={preferences.language} 
-              onValueChange={(value) => onPreferenceChange('language', value)}
+              onValueChange={(value: string) => onPreferenceChange('language', value)}
             >
               <Select.Trigger className="w-32" />
               <Select.Content>
