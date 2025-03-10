@@ -22,7 +22,9 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
   if (error || !currentUser) {
     return (
 		<Flex align="center" justify="center" style={{ height: "100%", width: "100%" }}>
-		<Login />
+    		<Suspense fallback={<Loading />}>
+				<Login />
+			</Suspense>
 		</Flex>
 	);
   }

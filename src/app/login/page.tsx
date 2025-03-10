@@ -83,8 +83,6 @@ function LoginLoading() {
 // Main page component with Suspense boundary
 export default function Login() {
   return (
-    <Suspense fallback={<LoginLoading />}>
-      <LoginContent />
-    </Suspense>
+	<LoginContent />
   );
 } 
