@@ -5,8 +5,8 @@ import { useMemo } from "react";
 import { LeaderboardHeader } from "./LeaderboardHeader";
 import { LeaderboardRow } from "./LeaderboardRow";
 import { EmptyLeaderboard } from "./EmptyLeaderboard";
-import { type LeaderboardData } from "@/types/leaderboard";
-import { type UserStats, calculateUserStats } from "@/utils/stats";
+import { type LeaderboardData, type LeaderboardStats } from "@/types/leaderboard";
+import { calculateUserStats } from "@/utils/stats";
 
 interface LeaderboardTableProps {
   data: LeaderboardData[];
@@ -24,7 +24,7 @@ export function LeaderboardTable({ data }: LeaderboardTableProps) {
 
   // Calculate stats for all users once
   const userStats = useMemo(() => {
-    const stats = new Map<string, UserStats>();
+    const stats = new Map<string, LeaderboardStats>();
     data.forEach(item => {
       const userMatchesResult = matchesResults.find((result, index) => data[index]?.user.id === item.user.id);
       const matches = userMatchesResult?.matches || [];

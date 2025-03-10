@@ -5,4 +5,10 @@ export interface LeaderboardData {
   user: User;
   positionChange: number;
   changeClass: string;
+}
+
+export interface LeaderboardStats {
+  totalGames: number;
+  wins: number;
+  winRate: number;
 } 

@@ -1,11 +1,10 @@
 import { Table, Text, Flex, Badge, Avatar } from "@radix-ui/themes";
 import { FaCrown, FaMedal } from 'react-icons/fa';
-import { type LeaderboardData } from "@/types/leaderboard";
-import { type UserStats } from "@/utils/stats";
+import { type LeaderboardData, type LeaderboardStats } from "@/types/leaderboard";
 
 interface LeaderboardRowProps {
   item: LeaderboardData;
-  stats?: UserStats;
+  stats?: LeaderboardStats;
   isCurrentUser: boolean;
 }
 
