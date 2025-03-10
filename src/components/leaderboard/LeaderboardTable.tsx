@@ -69,9 +69,8 @@ export function LeaderboardTable({ data }: LeaderboardTableProps) {
             }}
           >
             <Table.Cell>
-              <Flex align="center" gap="2">
+              <Flex align="center" justify='center' gap="2">
                 <Text size="2" weight="medium">{item.position}</Text>
-                <PositionChange change={item.positionChange} />
               </Flex>
             </Table.Cell>
             <Table.Cell>
