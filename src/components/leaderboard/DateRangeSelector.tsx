@@ -29,7 +29,7 @@ export function DateRangeSelector() {
           <Flex direction="column" gap="3">
             <Box>
               <Text as="label" size="2" mb="1" weight="medium">Start Date</Text>
-              <TextField 
+              <TextField.Root
                 placeholder="Start date" 
                 value={startDate}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
@@ -38,7 +38,7 @@ export function DateRangeSelector() {
             </Box>
             <Box>
               <Text as="label" size="2" mb="1" weight="medium">End Date</Text>
-              <TextField 
+              <TextField.Root
                 placeholder="End date" 
                 value={endDate}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
