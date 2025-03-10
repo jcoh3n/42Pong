@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "@radix-ui/themes/styles.css";
-import useCurrentUser from '@/hooks/useCurrentUser';
-import { Theme } from '@radix-ui/themes';
-import { log } from 'console';
 import usePreferences from '@/hooks/usePreferences';
-import { ThemeProvider, useTheme } from "next-themes";
+import { Theme } from '@radix-ui/themes';
+import { ThemeProvider } from "next-themes";
 
 export default function ThemeLayout({
   children,
@@ -14,18 +12,29 @@ export default function ThemeLayout({
   children: React.ReactNode;
 }>) {
 	const preferences = usePreferences();
+	const [mounted, setMounted] = useState(false);
 
-  return (
-	<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-		<Theme
-			appearance={preferences.theme === 'system' ? 'inherit' : preferences.theme}
-			accentColor="blue"
-			grayColor="slate"
-			scaling="100%"
-			radius="medium"
-		>
-			{children}
-		</Theme>
-	</ThemeProvider>
-  );
+	// Éviter l'hydratation incompatible en attendant le montage côté client
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) {
+		return null; // Éviter le flash de contenu non thémé
+	}
+
+	return (
+		<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+			<Theme
+				appearance="dark"
+				accentColor="blue"
+				grayColor="slate"
+				scaling="100%"
+				radius="medium"
+				className="radix-themes dark"
+			>
+				{children}
+			</Theme>
+		</ThemeProvider>
+	);
 }
