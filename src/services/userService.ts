@@ -2,7 +2,18 @@ import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 
 // Define user-specific types
-export type User = Database['public']['Tables']['Users']['Row'];
+export type User = {
+  id: string;
+  login: string;
+  avatar_url: string;
+  elo_score: number;
+  created_at: string;
+  theme: string;
+  language: string;
+  notifications: boolean;
+  wins: number;
+  total_games: number;
+};
 export type UserInsert = Database['public']['Tables']['Users']['Insert'];
 export type UserUpdate = Database['public']['Tables']['Users']['Update'];
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import useUsers from "@/hooks/users/useUsers";
 import { 
   Container, 
@@ -11,68 +11,123 @@ import {
   Box, 
   Text,
   Card,
-  Avatar,
-  Badge,
+  IconButton,
 } from "@radix-ui/themes";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { GiPingPongBat, GiTrophyCup } from "react-icons/gi";
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
-import { DateRangeSelector } from "@/components/leaderboard/DateRangeSelector";
-import DashboardLayout from "../dashboard-layout";
 import Loading from "@/components/Loading";
 
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const [timeFrame, setTimeFrame] = useState("monthly");
-  
-  // Use the hook with sorting by elo_score in descending order
+  const [searchQuery, setSearchQuery] = useState("");
   const { users, isLoading } = useUsers({
     sortBy: "elo_score",
     sortOrder: "desc",
-    pageSize: 50, // Show more users on the leaderboard
+    pageSize: 100,
   });
 
-  // Mock data for position changes (in a real app, this would come from an API)
-  const positionChanges = users.map((user, index) => {
-    // Generate random position changes between -3 and +3
-    const change = Math.floor(Math.random() * 7) - 3;
-    return { 
-      userId: user.id, 
-      change,
-      // Classes to add based on the change value
-      changeClass: change > 0 ? "positive" : change < 0 ? "negative" : "neutral"
-    };
-  });
-  
-  // Create leaderboard data with position changes
-  const leaderboardData = users.map((user, index) => {
-    const positionChange = positionChanges.find(pc => pc.userId === user.id) || { change: 0, changeClass: "neutral" };
-    return {
-      position: index + 1,
-      user,
-      positionChange: positionChange.change,
-      changeClass: positionChange.changeClass
-    };
-  });
+  // Filtrer les utilisateurs en fonction de la recherche
+  const filteredUsers = users.filter(user => 
+    user.login.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Créer les données du leaderboard
+  const leaderboardData = filteredUsers.map((user, index) => ({
+    position: index + 1,
+    user,
+    positionChange: 0,
+    changeClass: "neutral"
+  }));
+
+  // Trouver la position de l'utilisateur connecté
+  const currentUserPosition = users.findIndex(user => user.login === session?.user?.email) + 1;
 
   if (status === "loading" || isLoading) {
-    return (<Loading />);
+    return (
+      <Box className="min-h-screen flex items-center justify-center bg-[var(--gray-2)]">
+        <Loading />
+      </Box>
+    );
   }
 
   return (
-      <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-        <Container size="3" py="9">
-          <Card size="2" style={{ width: '100%', height: '100%' }}>
-            <Flex direction="column" gap="5">
-              <Flex justify="between" align="center" py="4" px="6">
-                <Heading size="5">Leaderboard</Heading>
-              </Flex>
+    <Box className="min-h-screen bg-[var(--gray-2)] pb-8 relative overflow-hidden">
+      {/* Éléments décoratifs thématiques - masqués sur mobile */}
+      <Box className="hidden md:block absolute -top-[50px] -right-[50px] w-[200px] h-[200px] bg-[var(--accent-9)] rounded-full opacity-10 z-0 rotate-[-15deg]">
+        <GiPingPongBat className="w-full h-full text-[var(--accent-9)] opacity-20" />
+      </Box>
+      <Box className="hidden md:block absolute -bottom-[30px] -left-[30px] w-[150px] h-[150px] bg-[var(--accent-9)] rounded-full opacity-10 z-0 rotate-[15deg]">
+        <GiPingPongBat className="w-full h-full text-[var(--accent-9)] opacity-20 scale-x-[-1]" />
+      </Box>
 
-              <Box>
+      <Container size={{initial: "1", sm: "2", md: "3"}} className="py-4 md:py-6">
+        <Flex direction="column" gap="4" className="px-2 sm:px-4 md:px-6">
+          {/* En-tête avec titre et recherche */}
+          <Card size="2" className="bg-[var(--color-background)] border border-[var(--gray-5)] rounded-2xl">
+            <Flex direction="column" gap="4" className="p-4 md:p-6">
+              <Flex align="center" gap="3" className="flex-wrap sm:flex-nowrap">
+                <GiTrophyCup size={28} className="text-[var(--accent-9)]" />
+                <Heading 
+                  size={{initial: "5", sm: "6"}} 
+                  className="bg-gradient-to-r from-[var(--accent-9)] to-[var(--accent-11)] bg-clip-text text-transparent"
+                >
+                  Classement Mondial
+                </Heading>
+              </Flex>
+              
+              <Flex direction="column" gap="4" className="sm:flex-row sm:items-center">
+                <Box className="w-full sm:flex-1">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <MagnifyingGlassIcon width="16" height="16" className="text-[var(--gray-9)]" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Rechercher un joueur..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-[var(--gray-6)] focus:outline-none focus:border-[var(--accent-9)] bg-[var(--color-background)] text-[var(--gray-12)] text-sm transition-colors"
+                    />
+                  </div>
+                </Box>
+                
+                {currentUserPosition > 0 && (
+                  <Box className="w-full sm:w-auto">
+                    <Card className="bg-gradient-to-r from-[var(--accent-9)] to-[var(--accent-11)] p-2 sm:px-4 rounded-lg shadow-lg">
+                      <Flex align="center" justify="center" gap="2">
+                        <Text className="text-white text-sm">Votre position</Text>
+                        <Text size="4" weight="bold" className="text-white">
+                          #{currentUserPosition}
+                        </Text>
+                      </Flex>
+                    </Card>
+                  </Box>
+                )}
+              </Flex>
+            </Flex>
+          </Card>
+
+          {/* Tableau principal */}
+          <Card size="2" className="w-full bg-[var(--color-background)] border border-[var(--gray-5)] rounded-2xl overflow-hidden shadow-sm">
+            <Flex direction="column">
+              <Box className="p-4 md:p-6 border-b border-[var(--gray-5)] bg-[var(--color-background)]">
+                <Flex justify="between" align="center">
+                  <Flex direction="column" gap="1">
+                    <Text size="2" color="gray" className="text-sm">
+                      {filteredUsers.length} joueurs classés
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Box>
+
+              <Box className="overflow-hidden">
                 <LeaderboardTable data={leaderboardData} />
               </Box>
             </Flex>
           </Card>
-        </Container>
-      </Box>
+        </Flex>
+      </Container>
+    </Box>
   );
 }
