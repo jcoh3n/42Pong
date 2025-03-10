@@ -22,7 +22,7 @@ export default function SettingsPage() {
 
   const [preferences, setPreferences] = useState({
     notifications: currentUser?.notifications || true,
-    theme: "system",
+    theme: localStorage.getItem('theme') as 'inherit' | 'dark' | 'light' || 'inherit',
     language: "en"
   });
 
@@ -33,7 +33,7 @@ export default function SettingsPage() {
         if (user) {
           setPreferences({
             notifications: user.notifications || true,
-            theme: user.theme || "system",
+            theme: user.theme as 'inherit' | 'dark' | 'light' || 'inherit',
             language: user.language || "en"
           });
         }
@@ -90,7 +90,6 @@ export default function SettingsPage() {
           <PreferencesCard 
             preferences={preferences}
             onPreferenceChange={handlePreferenceChange}
-            isSaving={isSaving}
           />
 
           <AccountCard onDeleteAccount={handleDeleteAccount} />

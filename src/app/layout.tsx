@@ -23,18 +23,16 @@ export default function RootLayout({
       <body>
         <AuthProvider>
 			<ThemeProvider attribute="class" enableSystem>
-				<Theme accentColor="blue" grayColor="slate" scaling="100%" radius="medium">
-					<Protected>
-						<ThemeLayout>
-							<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
-								<Sidebar />
-								<div style={{ width: '100%', height: '100%', padding: '20px', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+				<ThemeLayout>
+					<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+						<Sidebar />
+							<div style={{ width: '100%', height: '100%', padding: '20px', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+								<Protected>
 									{children}
-								</div>
-							</Flex>
-						</ThemeLayout>
-					</Protected>
-				</Theme>
+								</Protected>
+							</div>
+					</Flex>
+				</ThemeLayout>
 		    </ThemeProvider>
         </AuthProvider>
       </body>
