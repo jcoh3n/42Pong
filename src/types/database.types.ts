@@ -35,6 +35,7 @@ export type Database = {
           created_at: string
           finished_at: string | null
           id: string
+          type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
           user_1_score: number
           user_2_id: string
@@ -45,6 +46,7 @@ export type Database = {
           created_at?: string
           finished_at?: string | null
           id?: string
+          type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
           user_1_score?: number
           user_2_id: string
@@ -55,6 +57,7 @@ export type Database = {
           created_at?: string
           finished_at?: string | null
           id?: string
+          type?: Database["public"]["Enums"]["match_type"]
           user_1_id?: string
           user_1_score?: number
           user_2_id?: string
@@ -85,36 +88,65 @@ export type Database = {
           },
         ]
       }
+      matchmaking_queue: {
+        Row: {
+          id: string
+          joined_at: string | null
+          player_id: string
+          status: Database["public"]["Enums"]["matchmaking_status"]
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          player_id: string
+          status?: Database["public"]["Enums"]["matchmaking_status"]
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          player_id?: string
+          status?: Database["public"]["Enums"]["matchmaking_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matchmaking_queue_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: true
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Users: {
         Row: {
           avatar_url: string
           created_at: string
           elo_score: number
           id: string
+          language: string | null
           login: string
-          theme: string
-          language: string
-          notifications: boolean
+          notifications: boolean | null
+          theme: string | null
         }
         Insert: {
           avatar_url: string
           created_at?: string
           elo_score?: number
           id?: string
+          language?: string | null
           login: string
-          theme?: string
-          language?: string
-          notifications?: boolean
+          notifications?: boolean | null
+          theme?: string | null
         }
         Update: {
           avatar_url?: string
           created_at?: string
           elo_score?: number
           id?: string
+          language?: string | null
           login?: string
-          theme?: string
-          language?: string
-          notifications?: boolean
+          notifications?: boolean | null
+          theme?: string | null
         }
         Relationships: []
       }
@@ -123,10 +155,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_player_to_queue: {
+        Args: {
+          player_id: string
+        }
+        Returns: Json
+      }
+      create_match_from_queue: {
+        Args: {
+          player1_id: string
+          player2_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       challenge_status: "pending" | "ongoing" | "completed"
+      match_type: "normal" | "ranked" | "friendly"
+      matchmaking_status: "waiting" | "matched" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
