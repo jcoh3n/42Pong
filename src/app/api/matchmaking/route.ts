@@ -1,19 +1,22 @@
 import { NextResponse } from "next/server";
 import serverAuth from "@/lib/auth/serverAuth";
 import { createClient } from "@/libs/supabase/server";
-import { addToQueue } from "@/services/matchmaking/queue";
+import { addToQueue, getPlayerActiveMatch, getPlayerQueueStatus, MatchmakingQueue } from "@/services/matchmakingService";
+import { Database } from "@/types/database.types";
+import { Match } from "@/services/matchService";
+import { PostgrestError } from "@supabase/supabase-js";
 
 export type MatchmakingResponse = {
-	data: {
+	data?: {
 		inQueue: boolean;
-		queueEntry: Database['public']['Tables']['matchmaking_queue']['Row'];
+		inMatch: boolean;
+		queueData: MatchmakingQueue | null;
+		matchData: Match | null;
 	};
-	error: {
-		message: string;
-		code: string;
-	};
+	error?: PostgrestError | string | null;
 };
-export async function GET() {
+
+export async function GET(): Promise<NextResponse<MatchmakingResponse>> {
 	try {
 		// Authenticate user
 		const currentUser = await serverAuth();
@@ -21,9 +24,24 @@ export async function GET() {
 			return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 		}
 
-		// Check if user is in matchmaking queue
-		const { data, error } = await get
+		const { data: queueData, error: queueError } = await getPlayerQueueStatus(currentUser.id);
+		if (queueError) {
+			return NextResponse.json({ error: queueError?.message }, { status: 500 });
+		}
 
+		// Check if user is in matchmaking queue
+		const { data: activeMatch, error: activeMatchError } = await getPlayerActiveMatch(currentUser.id);
+
+		if (activeMatchError) {
+			return NextResponse.json({ error: activeMatchError?.message }, { status: 500 });
+		}
+
+		return NextResponse.json({ data: {
+			inQueue: queueData ? true : false,
+			inMatch: activeMatch ? true : false,
+			queueData,
+			matchData: activeMatch,
+		} });
 	} catch (error) {
 		console.error("Error in matchmaking GET route:", error);
 		return NextResponse.json({ error: "Failed to fetch queue status" }, { status: 500 });

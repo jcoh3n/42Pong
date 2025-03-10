@@ -10,6 +10,10 @@ export type Match = Database['public']['Tables']['Matches']['Row'];
 export type MatchInsert = Database['public']['Tables']['Matches']['Insert'];
 export type MatchUpdate = Database['public']['Tables']['Matches']['Update'];
 
+// Matchmaking types
+export type Matchmaking = Database['public']['Tables']['matchmaking_queue']['Row'];
+export type MatchmakingStatus = Database['public']['Enums']['matchmaking_status'];
+
 // Challenge types
 export type Challenge = Database['public']['Tables']['Challenge']['Row'];
 

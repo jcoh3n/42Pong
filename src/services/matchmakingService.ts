@@ -1,12 +1,20 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, PostgrestError } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
-import { FunctionResponse } from '@/types/functionsTypes';
+import { Match } from './matchService';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
+
+// Define challenge-specific types
+export type MatchmakingQueue = Database['public']['Tables']['matchmaking_queue']['Row'];
+export type MatchmakingQueueInsert = Database['public']['Tables']['matchmaking_queue']['Insert'];
+export type MatchmakingQueueUpdate = Database['public']['Tables']['matchmaking_queue']['Update'];
+export type MatchmakingQueueStatus = Database['public']['Enums']['matchmaking_status'];
+
+ 
 /**
  * Add a player to the matchmaking queue
  * @param playerId The ID of the player to add to the queue
@@ -19,7 +27,7 @@ export const addToQueue = async (playerId: string) => {
 	});
 
 	return data as {
-		data?: Database['public']['Tables']['matchmaking_queue']['Row'];
+		data?: MatchmakingQueue;
 		error?: {
 		  message: string;
 		  code: string;
@@ -65,7 +73,7 @@ export const getWaitingPlayers = async () => {
  */
 export const updatePlayerStatus = async (
   playerId: string,
-  status: Database['public']['Enums']['matchmaking_status']
+  status: MatchmakingQueueStatus
 ) => {
   const { data, error } = await supabase
     .from('matchmaking_queue')
@@ -146,7 +154,7 @@ export const createMatch = async (player1_id: string, player2_id: string) => {
 	}
 
 	return data as {
-			data: Database['public']['Tables']['Matches']['Row'];
+			data: Match;
 			error: {
 			  message: string;
 			  code: string;
@@ -159,22 +167,31 @@ export const createMatch = async (player1_id: string, player2_id: string) => {
  * @param playerId The ID of the player
  * @returns The queue status or null if not in queue
  */
-export const getPlayerQueueStatus = async (playerId: string) => {
+export const getPlayerQueueStatus = async (playerId: string): Promise<{
+	data: MatchmakingQueue | null;
+	error: PostgrestError | null;
+}> => {
   const { data, error } = await supabase
     .from('matchmaking_queue')
     .select('*')
     .eq('player_id', playerId)
     .single();
 
-  if (error) {
-    if (error.code === 'PGRST116') {
-      // Not found
-      return { data: null, error: null };
-    }
-    return { data: null, error };
-  }
 
-  return { data, error: null };
+	if (error?.code === 'PGRST116') {
+		return { data: null, error: null };
+	}
+
+	if (error) {
+		console.error('Error fetching player queue status:', error);
+		return { data: null, error };
+	}
+
+	if (!data) {
+		return { data: null, error: null };
+	}
+
+	return { data, error: null };
 };
 
 /**
@@ -182,32 +199,32 @@ export const getPlayerQueueStatus = async (playerId: string) => {
  * @param playerId The ID of the player
  * @returns The match ID if found, null otherwise
  */
-export const getPlayerActiveMatch = async (playerId: string) => {
+export const getPlayerActiveMatch = async (
+	playerId: string
+): Promise<{
+	data: Match | null;
+	error: PostgrestError | null;
+}> => {
   // First check if player was recently matched
-  const { data: queueEntry } = await supabase
-    .from('matchmaking_queue')
+  const { data, error } = await supabase
+    .from('Matches')
     .select('*')
-    .eq('player_id', playerId)
-    .eq('status', 'matched')
+    .or(`user_1_id.eq.${playerId},user_2_id.eq.${playerId}`)
+    .is('finished_at', null)
     .single();
 
-  if (queueEntry) {
-    // Look for recent match with this player
-    const { data: match, error } = await supabase
-      .from('Matches')
-      .select('*')
-      .or(`user_1_id.eq.${playerId},user_2_id.eq.${playerId}`)
-      .is('finished_at', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+	if (error?.code === 'PGRST116') {
+		return { data: null, error: null };
+	}
 
-    if (error) {
-      return { data: null, error };
-    }
+	if (error) {
+		console.error('Error fetching player active match:', error);
+		return { data: null, error };
+	}
 
-    return { data: match, error: null };
-  }
+	if (!data) {
+		return { data: null, error: null };
+	}
 
-  return { data: null, error: null };
+	return { data, error: null };
 }; 
