@@ -22,7 +22,7 @@ export default function SettingsPage() {
 
   const [preferences, setPreferences] = useState({
     notifications: currentUser?.notifications || true,
-    theme: localStorage.getItem('theme') as 'inherit' | 'dark' | 'light' || 'inherit',
+    theme: global?.window?.localStorage.getItem('theme') as 'inherit' | 'dark' | 'light' || 'inherit',
     language: "en"
   });
 
