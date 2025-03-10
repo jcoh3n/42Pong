@@ -29,19 +29,19 @@ export function DateRangeSelector() {
           <Flex direction="column" gap="3">
             <Box>
               <Text as="label" size="2" mb="1" weight="medium">Start Date</Text>
-              <TextField.Root 
+              <TextField 
                 placeholder="Start date" 
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value)}
                 size="2"
               />
             </Box>
             <Box>
               <Text as="label" size="2" mb="1" weight="medium">End Date</Text>
-              <TextField.Root 
+              <TextField 
                 placeholder="End date" 
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value)}
                 size="2"
               />
             </Box>
@@ -49,12 +49,14 @@ export function DateRangeSelector() {
               <Button 
                 variant="soft" 
                 color="gray" 
+                size="2" 
                 onClick={() => setIsOpen(false)}
-                size="1"
               >
                 Cancel
               </Button>
-              <Button onClick={handleApply} size="1">Apply</Button>
+              <Button size="2" onClick={handleApply}>
+                Apply Range
+              </Button>
             </Flex>
           </Flex>
         </Box>
