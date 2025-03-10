@@ -6,17 +6,15 @@ import { NotificationBell } from "./NotificationBell";
 import { UserProfile } from "./UserProfile";
 import Link from "next/link";
 import { type User } from "@/services/types";
+import useCurrentUser from "@/hooks/useCurrentUser";
 
-interface HeaderProps {
-  user?: User;
-}
+export function Header() {
+	const { data: user, isLoading } = useCurrentUser();
 
-export function Header({ user }: HeaderProps) {
   return (
     <Box 
       style={{ 
         borderBottom: '1px solid var(--gray-5)',
-        backgroundColor: 'white',
         position: 'sticky',
         top: 0,
         zIndex: 10,
@@ -50,9 +48,9 @@ export function Header({ user }: HeaderProps) {
         </Flex>
 
         {/* Center - Search Bar */}
-        <Box style={{ flexGrow: 1, maxWidth: '600px', margin: '0 24px' }}>
+        {/* <Box style={{ flexGrow: 1, maxWidth: '600px', margin: '0 24px' }}>
           <SearchBar />
-        </Box>
+        </Box> */}
 
         {/* Right side - Notifications and User Profile */}
         <Flex align="center" gap="4">

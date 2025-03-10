@@ -10,8 +10,10 @@ import {
 } from "@radix-ui/react-icons";
 import { SidebarNavItem } from "./SidebarNavItem";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Sidebar() {
+	const router = useRouter();
   return (
     <Box
       style={{ 
@@ -22,27 +24,24 @@ export default function Sidebar() {
         flexDirection: 'column'
       }}
     >
-      {/* Logo */}
-      <Flex align="center" py="6" px="6">
-        <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <Flex align="center" gap="4">
-            <Box style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              width: '40px',
-              height: '30px'
-            }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="24" height="24" rx="6" fill="black" />
-                <path d="M7 13L10 10M10 10L7 7M10 10H16.5M14 7L17 10M17 10L14 13M17 10H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Box>
-            <Text weight="bold" size="5">42Pong</Text>
-          </Flex>
-        </Link>
-      </Flex>
-      
+      {/* <Separator size="4" /> */}
+
+      {/* Logo and Title */}
+		<div onClick={() => router.push('/')} className="cursor-pointer flex flex-row items-center gap-2 px-5 ml-6 py-4">
+		<Box style={{ 
+			display: 'flex', 
+			alignItems: 'center', 
+			justifyContent: 'center',
+			width: '32px',
+			height: '32px'
+		}}>
+			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<rect width="24" height="24" rx="6" fill="black" />
+				<path d="M7 13L10 10M10 10L7 7M10 10H16.5M14 7L17 10M17 10L14 13M17 10H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+			</svg>
+		</Box>
+			<Text size="5" weight="bold">42Pong</Text>
+		</div>
       <Separator size="4" />
       
       {/* Main Navigation */}

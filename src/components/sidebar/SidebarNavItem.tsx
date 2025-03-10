@@ -29,7 +29,7 @@ export function SidebarNavItem({
         py="3" 
         px="6"
         style={{ 
-          borderRadius: 'var(--radius-2)',
+          borderRadius: '0',
           backgroundColor: isActive ? 'var(--accent-3)' : 'transparent',
           color: isActive ? 'var(--accent-11)' : 'var(--gray-11)'
         }}

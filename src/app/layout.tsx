@@ -7,6 +7,7 @@ import "@radix-ui/themes/styles.css";
 import Sidebar from "@/components/sidebar/Sidebar";
 import { ThemeProvider } from "next-themes";
 import ThemeLayout from "@/components/ThemeLayout";
+import { Header } from "@/components/header/Header";
 
 export const metadata: Metadata = {
   title: "42Pong",
@@ -24,13 +25,16 @@ export default function RootLayout({
         <AuthProvider>
 			<ThemeProvider attribute="class" enableSystem>
 				<ThemeLayout>
-					<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+					<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden', flexDirection: 'row' }}>
 						<Sidebar />
-						<div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
-							<Protected>
+						<Flex style={{ width: '100%', height: '100%', overflow: 'hidden', flexDirection: 'column' }}>
+							<Header />
+							<div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+								<Protected>
 								{children}
 							</Protected>
-						</div>
+							</div>
+						</Flex>
 					</Flex>
 				</ThemeLayout>
 		    </ThemeProvider>
