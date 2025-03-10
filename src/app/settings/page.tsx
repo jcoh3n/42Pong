@@ -45,7 +45,7 @@ export default function SettingsPage() {
   const handlePreferenceChange = async (key: string, value: any) => {
     setPreferences(prev => ({ ...prev, [key]: value }));
     setIsSaving(true);
-    
+
     try {
       if (currentUser?.id) {
         await userService.updateUser(currentUser.id, {
