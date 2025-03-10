@@ -1,3 +1,5 @@
+"use client";
+
 import { Flex, Text, Box } from "@radix-ui/themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,23 +21,28 @@ export function SidebarNavItem({
   onItemClick,
 }: SidebarNavItemProps) {
   return (
-    <Link href={href} onClick={onItemClick} prefetch style={{ textDecoration: 'none', color: 'system' }}>
+    <Link 
+      href={href} 
+      onClick={onItemClick} 
+      prefetch 
+      className="no-underline text-current w-full"
+      aria-current={isActive ? 'page' : undefined}
+    >
       <Flex 
         align="center" 
         justify="between" 
         py="3" 
-        px="6"
-        style={{ 
-          borderRadius: '0',
-          backgroundColor: isActive ? 'var(--accent-3)' : 'transparent',
-          color: isActive ? 'var(--accent-11)' : 'var(--gray-11)'
-        }}
+        px="4"
+        className={`
+          transition-colors duration-200
+          ${isActive ? 'bg-blue-500/10 border-l-2 border-blue-500' : 'hover:bg-gray-500/5 border-l-2 border-transparent'}
+        `}
       >
-        <Flex align="center" gap="4">
-          <Box style={{ color: isActive ? 'var(--accent-9)' : 'var(--gray-9)' }}>
+        <Flex align="center" gap="3">
+          <Box className={`${isActive ? 'text-blue-500' : 'text-gray-400'}`}>
             {icon}
           </Box>
-          <Text size="3" weight={isActive ? "medium" : "regular"}>
+          <Text className={`${isActive ? 'text-blue-500 font-medium' : 'text-gray-300'}`}>
             {label}
           </Text>
         </Flex>

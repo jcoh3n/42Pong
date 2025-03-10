@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import { MobileOnly, DesktopOnly } from "./ResponsiveContainer";
+import Link from "next/link";
 
 interface NavItemProps {
   icon: ReactNode;
@@ -24,21 +25,15 @@ export function NavItem({
   href, 
   ariaLabel 
 }: NavItemProps) {
-  const Tag = href ? 'a' : 'button';
-  const props = href ? { href } : { type: 'button' };
-  const accessibilityProps = {
+  const commonProps = {
+    onClick,
+    className: "flex flex-row items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
     'aria-label': ariaLabel || label,
-    'aria-current': active ? 'page' : undefined,
-    role: href ? 'link' : 'button',
+    'aria-current': active ? ('page' as const) : undefined,
   };
 
-  return (
-    <Tag 
-      {...props} 
-      {...accessibilityProps}
-      onClick={onClick} 
-      className="flex flex-row items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-    >
+  const content = (
+    <>
       {/* Version Mobile - Uniquement l'icône */}
       <MobileOnly>
         <div
@@ -57,7 +52,9 @@ export function NavItem({
             ${active ? 'bg-slate-300 bg-opacity-10' : ''}
           `}
         >
-          {icon}
+          <span className={`${active ? 'text-accent-9' : 'text-gray-9'}`}>
+            {icon}
+          </span>
           <span className="sr-only">{label}</span>
         </div>
       </MobileOnly>
@@ -79,12 +76,28 @@ export function NavItem({
             ${active ? 'bg-slate-300 bg-opacity-10' : ''}
           `}
         >
-          {icon}
-          <p className="text-white text-xl">
+          <span className={`${active ? 'text-accent-9' : 'text-gray-9'}`}>
+            {icon}
+          </span>
+          <p className={`text-xl ${active ? 'text-accent-11 font-medium' : 'text-gray-11 font-normal'}`}>
             {label}
           </p>
         </div>
       </DesktopOnly>
-    </Tag>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link href={href} {...commonProps}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" {...commonProps}>
+      {content}
+    </button>
   );
 } 
