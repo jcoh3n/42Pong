@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
+import { FunctionResponse } from '@/types/functionsTypes';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -13,15 +14,17 @@ const supabase = createClient<Database>(supabaseUrl, supabaseKey);
  */
 export const addToQueue = async (playerId: string) => {
   // Check if player is already in queue
-  	const { data, error } = await supabase.rpc('add_player_to_queue', {
+  	const { data } = await supabase.rpc('add_player_to_queue', {
    		player_id: playerId
 	});
 
-	if (error) {
-		return { data: null, error };
-	}
-
-	return { data, error };
+	return data as {
+		data?: Database['public']['Tables']['matchmaking_queue']['Row'];
+		error?: {
+		  message: string;
+		  code: string;
+		};
+	};
 };
 
 /**
@@ -138,7 +141,17 @@ export const createMatch = async (player1_id: string, player2_id: string) => {
 		player2_id
 	});
 
-  	return { data, error };
+	if (!data) {
+		return { data: null, error };
+	}
+
+	return data as {
+			data: Database['public']['Tables']['Matches']['Row'];
+			error: {
+			  message: string;
+			  code: string;
+			};
+		};
 };
 
 /**

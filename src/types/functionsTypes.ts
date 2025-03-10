@@ -1,5 +1,5 @@
 export type FunctionResponse = {
-  data: null;
+  data: any;
   error: {
     message: string;
     code: string;
