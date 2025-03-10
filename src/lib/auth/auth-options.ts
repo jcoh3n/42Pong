@@ -54,7 +54,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       try {
         // Vérifier si l'utilisateur existe déjà
-        const existingUser = await userService.getUserByLogin(user.login);
+        const existingUser = await userService.getUserById(user.id);
         if (existingUser) return true;
 
         // Créer le nouvel utilisateur

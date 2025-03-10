@@ -22,6 +22,7 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
       width: "100%",
       background: "linear-gradient(135deg, var(--gray-2), var(--gray-1))",
       border: "1px solid var(--gray-6)",
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
     }}>
       <Flex align="center" gap="4" direction="column" py="6">
         <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-violet-500 shadow-lg" style={{
@@ -40,10 +41,16 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
         </div>
         
         <Flex direction="column" align="center" gap="2">
-          <Text size="6" weight="bold" style={{ color: "var(--gray-12)" }}>
+          <Text size="6" weight="bold" style={{ 
+            color: "var(--gray-12)",
+            textShadow: "0 1px 2px rgba(0, 0, 0, 0.05)"
+          }}>
             {user.login}
           </Text>
-          <Text size="2" style={{ color: "var(--gray-11)" }}>
+          <Text size="2" style={{ 
+            color: "var(--gray-11)",
+            textShadow: "0 1px 1px rgba(255, 255, 255, 0.5)"
+          }}>
             42 Login • Joined {new Date(user.created_at).toLocaleDateString()}
           </Text>
         </Flex>

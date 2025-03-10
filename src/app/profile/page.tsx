@@ -1,15 +1,14 @@
 "use client";
 
 import React from 'react';
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Box, Container, Flex, Button } from "@radix-ui/themes";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
-import useUser from "@/hooks/users/useUser";
 import useUserMatches from "@/hooks/matches/useUserMatches";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import RankCard from "@/components/profile/RankCard";
 import StatsCard from "@/components/profile/StatsCard";
+import useCurrentUser from '@/hooks/useCurrentUser';
 
 interface Match {
   winner_id: string | null;
@@ -36,10 +35,8 @@ const calculateStats = (matches: Match[] = [], userId?: string) => {
 };
 
 export default function Profile() {
-  const { data: session } = useSession();
+  const { data: currentUser, isLoading: isLoadingUser } = useCurrentUser();
   const router = useRouter();
-  const userId = session?.user?.login;
-  const { user: currentUser, isLoading: isLoadingUser } = useUser(userId);
   const { matches, isLoading: isLoadingMatches } = useUserMatches(currentUser?.id);
 
   // Affichage du chargement
@@ -51,12 +48,13 @@ export default function Profile() {
 
   return (
     <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-      <Container size="3" py="9">
+      <Container size="3" py="9" className="shadow-sm">
         <Flex direction="column" gap="6">
           <Button
             variant="ghost"
             onClick={() => router.push("/")}
             style={{ alignSelf: "flex-start", marginBottom: "1rem" }}
+            className="shadow-sm hover:shadow-md transition-shadow"
           >
             <ArrowLeftIcon width="16" height="16" />
             Back to Home
@@ -70,11 +68,12 @@ export default function Profile() {
                   <RankCard user={currentUser} />
                 </Box>
                 <Box style={{ flex: "1 1 300px" }}>
-                  <StatsCard user={currentUser} stats={stats} />
+                	<StatsCard user={currentUser} stats={stats} />
                 </Box>
               </Flex>
             </>
           )}
+
         </Flex>
       </Container>
     </Box>

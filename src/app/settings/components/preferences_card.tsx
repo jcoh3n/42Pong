@@ -17,24 +17,17 @@ interface PreferencesCardProps {
     language: string;
   };
   onPreferenceChange: (key: string, value: any) => void;
-  isSaving: boolean;
 }
 
 export default function PreferencesCard({ 
   preferences, 
-  onPreferenceChange,
-  isSaving 
+  onPreferenceChange
 }: PreferencesCardProps) {
   return (
     <Card size="2" className="transition-all duration-200 hover:shadow-lg">
       <Flex direction="column" gap="5" p="5">
         <Flex justify="between" align="center">
           <Heading size="3">Preferences</Heading>
-          {isSaving && (
-            <Text size="2" color="gray">
-              Saving...
-            </Text>
-          )}
         </Flex>
 
         <Flex direction="column" gap="4">

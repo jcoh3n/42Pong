@@ -5,6 +5,8 @@ import Protected from "@/components/Protected";
 import { Box, Flex, Theme } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import Sidebar from "@/components/sidebar/Sidebar";
+import { ThemeProvider } from "next-themes";
+import ThemeLayout from "@/components/ThemeLayout";
 
 export const metadata: Metadata = {
   title: "42Pong",
@@ -20,16 +22,18 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <Theme accentColor="blue" appearance="dark" grayColor="slate" scaling="100%" radius="medium">
-            <Protected>
-				<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
-					<Sidebar />
-					<div style={{ width: '100%', height: '100%', padding: '20px', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
-						{children}
-					</div>
-				</Flex>
-			</Protected>
-          </Theme>
+			<ThemeProvider attribute="class" enableSystem>
+				<ThemeLayout>
+					<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
+						<Sidebar />
+							<div style={{ width: '100%', height: '100%', padding: '20px', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+								<Protected>
+									{children}
+								</Protected>
+							</div>
+					</Flex>
+				</ThemeLayout>
+		    </ThemeProvider>
         </AuthProvider>
       </body>
     </html>
