@@ -26,11 +26,11 @@ export default function RootLayout({
 				<ThemeLayout>
 					<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden' }}>
 						<Sidebar />
-							<div style={{ width: '100%', height: '100%', padding: '20px', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
-								<Protected>
-									{children}
-								</Protected>
-							</div>
+						<div style={{ width: '100%', height: '100%', padding: '20px', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+							<Protected>
+								{children}
+							</Protected>
+						</div>
 					</Flex>
 				</ThemeLayout>
 		    </ThemeProvider>
