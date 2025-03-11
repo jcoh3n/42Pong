@@ -3,11 +3,13 @@
 import { signIn } from "next-auth/react";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
+import useCurrentUser from "@/hooks/useCurrentUser";
+import { mutate } from "swr";
 
 // Client component that uses useSearchParams
 function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
 
   // Récupérer l'erreur des paramètres d'URL
@@ -20,21 +22,21 @@ function LoginContent() {
         OAuthCreateAccount: "Erreur lors de la création du compte. Veuillez réessayer.",
       };
       
-      setError(errorMessages[errorParam] || `Erreur d'authentification: ${errorParam}`);
+      toast.error(errorMessages[errorParam] || `Erreur d'authentification: ${errorParam}`);
     }
   }, [searchParams]);
 
   const handleLogin = async () => {
     setIsLoading(true);
-    setError(null);
     
     try {
       await signIn("42-school");
     } catch (error) {
       console.error("Erreur de connexion:", error);
-      setError("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
-      setIsLoading(false);
-    }
+      toast.error("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
+    } finally {
+		setIsLoading(false);
+	}
   };
 
   return (
@@ -42,7 +44,7 @@ function LoginContent() {
       <button
         onClick={handleLogin}
         disabled={isLoading}
-        className="flex disabled:opacity-70 items-center gap-3 bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-70 border border-gray-200 shadow-sm"
+        className="flex items-center gap-3 bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-70 border border-gray-200 shadow-sm"
       >
         {isLoading ? (
           "Connexion en cours..."
@@ -57,11 +59,6 @@ function LoginContent() {
           </>
         )}
       </button>
-      {error && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 p-4 text-red-700 bg-red-100 border border-red-400 rounded-md">
-          {error}
-        </div>
-      )}
     </div>
   );
 }

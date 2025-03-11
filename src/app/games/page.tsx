@@ -10,6 +10,7 @@ import {
   Button,
 } from "@radix-ui/themes";
 import useMatchmaking from "@/hooks/useMatchmaking";
+import Loading from "@/components/Loading";
 
 export default function GamePage() {
 	const {
@@ -40,15 +41,22 @@ export default function GamePage() {
                 <Text size="2" color="gray">
                   Join a random game with another player
                 </Text>
-                {matchmakingData?.data?.inQueue ? (
-                  <Button size="3" variant="soft" mt="2" onClick={stopMatchmaking}>
-                    Cancel ({timeInQueue || '...'})
-                  </Button>
-                ) : (
-                  <Button size="3" variant="soft" mt="2" onClick={startMatchmaking}>
-                    Play now
-                  </Button>
-                )}
+
+            	{
+					matchmakingIsLoading ? (
+						<Button size="3" variant="soft" mt="2">
+							<div><Loading/></div>
+						</Button>
+					) : matchmakingData?.data?.inQueue ? (
+						<Button size="3" variant="soft" mt="2" onClick={stopMatchmaking}>
+							Cancel ({timeInQueue || <div><Loading/></div>})
+						</Button>
+					) : (
+						<Button size="3" variant="soft" mt="2" onClick={startMatchmaking}>
+							Play now
+						</Button>
+					)
+				}
               </Flex>
             </Card>
 

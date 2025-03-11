@@ -14,19 +14,19 @@ export type Database = {
           created_at: string
           created_by: string
           id: string
-          status: Database["public"]["Enums"]["challenge_status"]
+          status: Database["public"]["Enums"]["match_status"]
         }
         Insert: {
           created_at?: string
           created_by?: string
           id?: string
-          status?: Database["public"]["Enums"]["challenge_status"]
+          status?: Database["public"]["Enums"]["match_status"]
         }
         Update: {
           created_at?: string
           created_by?: string
           id?: string
-          status?: Database["public"]["Enums"]["challenge_status"]
+          status?: Database["public"]["Enums"]["match_status"]
         }
         Relationships: []
       }
@@ -35,6 +35,7 @@ export type Database = {
           created_at: string
           finished_at: string | null
           id: string
+          status: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
           user_1_score: number
@@ -46,6 +47,7 @@ export type Database = {
           created_at?: string
           finished_at?: string | null
           id?: string
+          status?: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
           user_1_score?: number
@@ -57,6 +59,7 @@ export type Database = {
           created_at?: string
           finished_at?: string | null
           id?: string
+          status?: Database["public"]["Enums"]["match_status"]
           type?: Database["public"]["Enums"]["match_type"]
           user_1_id?: string
           user_1_score?: number
@@ -117,6 +120,38 @@ export type Database = {
           },
         ]
       }
+      Notifications: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          seen: boolean | null
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id: string
+          seen?: boolean | null
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          seen?: boolean | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Notifications_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Users: {
         Row: {
           avatar_url: string
@@ -170,7 +205,7 @@ export type Database = {
       }
     }
     Enums: {
-      challenge_status: "pending" | "ongoing" | "completed"
+      match_status: "pending" | "ongoing" | "completed" | "cancelled"
       match_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
     }

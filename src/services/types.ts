@@ -17,6 +17,11 @@ export type MatchmakingStatus = Database['public']['Enums']['matchmaking_status'
 // Challenge types
 export type Challenge = Database['public']['Tables']['Challenge']['Row'];
 
+// Notification types
+export type Notification = Database['public']['Tables']['Notifications']['Row'];
+export type NotificationInsert = Database['public']['Tables']['Notifications']['Insert'];
+export type NotificationUpdate = Database['public']['Tables']['Notifications']['Update'];
+
 // Pagination type
 export interface PaginatedResponse<T> {
   data: T[];

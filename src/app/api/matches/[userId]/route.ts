@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth/next";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth/auth-options";
 import { Match, matchService } from "@/services";
 import serverAuth from "@/lib/auth/serverAuth";
@@ -9,7 +9,7 @@ import { NextApiRequest } from "next";
 type SortByColumn = "id" | "user_1_id" | "user_2_id" | "winner_id" | "created_at" | "finished_at" | "user_1_score" | "user_2_score";
 
 export async function GET(
-  request: NextApiRequest
+  request: NextRequest
 ) {
   try {
     const currentUser = await serverAuth();
@@ -18,7 +18,15 @@ export async function GET(
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-	const { userId, page, limit, sortBy, order } = request.query;
+	const userId = request.nextUrl.searchParams.get('userId');
+	if (!userId) {
+		return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+	}
+
+	const page = request.nextUrl.searchParams.get('page');
+	const limit = request.nextUrl.searchParams.get('limit');
+	const sortBy = request.nextUrl.searchParams.get('sortBy');
+	const order = request.nextUrl.searchParams.get('order');
 
     // Ensure sortBy is a valid column name
     const validColumns: string[] = ["id", "user_1_id", "user_2_id", "winner_id", "created_at", "finished_at", "user_1_score", "user_2_score"];
