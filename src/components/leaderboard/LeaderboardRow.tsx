@@ -77,7 +77,11 @@ const getRowStyle = (position: number, isCurrentUser: boolean) => {
   }
 
   if (isCurrentUser) {
-    style.background = 'rgba(14, 165, 233, 0.07)';
+    style.background = '#0F172A';
+    style.position = 'relative';
+    style.transform = 'scale(1.02)';
+    style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+    style.zIndex = 2;
   }
 
   return style;
@@ -90,8 +94,24 @@ export function LeaderboardRow({ item, stats = { totalGames: 0, wins: 0, winRate
     <Table.Row 
       key={item.user.id} 
       style={getRowStyle(item.position, isCurrentUser)}
-      className="hover:bg-[#1E293B] transition-all duration-200 group"
+      className={`hover:bg-[#1E293B] transition-all duration-200 group ${
+        isCurrentUser ? 'relative hover:scale-[1.03]' : 'hover:scale-[1.01]'
+      }`}
     >
+      {isCurrentUser && (
+        <div 
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '4px',
+            height: '100%',
+            background: 'rgba(14, 165, 233, 0.5)',
+            borderTopLeftRadius: '4px',
+            borderBottomLeftRadius: '4px'
+          }}
+        />
+      )}
       <Table.Cell className="py-3 px-3 sm:px-4">
         <Flex align="center" justify="start" gap="3">
           {getRankIcon(item.position)}
