@@ -203,6 +203,14 @@ export type Database = {
         }
         Returns: Json
       }
+      create_notification: {
+        Args: {
+          user_id: string
+          title: string
+          content: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
