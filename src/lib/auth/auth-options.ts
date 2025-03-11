@@ -71,22 +71,20 @@ export const authOptions: NextAuthOptions = {
 
         // Créer le nouvel utilisateur avec l'ID 42
         await userService.createUser({
-          id: user.id, // Utiliser l'ID 42 au lieu d'un UUID
+          id: user.id,
           login: user.login,
           avatar_url: user.image || "",
           elo_score: 1000,
           created_at: new Date().toISOString(),
           theme: "dark",
           language: "fr",
-          notifications: true,
-          wins: 0,
-          total_games: 0,
+          notifications: true
         });
 
         return true;
       } catch (error) {
         console.error("[Auth] User creation/update error:", error);
-        return false; // Ne pas permettre la connexion en cas d'erreur
+        return false;
       }
     },
 
@@ -100,7 +98,6 @@ export const authOptions: NextAuthOptions = {
 
       // Vérifier si le token est expiré
       if (token.expiresAt && Date.now() >= token.expiresAt * 1000) {
-        // Token expiré, déconnecter l'utilisateur
         return {};
       }
 
