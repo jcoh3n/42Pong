@@ -88,7 +88,7 @@ export async function DELETE() {
 		}
 
 		if (status === 'failed') {
-			return NextResponse.json({ error: message }, { status: 400 });
+			return NextResponse.json({ message }, { status: 400 });
 		}
 
 		return NextResponse.json({ success: true });

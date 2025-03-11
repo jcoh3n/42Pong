@@ -53,10 +53,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user }) {
       try {
+        console.log("[Auth] Starting sign in process for user:", user.login);
+        
         // Vérifier si l'utilisateur existe déjà
-        const existingUser = await userService.getUserById(user.id);
-        if (existingUser) return true;
+        const existingUser = await userService.getUserByLogin(user.login);
+        if (existingUser) {
+          console.log("[Auth] Existing user found:", existingUser.login);
+          return true;
+        }
 
+        console.log("[Auth] Creating new user:", user.login);
         // Créer le nouvel utilisateur
         await userService.createUser({
           id: uuidv4(),
@@ -64,10 +70,16 @@ export const authOptions: NextAuthOptions = {
           avatar_url: user.image || "",
           elo_score: 1000,
         });
+        console.log("[Auth] Successfully created user:", user.login);
 
         return true;
       } catch (error) {
         console.error("[Auth] User creation error:", error);
+        console.error("[Auth] Error details:", {
+          user: user.login,
+          errorMessage: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        });
         return true; // Permettre la connexion même en cas d'erreur
       }
     },

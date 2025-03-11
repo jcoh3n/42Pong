@@ -18,6 +18,7 @@ export default function GamePage() {
 		isLoading: matchmakingIsLoading,
 		startMatchmaking,
 		stopMatchmaking,
+		timeInQueue,
 	} = useMatchmaking();
 	
 
@@ -39,9 +40,15 @@ export default function GamePage() {
                 <Text size="2" color="gray">
                   Join a random game with another player
                 </Text>
-                <Button size="3" variant="soft" mt="2" onClick={startMatchmaking}>
-                  Play Now
-                </Button>
+                {matchmakingData?.data?.inQueue ? (
+                  <Button size="3" variant="soft" mt="2" onClick={stopMatchmaking}>
+                    Cancel ({timeInQueue || '...'})
+                  </Button>
+                ) : (
+                  <Button size="3" variant="soft" mt="2" onClick={startMatchmaking}>
+                    Play now
+                  </Button>
+                )}
               </Flex>
             </Card>
 

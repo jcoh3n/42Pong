@@ -47,10 +47,8 @@ export const removeFromQueue = async (playerId: string): Promise<{
 }> => {
   const { data, error } = await supabase
     .from('matchmaking_queue')
-    .update({ status: 'cancelled' })
-    .eq('player_id', playerId)
-    .eq('status', 'waiting')
-    .select();
+    .delete()
+    .eq('player_id', playerId);
 
 	if (error?.code === 'PGRST116') {
 		return { status: 'failed', message: 'Player not found in queue', error: null };
