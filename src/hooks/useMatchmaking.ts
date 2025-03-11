@@ -37,6 +37,16 @@ const useMatchmaking = () => {
 		toast.success('Matchmaking stopped');
 	}, []);
 
+	const timeInQueue = useCallback(() => {
+		if (!data?.data?.queueData?.joined_at) {
+			return null;
+		}
+
+		const joinedAt = new Date(data.data.queueData.joined_at);
+		const now = new Date();
+		return Math.floor((now.getTime() - joinedAt.getTime()) / 1000);
+	}, [data?.data?.queueData?.joined_at]);
+
 	return {
 		data: data as MatchmakingResponse,
 		error,
@@ -44,6 +54,7 @@ const useMatchmaking = () => {
 		mutate,
 		startMatchmaking,
 		stopMatchmaking,
+		timeInQueue,
 	};
 }
 

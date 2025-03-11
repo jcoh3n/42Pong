@@ -190,13 +190,11 @@ export const getPlayerQueueStatus = async (playerId: string): Promise<{
     .eq('player_id', playerId)
     .single();
 
-
 	if (error?.code === 'PGRST116') {
 		return { data: null, error: null };
 	}
 
 	if (error) {
-		console.error('Error fetching player queue status:', error);
 		return { data: null, error };
 	}
 
