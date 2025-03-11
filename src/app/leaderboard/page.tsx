@@ -12,6 +12,7 @@ import {
   Text,
   Card,
   IconButton,
+  Badge,
 } from "@radix-ui/themes";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { GiPingPongBat, GiTrophyCup } from "react-icons/gi";
@@ -52,71 +53,82 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <Box className="min-h-screen bg-[var(--gray-2)] pb-8 relative overflow-hidden">
-      {/* Éléments décoratifs thématiques - masqués sur mobile */}
-      <Box className="hidden md:block absolute -top-[50px] -right-[50px] w-[200px] h-[200px] bg-[var(--accent-9)] rounded-full opacity-10 z-0 rotate-[-15deg]">
-        <GiPingPongBat className="w-full h-full text-[var(--accent-9)] opacity-20" />
-      </Box>
-      <Box className="hidden md:block absolute -bottom-[30px] -left-[30px] w-[150px] h-[150px] bg-[var(--accent-9)] rounded-full opacity-10 z-0 rotate-[15deg]">
-        <GiPingPongBat className="w-full h-full text-[var(--accent-9)] opacity-20 scale-x-[-1]" />
-      </Box>
-
-      <Container size={{initial: "1", sm: "2", md: "3"}} className="py-4 md:py-6">
-        <Flex direction="column" gap="4" className="px-2 sm:px-4 md:px-6">
-          {/* En-tête avec titre et recherche */}
-          <Card size="2" className="bg-[var(--color-background)] border border-[var(--gray-5)] rounded-2xl">
-            <Flex direction="column" gap="4" className="p-4 md:p-6">
-              <Flex align="center" gap="3" className="flex-wrap sm:flex-nowrap">
-                <GiTrophyCup size={28} className="text-[var(--accent-9)]" />
-                <Heading 
-                  size={{initial: "5", sm: "6"}} 
-                  className="bg-gradient-to-r from-[var(--accent-9)] to-[var(--accent-11)] bg-clip-text text-transparent"
-                >
-                  Classement Mondial
-                </Heading>
-              </Flex>
+    <Box className="min-h-screen bg-[#0F172A]">
+      <Container size="3" className="py-6">
+        <Flex direction="column" gap="4">
+          <Card size="2" className="bg-[#1E293B] border-none rounded-xl overflow-hidden">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] opacity-[0.02]" />
               
-              <Flex direction="column" gap="4" className="sm:flex-row sm:items-center">
-                <Box className="w-full sm:flex-1">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <MagnifyingGlassIcon width="16" height="16" className="text-[var(--gray-9)]" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Rechercher un joueur..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-[var(--gray-6)] focus:outline-none focus:border-[var(--accent-9)] bg-[var(--color-background)] text-[var(--gray-12)] text-sm transition-colors"
-                    />
+              <Flex direction="column" gap="4" className="p-4">
+                <Flex align="center" gap="3" className="flex-wrap sm:flex-nowrap">
+                  <div className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] shadow-lg transform hover:scale-105 transition-transform">
+                    <GiPingPongBat size={24} className="text-[#0F172A] transform hover:rotate-12 transition-transform" />
                   </div>
-                </Box>
+                  <div>
+                    <Flex align="baseline" gap="2">
+                      <Text size="6" weight="bold" className="text-white">
+                        42 Pong
+                      </Text>
+                      <Text size="2" className="text-[#94A3B8] tracking-wide uppercase">
+                        Leaderboard
+                      </Text>
+                    </Flex>
+                  </div>
+                </Flex>
                 
-                {currentUserPosition > 0 && (
-                  <Box className="w-full sm:w-auto">
-                    <Card className="bg-gradient-to-r from-[var(--accent-9)] to-[var(--accent-11)] p-2 sm:px-4 rounded-lg shadow-lg">
-                      <Flex align="center" justify="center" gap="2">
-                        <Text className="text-white text-sm">Votre position</Text>
-                        <Text size="4" weight="bold" className="text-white">
-                          #{currentUserPosition}
-                        </Text>
-                      </Flex>
-                    </Card>
+                <Flex direction="column" gap="3" className="sm:flex-row sm:items-center">
+                  <Box className="w-full sm:flex-1">
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                        <MagnifyingGlassIcon width="14" height="14" className="text-[#94A3B8] group-hover:text-[#0EA5E9] transition-colors" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Rechercher un joueur..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-[#334155] bg-[#0F172A] text-white transition-all duration-200 
+                          focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:ring-opacity-50
+                          placeholder-[#64748B] group-hover:border-[#94A3B8]"
+                      />
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] opacity-0 group-hover:opacity-[0.03] pointer-events-none transition-opacity" />
+                    </div>
                   </Box>
-                )}
+                  
+                  {currentUserPosition > 0 && (
+                    <Box className="w-full sm:w-auto">
+                      <Card className="bg-[#0F172A] border border-[#334155] rounded-lg overflow-hidden group hover:border-[#0EA5E9] transition-colors">
+                        <Flex align="center" justify="center" gap="3" className="py-2 px-4">
+                          <Text className="text-[#94A3B8] text-sm group-hover:text-[#0EA5E9] transition-colors">
+                            Votre rang
+                          </Text>
+                          <div className="px-2 py-1 bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] rounded-md shadow-sm group-hover:shadow-md transition-shadow">
+                            <Text size="3" weight="bold" className="text-[#0F172A] font-mono">
+                              #{currentUserPosition}
+                            </Text>
+                          </div>
+                        </Flex>
+                      </Card>
+                    </Box>
+                  )}
+                </Flex>
               </Flex>
-            </Flex>
+            </div>
           </Card>
 
           {/* Tableau principal */}
-          <Card size="2" className="w-full bg-[var(--color-background)] border border-[var(--gray-5)] rounded-2xl overflow-hidden shadow-sm">
+          <Card size="2" className="w-full bg-[#1E293B] border-none rounded-xl overflow-hidden">
             <Flex direction="column">
-              <Box className="p-4 md:p-6 border-b border-[var(--gray-5)] bg-[var(--color-background)]">
+              <Box className="px-4 py-3 border-b border-[#334155]">
                 <Flex justify="between" align="center">
-                  <Flex direction="column" gap="1">
-                    <Text size="2" color="gray" className="text-sm">
-                      {filteredUsers.length} joueurs classés
+                  <Flex gap="2" align="center">
+                    <Text size="1" className="text-[#94A3B8] uppercase tracking-wider font-medium">
+                      Classement
                     </Text>
+                    <Badge variant="surface" className="bg-[#0F172A] text-[#94A3B8] group-hover:bg-[#0EA5E9] group-hover:text-white transition-colors">
+                      {filteredUsers.length}
+                    </Badge>
                   </Flex>
                 </Flex>
               </Box>
