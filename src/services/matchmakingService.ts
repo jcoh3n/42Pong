@@ -40,7 +40,11 @@ export const addToQueue = async (playerId: string) => {
  * @param playerId The ID of the player to remove
  * @returns Success or error
  */
-export const removeFromQueue = async (playerId: string) => {
+export const removeFromQueue = async (playerId: string): Promise<{
+	status: 'failed' | 'success' | 'error';
+	message: string | null;
+	error: PostgrestError | null;
+}> => {
   const { data, error } = await supabase
     .from('matchmaking_queue')
     .update({ status: 'cancelled' })
@@ -48,7 +52,16 @@ export const removeFromQueue = async (playerId: string) => {
     .eq('status', 'waiting')
     .select();
 
-  return { data, error };
+	if (error?.code === 'PGRST116') {
+		return { status: 'failed', message: 'Player not found in queue', error: null };
+	}
+
+	if (error) {
+		console.error('Error removing player from queue:', error);
+		return { status: 'error', message: error.message, error };
+	}
+
+	return { status: 'success', message: 'Player removed from queue', error: null };
 };
 
 /**

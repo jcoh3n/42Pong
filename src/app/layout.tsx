@@ -8,6 +8,8 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import { ThemeProvider } from "next-themes";
 import ThemeLayout from "@/components/ThemeLayout";
 import { Header } from "@/components/header/Header";
+import { Toaster } from 'react-hot-toast'
+
 
 export const metadata: Metadata = {
   title: "42Pong",
@@ -22,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+		<Toaster />
         <AuthProvider>
 			<ThemeLayout>
 				<Flex style={{ width: '100%', height: '100vh', overflow: 'hidden', flexDirection: 'row' }}>

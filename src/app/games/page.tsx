@@ -11,6 +11,7 @@ import {
 } from "@radix-ui/themes";
 
 export default function GamePage() {
+
   return (
     <Box className="min-h-screen">
       <Container size="3" py="9">

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import serverAuth from "@/lib/auth/serverAuth";
 import { createClient } from "@/libs/supabase/server";
-import { addToQueue, getPlayerActiveMatch, getPlayerQueueStatus, MatchmakingQueue } from "@/services/matchmakingService";
+import { addToQueue, getPlayerActiveMatch, getPlayerQueueStatus, MatchmakingQueue, removeFromQueue } from "@/services/matchmakingService";
 import { Database } from "@/types/database.types";
 import { Match } from "@/services/matchService";
 import { PostgrestError } from "@supabase/supabase-js";
@@ -62,5 +62,29 @@ export async function POST() {
 	} catch (error) {
 		console.error("Error in user API route:", error);
 		return NextResponse.json({ error: "Failed to fetch user data" }, { status: 500 });
+	}
+}
+
+
+export async function DELETE() {
+	try {
+		const currentUser = await serverAuth();
+		if (!currentUser) {
+			return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+		}
+
+		const { status, message, error } = await removeFromQueue(currentUser.id);
+		if (status === 'error') {
+			return NextResponse.json({ error: error?.message }, { status: 500 });
+		}
+
+		if (status === 'failed') {
+			return NextResponse.json({ error: message }, { status: 400 });
+		}
+
+		return NextResponse.json({ success: true });
+	} catch (error) {
+		console.error("Error in matchmaking DELETE route:", error);
+		return NextResponse.json({ error: "Failed to remove from queue" }, { status: 500 });
 	}
 }
