@@ -42,7 +42,7 @@ function LoginContent() {
       <button
         onClick={handleLogin}
         disabled={isLoading}
-        className="flex items-center gap-3 bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-70 border border-gray-200 shadow-sm"
+        className="flex disabled:opacity-70 items-center gap-3 bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-70 border border-gray-200 shadow-sm"
       >
         {isLoading ? (
           "Connexion en cours..."

@@ -6,7 +6,7 @@ import React from "react";
 interface SidebarNavItemProps {
   icon: React.ReactNode;
   label: string;
-  href: string;
+  href?: string;
   isActive?: boolean;
   onItemClick?: () => void;
 }
@@ -19,7 +19,7 @@ export function SidebarNavItem({
   onItemClick,
 }: SidebarNavItemProps) {
   return (
-    <Link href={href} onClick={onItemClick} prefetch style={{ textDecoration: 'none', color: 'system' }}>
+    <Link href={href || '#'} onClick={onItemClick} prefetch style={{ textDecoration: 'none', color: 'system' }}>
       <Flex 
         align="center" 
         justify="between" 

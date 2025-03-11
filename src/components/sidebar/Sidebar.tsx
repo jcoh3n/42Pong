@@ -12,6 +12,7 @@ import { SidebarNavItem } from "./SidebarNavItem";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 
 export default function Sidebar() {
   const router = useRouter();
@@ -100,9 +101,9 @@ export default function Sidebar() {
         <Separator size="4" mb="3" />
         <Flex direction="column" gap="2">
           <SidebarNavItem 
+		  	onItemClick={signOut}
             icon={<ExitIcon width="20" height="20" />} 
-            label="Log out" 
-            href="/api/auth/signout"
+            label="Log out"
           />
         </Flex>
       </Box>
