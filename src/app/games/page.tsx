@@ -9,8 +9,17 @@ import {
   Card,
   Button,
 } from "@radix-ui/themes";
+import useMatchmaking from "@/hooks/useMatchmaking";
 
 export default function GamePage() {
+	const {
+		data: matchmakingData,
+		error: matchmakingError,
+		isLoading: matchmakingIsLoading,
+		startMatchmaking,
+		stopMatchmaking,
+	} = useMatchmaking();
+	
 
   return (
     <Box className="min-h-screen">
@@ -30,7 +39,7 @@ export default function GamePage() {
                 <Text size="2" color="gray">
                   Join a random game with another player
                 </Text>
-                <Button size="3" variant="soft" mt="2">
+                <Button size="3" variant="soft" mt="2" onClick={startMatchmaking}>
                   Play Now
                 </Button>
               </Flex>

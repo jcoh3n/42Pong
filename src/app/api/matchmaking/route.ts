@@ -50,17 +50,26 @@ export async function GET(): Promise<NextResponse<MatchmakingResponse>> {
 
 export async function POST() {
 	try {
+		console.log("POST /api/matchmaking - Starting request");
+		
 		const currentUser = await serverAuth();
 		if (!currentUser) {
+			console.log("POST /api/matchmaking - User not authenticated");
 			return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 		}
+		
+		console.log(`POST /api/matchmaking - Adding user ${currentUser.id} to queue`);
 		const { data, error } = await addToQueue(currentUser.id);
+		
 		if (error || !data) {
+			console.error("POST /api/matchmaking - Error adding to queue:", error);
 			return NextResponse.json({ error: error?.message }, { status: 500 });
 		}
+		
+		console.log(`POST /api/matchmaking - Successfully added user ${currentUser.id} to queue`);
 		return NextResponse.json(data);
 	} catch (error) {
-		console.error("Error in user API route:", error);
+		console.error("POST /api/matchmaking - Unexpected error:", error);
 		return NextResponse.json({ error: "Failed to fetch user data" }, { status: 500 });
 	}
 }
