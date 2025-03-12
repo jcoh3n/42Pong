@@ -1,11 +1,51 @@
 import React from 'react';
-import { Box, Container, Heading, Text, Flex, Card, Button } from "@radix-ui/themes";
-import Loading from "@/components/Loading";
-import { MatchmakingResponse } from "@/app/api/matchmaking/route";
+import { FaTrophy, FaUserFriends } from 'react-icons/fa';
+import { GiPingPongBat } from 'react-icons/gi';
+import { motion } from "framer-motion";
 import useMatchmaking from '@/hooks/matchmaking/useMatchmaking';
+import GameModeCard from './GameModeCard';
+import QueueTimer from './QueueTimer';
+
+const GAME_MODES = [
+	{
+		title: "Quick Match",
+		icon: GiPingPongBat,
+		color: "#4CAF50",
+		bgColor: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
+		glowColor: "rgba(76, 175, 80, 0.3)"
+	},
+	{
+		title: "Ranked Match",
+		icon: FaTrophy,
+		color: "#007BFF",
+		bgColor: "linear-gradient(135deg, #007BFF 0%, #0056B3 100%)",
+		glowColor: "rgba(0, 123, 255, 0.3)"
+	},
+	{
+		title: "Challenge Friend",
+		icon: FaUserFriends,
+		color: "#FF9800",
+		bgColor: "linear-gradient(135deg, #FF9800 0%, #F57C00 100%)",
+		glowColor: "rgba(255, 152, 0, 0.3)"
+	}
+];
+
+const PongBall = () => (
+	<motion.div
+		className="absolute w-3 h-3 bg-primary rounded-full"
+		animate={{
+			x: ["0%", "100%", "0%"],
+			y: ["0%", "-100%", "0%"],
+		}}
+		transition={{
+			duration: 2,
+			repeat: Infinity,
+			ease: "easeInOut",
+		}}
+	/>
+);
 
 const MatchmakingMenu = () => {
-
 	const { 
 		data: matchmakingData, 
 		error: matchmakingError, 
@@ -15,70 +55,36 @@ const MatchmakingMenu = () => {
 		timeInQueue 
 	} = useMatchmaking();
 
+	const isInQueue = matchmakingData?.data?.inQueue;
+
 	return (
-		<Box className="min-h-screen">
-			<Container size="3" py="9">
-				<Flex direction="column" gap="6">
-					<div className="space-y-1">
-						<Heading size="6">Welcome to 42Pong</Heading>
-						<Text size="2" color="gray">
-							Choose a game mode to start playing
-						</Text>
-					</div>
-
-					<Flex gap="4" wrap="wrap">
-						<Card className="flex-1 min-w-[250px] transition-all duration-200 hover:shadow-lg">
-							<Flex direction="column" gap="3" p="5">
-								<Heading size="4">Quick Match</Heading>
-								<Text size="2" color="gray">
-									Join a random game with another player
-								</Text>
-
-								{
-									matchmakingIsLoading ? (
-										<Button size="3" variant="soft" mt="2">
-											<div><Loading /></div>
-										</Button>
-									) : matchmakingData?.data?.inQueue ? (
-										<Button size="3" variant="soft" mt="2" onClick={stopMatchmaking}>
-											Cancel ({timeInQueue || <div><Loading /></div>})
-										</Button>
-									) : (
-										<Button size="3" variant="soft" mt="2" onClick={startMatchmaking}>
-											Play now
-										</Button>
-									)
-								}
-							</Flex>
-						</Card>
-
-						<Card className="flex-1 min-w-[250px] transition-all duration-200 hover:shadow-lg">
-							<Flex direction="column" gap="3" p="5">
-								<Heading size="4">Challenge Friend</Heading>
-								<Text size="2" color="gray">
-									Send a challenge to a specific player
-								</Text>
-								<Button size="3" variant="soft" mt="2">
-									Challenge
-								</Button>
-							</Flex>
-						</Card>
-
-						<Card className="flex-1 min-w-[250px] transition-all duration-200 hover:shadow-lg">
-							<Flex direction="column" gap="3" p="5">
-								<Heading size="4">Practice</Heading>
-								<Text size="2" color="gray">
-									Play against AI to improve your skills
-								</Text>
-								<Button size="3" variant="soft" mt="2">
-									Start Practice
-								</Button>
-							</Flex>
-						</Card>
-					</Flex>
-				</Flex>
-			</Container>
-		</Box>
+		<div 
+			className="min-h-screen w-full flex items-center justify-center"
+			style={{
+				background: "linear-gradient(135deg, #121826 0%, #1E2A38 100%)"
+			}}
+		>
+			<div className="w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-2xl mx-auto py-8">
+				<div className="space-y-4">
+					{GAME_MODES.map((mode, index) => (
+						<GameModeCard
+							key={mode.title}
+							title={mode.title}
+							icon={mode.icon}
+							color={mode.color}
+							bgColor={mode.bgColor}
+							glowColor={mode.glowColor}
+							isLoading={mode.title === "Quick Match" && matchmakingIsLoading}
+							isActive={mode.title === "Quick Match" && isInQueue}
+							onClick={mode.title === "Quick Match" ? (isInQueue ? stopMatchmaking : startMatchmaking) : () => {}}
+							additionalContent={
+								mode.title === "Quick Match" && isInQueue && <QueueTimer time={timeInQueue} />
+							}
+						/>
+					))}
+				</div>
+			</div>
+		</div>
 	);
 };
 

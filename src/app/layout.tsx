@@ -69,14 +69,15 @@ export default function RootLayout({
               {/* Sidebar - responsive */}
               <div 
                 className={`
-                  ${!isDesktop ? 'fixed inset-y-0 left-0 z-30' : 'relative'}
+                  ${!isDesktop ? 'fixed inset-y-0 left-0 z-30' : 'fixed inset-y-0 left-0'}
                   transform transition-transform duration-300 ease-in-out
                   ${!isDesktop && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
                 `}
                 style={{ 
                   width: '300px',
                   flexShrink: 0,
-                  height: '100%'
+                  height: '100vh',
+                  position: isDesktop ? 'fixed' : 'fixed'
                 }}
               >
                 <Sidebar 
@@ -100,7 +101,8 @@ export default function RootLayout({
                   height: '100%', 
                   overflow: 'hidden', 
                   flexDirection: 'column',
-                  flexGrow: 1
+                  flexGrow: 1,
+                  marginLeft: isDesktop ? '300px' : '0'
                 }}
               >
                 <Header onMenuClick={toggleSidebar} />
