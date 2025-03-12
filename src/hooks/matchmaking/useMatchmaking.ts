@@ -18,7 +18,7 @@ const useMatchmaking = (): {
 	stopMatchmaking: () => Promise<void>;
 	timeInQueue: string | null;
 } => {
-	const { data, error, isLoading, mutate } = useSWR('/api/matchmaking', fetcher);
+	const { data, error, isLoading, mutate } = useSWR('/api/matchmaking', fetcher, { refreshInterval: 1000 });
 
 	const matchmakingData = data as MatchmakingResponse;
 

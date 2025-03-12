@@ -34,6 +34,7 @@ export type Database = {
         Row: {
           created_at: string
           finished_at: string | null
+          forfeited_by: string | null
           id: string
           status: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["match_type"]
@@ -46,6 +47,7 @@ export type Database = {
         Insert: {
           created_at?: string
           finished_at?: string | null
+          forfeited_by?: string | null
           id?: string
           status?: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["match_type"]
@@ -58,6 +60,7 @@ export type Database = {
         Update: {
           created_at?: string
           finished_at?: string | null
+          forfeited_by?: string | null
           id?: string
           status?: Database["public"]["Enums"]["match_status"]
           type?: Database["public"]["Enums"]["match_type"]
@@ -68,6 +71,13 @@ export type Database = {
           winner_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "Matches_forfeited_by_fkey"
+            columns: ["forfeited_by"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "Matches_user_1_fkey"
             columns: ["user_1_id"]
@@ -210,6 +220,13 @@ export type Database = {
           content: string
         }
         Returns: undefined
+      }
+      increase_user_score: {
+        Args: {
+          match_id: string
+          user_id: string
+        }
+        Returns: Json
       }
     }
     Enums: {
