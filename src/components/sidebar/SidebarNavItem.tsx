@@ -15,7 +15,7 @@ interface SidebarNavItemProps {
 
 export function SidebarNavItem({ 
   icon, 
-  label, 
+  label,
   href,
   isActive,
   onItemClick,

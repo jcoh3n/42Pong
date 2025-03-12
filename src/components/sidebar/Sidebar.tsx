@@ -10,11 +10,11 @@ import {
   Cross2Icon
 } from "@radix-ui/react-icons";
 import { SidebarNavItem } from "./SidebarNavItem";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
+import { signOut } from "next-auth/react";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -128,9 +128,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <Separator size="4" mb="3" />
         <Flex direction="column" gap="2">
           <SidebarNavItem 
+		  	onItemClick={signOut}
             icon={<ExitIcon width="20" height="20" />} 
-            label="Log out" 
-            href="/api/auth/signout"
+            label="Log out"
           />
         </Flex>
       </Box>

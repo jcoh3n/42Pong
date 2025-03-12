@@ -3,16 +3,17 @@
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
 import Protected from "@/components/Protected";
-import { Box, Flex, Theme } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import Sidebar from "@/components/sidebar/Sidebar";
-import { ThemeProvider } from "next-themes";
 import ThemeLayout from "@/components/ThemeLayout";
 import { Header } from "@/components/header/Header";
 import { useState, useEffect } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { Toaster } from 'react-hot-toast'
+
 
 // Les métadonnées doivent être dans un fichier séparé ou dans un layout serveur
 export default function RootLayout({
@@ -53,6 +54,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>
       <body>
+		<Toaster />
         <AuthProvider>
           <ThemeLayout>
             <Flex 

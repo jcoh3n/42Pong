@@ -1,13 +1,13 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Box, Button, Text, Card, Flex } from "@radix-ui/themes";
+import { useState, useEffect, Suspense } from "react";
+import toast from "react-hot-toast";
 
 function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -24,14 +24,13 @@ function LoginContent() {
         default: "Une erreur s'est produite. Veuillez réessayer."
       };
       
-      setError(errorMessages[errorParam] || errorMessages.default);
+      toast.error(errorMessages[errorParam] || errorMessages.default);
     }
   }, [searchParams]);
 
   const handleLogin = async () => {
     try {
       setIsLoading(true);
-      setError(null);
       
       const callbackUrl = searchParams.get("callbackUrl") || "/";
       
@@ -42,14 +41,14 @@ function LoginContent() {
 
       // Si la connexion échoue sans redirection
       if (result?.error) {
-        setError("Erreur lors de la connexion. Veuillez réessayer.");
-        setIsLoading(false);
+        throw new Error(result.error);
       }
     } catch (error) {
       console.error("Erreur de connexion:", error);
-      setError("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
-      setIsLoading(false);
-    }
+      toast.error("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
+    } finally {
+		setIsLoading(false);
+	}
   };
 
   return (
@@ -89,12 +88,6 @@ function LoginContent() {
             >
               {isLoading ? "Connexion en cours..." : "Se connecter avec 42"}
             </Button>
-
-            {error && (
-              <Text color="red" size="2" align="center">
-                {error}
-              </Text>
-            )}
           </Flex>
         </Card>
       </Flex>

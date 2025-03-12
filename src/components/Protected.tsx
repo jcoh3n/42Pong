@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { Box } from '@radix-ui/themes';
 import Loading from './Loading';
+import WinPopup from './match/WinPopup';
 
 interface ProtectedProps {
   children: ReactNode;
