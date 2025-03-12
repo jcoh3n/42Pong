@@ -125,7 +125,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </Flex>
       </Box>
       {currentUser && (
-		<Box py="3" style={{justifySelf: 'end'}}>
+		<Box py="3">
 			<Separator size="4" mb="3" />
 			<Flex direction="column" gap="2">
 			<SidebarNavItem
