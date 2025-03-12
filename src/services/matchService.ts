@@ -264,14 +264,6 @@ export class MatchService {
 		};
 	}
 
-	async finishMatch(id: string, winnerId: string): Promise<Match> {
-		const finished_at = new Date().toISOString();
-		return this.updateMatch(id, {
-			finished_at,
-			winner_id: winnerId
-		});
-	}
-
 	async forfeitMatch(id: string, forfeitingUserId: string): Promise<Match> {
 		// First, get the current match to determine the winner
 		const match = await this.getMatchById(id);
@@ -295,11 +287,8 @@ export class MatchService {
 			throw new Error(`User ${forfeitingUserId} is not a participant in match ${id}`);
 		}
 
-		const finished_at = new Date().toISOString();
-
 		// Update the match with the forfeit information
 		return this.updateMatch(id, {
-			finished_at,
 			winner_id: winnerId,
 			forfeited_by: forfeitingUserId
 		});

@@ -1,6 +1,6 @@
 'use client';
 
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { KeyedMutator } from 'swr';
 import fetcher from '@/libs/fetcher';
 import useCurrentUser from '@/hooks/useCurrentUser';
@@ -11,65 +11,53 @@ import toast from 'react-hot-toast';
 import useUser from '../users/useUser';
 import { createClient } from '@/libs/supabase/client';
 import { Database } from '@/types/database.types';
+import useMatch from '../matches/useMatch';
 
-interface MatchData {
-	match?: Match,
+export type MatchData = {
+	match: Match | null;
+	isLoading: boolean;
+	error: any;
 	currentUser: {
 		isLoading: boolean;
 		error: any;
 		data: User | null;
-	},
+	};
 	opponent: {
 		isLoading: boolean;
 		error: any;
 		user?: User | null;
-	},
-};
-
-export type CurrentMatchData = {
-	data?: MatchData | null;
-	error: Error | undefined;
-	isLoading: boolean;
-	mutate: KeyedMutator<any>;
+	};
+	mutate: any;
 	forfeitMatch: () => Promise<void>;
 	incrementScore: () => Promise<void>;
-	leaveMatch: () => boolean;
 };
 
-const useCurrentMatch = (): CurrentMatchData => {
-	const { data, error, isLoading, mutate } = useMatchmaking();
+const useCurrentMatch = (match_id: string): MatchData => {
 	const currentUserData = useCurrentUser();
-	const [match, setMatch] = useState<Match | null>(null);
-
-	useEffect(() => {
-		// Set match from data if it's null
-		if (!match && data?.data?.matchData) {
-			setMatch(data.data.matchData);
-		} else if (match?.id && match.id === data?.data?.matchData?.id) {
-			setMatch(data.data.matchData);
-		}
-	}, [match?.id, data?.data?.matchData])
-
-	// Check if match is completed and set it to null if it is
-	const leaveMatch = useCallback(() => {
-		if (match?.status === 'completed') {
-			setMatch(null);
-			mutate();
-			return true;
-		}
-
-		return false;
-	}, [match?.status, mutate]);
-
 	const { data: currentUser } = currentUserData;
+	
+	const { match, isLoading: isMatchLoading, error: matchError, mutate: matchMutate} = useMatch(match_id);
 
 	// Get the opponent's ID
 	const opponentId = currentUser?.id 
 		? (match?.user_1_id === currentUser.id ? match?.user_2_id : match?.user_1_id)
 		: undefined;
-	
+
 	// Fetch opponent user data
 	const opponentData = useUser(undefined, opponentId);
+	
+	// Set up an interval to refresh match data every second
+	useEffect(() => {
+		// Only set up the interval if we have an active match
+		if (match?.id) {
+			const intervalId = setInterval(() => {
+				matchMutate();
+			}, 1000);
+			
+			// Clean up the interval when the component unmounts or match changes
+			return () => clearInterval(intervalId);
+		}
+	}, [match?.id, matchMutate]);
 
 	const forfeitMatch = useCallback(async () => {
 		if (!match?.id) {
@@ -78,22 +66,11 @@ const useCurrentMatch = (): CurrentMatchData => {
 
 		try {
 			await matchService.forfeitMatch(match.id, match.user_1_id);
-
-			mutate();
+			matchMutate();
 		} catch (error) {
 			console.error('Error stopping match:', error);
 		}
-	}, [match?.id, match?.user_1_id, mutate]);
-
-	// Periodically refresh match data every 3 seconds
-	useEffect(() => {
-		const interval = setInterval(() => {
-			mutate();
-		}, 1000);
-		
-		// Clean up interval on component unmount
-		return () => clearInterval(interval);
-	}, [mutate]);
+	}, [match?.id, match?.user_1_id, matchMutate]);
 
 	const incrementScore = useCallback(async () => {
 		if (!match?.id || !currentUser?.id) {
@@ -102,7 +79,7 @@ const useCurrentMatch = (): CurrentMatchData => {
 
 		try {
 			// Check if the score update was successful
-			const response = await matchService.incrementUserScore(match.id, currentUser?.id);
+			const response = await matchService.incrementUserScore(match.id, currentUser.id);
 
 			if (response.error) {
 				console.error('Failed to increment score:', response.error.message);
@@ -114,24 +91,21 @@ const useCurrentMatch = (): CurrentMatchData => {
 			console.log('Score updated successfully:', response.data?.updated_score);
 			toast.success(`Score updated successfully`);
 
-			mutate();
+			matchMutate();
 		} catch (error) {
 			console.error('Error incrementing score:', error);
 		}
-	}, [match?.id, match?.user_1_id, match?.user_2_id, match?.user_1_score, match?.user_2_score, currentUser?.id, mutate]);
+	}, [match?.id, currentUser?.id, matchMutate]);
 
 	return {
-		data: {
-			match: match as Match,
-			currentUser: {...currentUserData},
-			opponent: {...opponentData},
-		},
-		error,
-		isLoading,
-		mutate,
+		match: match || null,
+		error: matchError,
+		currentUser: currentUserData,
+		opponent: opponentData,
+		isLoading: isMatchLoading,
+		mutate: matchMutate,
 		incrementScore,
 		forfeitMatch,
-		leaveMatch,
 	};
 };
 

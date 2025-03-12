@@ -68,10 +68,10 @@ const useMatchmaking = (): {
 			setTimeInQueue(Math.floor((now - joinedAt) / 1000));
 			mutate();
 		};
-		
+
 		// Initial calculation
 		updateTime();
-		
+
 		// Update every second
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);

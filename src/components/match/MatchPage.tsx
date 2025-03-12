@@ -1,23 +1,32 @@
 import React from 'react';
 import { Box, Container, Text, Flex, Button } from "@radix-ui/themes";
-import { MatchmakingProps } from "@/components/matchmaking/MatchmakingMenu";
 import Loading from "@/components/Loading";
-import useCurrentMatch, { CurrentMatchData } from '@/hooks/matchmaking/useCurrentMatch';
+import useCurrentMatch, { MatchData } from '@/hooks/matchmaking/useCurrentMatch';
 import MatchInfo from './MatchInfo';
 import ScoreButtons from './ScoreButtons';
 import WinPopup from './WinPopup';
 import LosePopup from './LosePopup';
 
+export type MatchPageProps = {
+	matchId: string,
+	onLeave: () => void;
+};
+
 // Main MatchPage component
-const MatchPage: React.FC<CurrentMatchData> = ({
-	data,
-	isLoading,
-	error,
-	forfeitMatch,
-	incrementScore,
-	leaveMatch
+const MatchPage: React.FC<MatchPageProps> = ({
+	matchId,
+	onLeave,
 }) => {
 	// Use the useCurrentMatch hook to get all match-related data and functions
+	const {
+		match,
+		currentUser,
+		opponent,
+		isLoading,
+		error,
+		forfeitMatch,
+		incrementScore,
+	} = useCurrentMatch(matchId);
 
 	if (isLoading) {
 		return <Loading />;
@@ -33,22 +42,11 @@ const MatchPage: React.FC<CurrentMatchData> = ({
 		);
 	}
 
-	// Extract data
-	const match = data?.match;
-	const currentUser = data?.currentUser?.data;
-	const opponent = data?.opponent?.user;
-
 	// Determine if the current user is the winner
-	const isWinner = match?.status === 'completed' && (
-		(match.user_1_id === currentUser?.id && match.user_1_score > match.user_2_score) ||
-		(match.user_2_id === currentUser?.id && match.user_2_score > match.user_1_score)
-	);
+	const isWinner = match?.status === 'completed' && match.winner_id === currentUser.data?.id;
 
 	// Determine if the current user is the loser
-	const isLoser = match?.status === 'completed' && (
-		(match.user_1_id === currentUser?.id && match.user_1_score < match.user_2_score) ||
-		(match.user_2_id === currentUser?.id && match.user_2_score < match.user_1_score)
-	);
+	const isLoser = match?.status === 'completed' && match.winner_id === opponent.user?.id;
 
 	if (!match) {
 		return (
@@ -66,27 +64,27 @@ const MatchPage: React.FC<CurrentMatchData> = ({
 				{/* Win Popup */}
 				<WinPopup
 					isOpen={isWinner}
-					onClose={() => leaveMatch()}
+					onClose={() => onLeave()}
 				/>
 
 				{/* Lose Popup */}
 				<LosePopup
 					isOpen={isLoser}
-					onClose={() => leaveMatch()}
+					onClose={() => onLeave()}
 				/>
 
 				<Flex direction="column" gap="6" align="center">
 					{/* Match information */}
 					<MatchInfo
-						currentUser={currentUser}
-						opponent={opponent}
+						currentUser={currentUser.data}
+						opponent={opponent.user}
 						match={match}
 					/>
 
 					{/* Score buttons */}
 					<ScoreButtons
-						currentUser={currentUser}
-						opponent={opponent}
+						currentUser={currentUser.data}
+						opponent={opponent.user}
 						onIncrement={incrementScore}
 					/>
 

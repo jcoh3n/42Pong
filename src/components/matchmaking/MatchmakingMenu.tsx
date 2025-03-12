@@ -2,24 +2,19 @@ import React from 'react';
 import { Box, Container, Heading, Text, Flex, Card, Button } from "@radix-ui/themes";
 import Loading from "@/components/Loading";
 import { MatchmakingResponse } from "@/app/api/matchmaking/route";
+import useMatchmaking from '@/hooks/matchmaking/useMatchmaking';
 
-export interface MatchmakingProps {
-	matchmakingData: MatchmakingResponse | undefined;
-	matchmakingError: Error | undefined;
-	matchmakingIsLoading: boolean;
-	startMatchmaking: () => Promise<void>;
-	stopMatchmaking: () => Promise<void>;
-	timeInQueue: string | null;
-}
+const MatchmakingMenu = () => {
 
-const MatchmakingMenu = ({ 
-	matchmakingData, 
-	matchmakingError, 
-	matchmakingIsLoading, 
-	startMatchmaking, 
-	stopMatchmaking, 
-	timeInQueue 
-}: MatchmakingProps) => {
+	const { 
+		data: matchmakingData, 
+		error: matchmakingError, 
+		isLoading: matchmakingIsLoading, 
+		startMatchmaking, 
+		stopMatchmaking, 
+		timeInQueue 
+	} = useMatchmaking();
+
 	return (
 		<Box className="min-h-screen">
 			<Container size="3" py="9">

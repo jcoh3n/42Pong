@@ -1,32 +1,34 @@
 'use client';
 
 import useMatchmaking from "@/hooks/matchmaking/useMatchmaking";
-import React from "react";
-import MatchmakingMenu, { MatchmakingProps } from "@/components/matchmaking/MatchmakingMenu";
+import React, { useEffect, useState } from "react";
+import MatchmakingMenu from "@/components/matchmaking/MatchmakingMenu";
 import MatchPage from "@/components/match/MatchPage";
 import useCurrentMatch from "@/hooks/matchmaking/useCurrentMatch";
 
 
 export default function GamePage() {
 	const matchmakingData = useMatchmaking();
-	const props: MatchmakingProps = {
-		matchmakingData: matchmakingData.data,
-		matchmakingError: matchmakingData.error,
-		matchmakingIsLoading: matchmakingData.isLoading,
-		startMatchmaking: matchmakingData.startMatchmaking,
-		stopMatchmaking: matchmakingData.stopMatchmaking,
-		timeInQueue: matchmakingData.timeInQueue
-	};
+	const [currentMatchId, setCurrentMatchId] = useState<string | null>(null);
 
-	const currentMatchData = useCurrentMatch();
+	useEffect(() => {
+		if (matchmakingData.data?.data?.inMatch) {
+			setCurrentMatchId(matchmakingData.data?.data?.matchData?.id || null);
+		}
 
-	if (currentMatchData.data?.match) {
-		return <MatchPage {...currentMatchData} />;
+	}, [matchmakingData.data?.data?.inMatch, matchmakingData.data?.data?.matchData?.id]);
+
+	const onCurrentMatchLeave = () => {
+		setCurrentMatchId(null);
+	}
+
+	if (currentMatchId) {
+		return <MatchPage matchId={currentMatchId} onLeave={onCurrentMatchLeave} />;
 	} else if (matchmakingData.data?.data?.inQueue) {
 		// return queue page
 	} else {
 		// return matchmaking menu
 	}
 
-	return <MatchmakingMenu {...props} />;
+	return <MatchmakingMenu />;
 }
