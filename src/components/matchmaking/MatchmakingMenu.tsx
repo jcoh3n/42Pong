@@ -1,7 +1,6 @@
 import React from 'react';
 import { FaTrophy, FaUserFriends } from 'react-icons/fa';
 import { GiPingPongBat } from 'react-icons/gi';
-import { motion } from "framer-motion";
 import useMatchmaking from '@/hooks/matchmaking/useMatchmaking';
 import GameModeCard from './GameModeCard';
 import QueueTimer from './QueueTimer';
@@ -30,20 +29,6 @@ const GAME_MODES = [
 	}
 ];
 
-const PongBall = () => (
-	<motion.div
-		className="absolute w-3 h-3 bg-primary rounded-full"
-		animate={{
-			x: ["0%", "100%", "0%"],
-			y: ["0%", "-100%", "0%"],
-		}}
-		transition={{
-			duration: 2,
-			repeat: Infinity,
-			ease: "easeInOut",
-		}}
-	/>
-);
 
 const MatchmakingMenu = () => {
 	const { 

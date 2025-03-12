@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MatchmakingService } from '@/services/matchmakingService';
+import { addToQueue, removeFromQueue, getPlayerQueueStatus, getPlayerActiveMatch } from '@/services/matchmakingService';
 import { Button } from '@radix-ui/themes';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -17,21 +17,23 @@ export default function QuickMatch() {
 
     // Vérifier si le joueur est déjà dans la file d'attente
     const checkQueue = async () => {
-      const status = await MatchmakingService.checkQueueStatus(user.id);
-      setIsInQueue(!!status);
+      const status = await getPlayerQueueStatus(user.id);
+      setIsInQueue(!!status.data);
       setIsLoading(false);
     };
 
     checkQueue();
 
     // S'abonner aux nouveaux matches
-    const subscription = MatchmakingService.subscribeToMatches(user.id, (match) => {
-      // Rediriger vers la page du match
-      router.push(`/match/${match.id}`);
-    });
+    const checkActiveMatch = setInterval(async () => {
+      const match = await getPlayerActiveMatch(user.id);
+      if (match.data) {
+        router.push(`/match/${match.data.id}`);
+      }
+    }, 2000);
 
     return () => {
-      subscription.unsubscribe();
+      clearInterval(checkActiveMatch);
     };
   }, [user, router]);
 
@@ -41,12 +43,12 @@ export default function QuickMatch() {
     setIsLoading(true);
     if (isInQueue) {
       // Quitter la file d'attente
-      await MatchmakingService.leaveQueue(user.id);
+      await removeFromQueue(user.id);
       setIsInQueue(false);
     } else {
       // Rejoindre la file d'attente
-      const queue = await MatchmakingService.joinQueue(user.id);
-      setIsInQueue(!!queue);
+      const queue = await addToQueue(user.id);
+      setIsInQueue(!!queue.data);
     }
     setIsLoading(false);
   };
