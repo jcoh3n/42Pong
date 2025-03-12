@@ -1,3 +1,5 @@
+"use client";
+
 import { Flex, Text, Box } from "@radix-ui/themes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -6,66 +8,44 @@ import React from "react";
 interface SidebarNavItemProps {
   icon: React.ReactNode;
   label: string;
-  href: string;
-  hasAddButton?: boolean;
-  onAddClick?: () => void;
+  href?: string;
+  isActive?: boolean;
+  onItemClick?: () => void;
 }
 
 export function SidebarNavItem({ 
   icon, 
-  label, 
-  href, 
-  hasAddButton, 
-  onAddClick 
+  label,
+  href,
+  isActive,
+  onItemClick,
 }: SidebarNavItemProps) {
-  const pathname = usePathname();
-  const isActive = pathname === href;
-  
   return (
-    <Link href={href} style={{ textDecoration: 'none', color: 'inherit' }}>
+    <Link 
+      href={href || '#'} 
+      onClick={onItemClick} 
+      prefetch 
+      className="no-underline text-current w-full"
+      aria-current={isActive ? 'page' : undefined}
+    >
       <Flex 
         align="center" 
         justify="between" 
         py="3" 
-        px="6"
-        style={{ 
-          borderRadius: 'var(--radius-2)',
-          backgroundColor: isActive ? 'var(--accent-3)' : 'transparent',
-          color: isActive ? 'var(--accent-11)' : 'var(--gray-11)'
-        }}
+        px="4"
+        className={`
+          transition-colors duration-200
+          ${isActive ? 'bg-blue-500/10 border-l-2 border-blue-500' : 'hover:bg-gray-500/5 border-l-2 border-transparent'}
+        `}
       >
-        <Flex align="center" gap="4">
-          <Box style={{ color: isActive ? 'var(--accent-9)' : 'var(--gray-9)' }}>
+        <Flex align="center" gap="3">
+          <Box className={`${isActive ? 'text-blue-500' : 'text-gray-400'}`}>
             {icon}
           </Box>
-          <Text size="3" weight={isActive ? "medium" : "regular"}>
+          <Text className={`${isActive ? 'text-blue-500 font-medium' : 'text-gray-300'}`}>
             {label}
           </Text>
         </Flex>
-        
-        {hasAddButton && (
-          <div
-            role="button"
-            onClick={(e: React.MouseEvent) => {
-              e.preventDefault();
-              onAddClick?.();
-            }}
-            style={{ 
-              cursor: 'pointer',
-              border: 'none',
-              background: 'none',
-              color: 'var(--gray-9)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7.5 1C7.77614 1 8 1.22386 8 1.5V13.5C8 13.7761 7.77614 14 7.5 14C7.22386 14 7 13.7761 7 13.5V1.5C7 1.22386 7.22386 1 7.5 1Z" fill="currentColor" />
-              <path d="M1.5 7C1.22386 7 1 7.22386 1 7.5C1 7.77614 1.22386 8 1.5 8H13.5C13.7761 8 14 7.77614 14 7.5C14 7.22386 13.7761 7 13.5 7H1.5Z" fill="currentColor" />
-            </svg>
-          </div>
-        )}
       </Flex>
     </Link>
   );

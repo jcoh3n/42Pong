@@ -1,14 +1,12 @@
-import { getServerSession } from "next-auth/next";
-import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth/auth-options";
-import { matchService } from "@/services";
-import serverAuth from "@/lib/auth/serverAuth";
+import serverAuth from "@/libs/auth/serverAuth";
+import { NextRequest, NextResponse } from "next/server";
+import { Match, matchService } from "@/services";
 
 // Valid column names for sorting
 type SortByColumn = "id" | "user_1_id" | "user_2_id" | "winner_id" | "created_at" | "finished_at" | "user_1_score" | "user_2_score";
 
 export async function GET(
-  request: Request
+  request: NextRequest
 ) {
   try {
     const currentUser = await serverAuth();
@@ -17,28 +15,47 @@ export async function GET(
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    // Extract userId from URL path
-    const url = new URL(request.url);
-    const pathParts = url.pathname.split('/');
-    const userId = pathParts[pathParts.length - 1];
+	const userId = request.nextUrl.searchParams.get('userId');
+	if (!userId) {
+		return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+	}
 
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const pageSize = parseInt(searchParams.get("pageSize") || "10");
-    
-    // Get sortBy parameter and validate it
-    const sortByParam = searchParams.get("sortBy") || "created_at";
+	const page = request.nextUrl.searchParams.get('page');
+	const limit = request.nextUrl.searchParams.get('limit');
+	const sortBy = request.nextUrl.searchParams.get('sortBy');
+	const order = request.nextUrl.searchParams.get('order');
+
     // Ensure sortBy is a valid column name
-    const sortBy = (["id", "user_1_id", "user_2_id", "winner_id", "created_at", "finished_at", "user_1_score", "user_2_score"].includes(sortByParam) 
-      ? sortByParam 
-      : "created_at") as SortByColumn;
-    
-    const sortOrder = searchParams.get("sortOrder") || "desc";
+    const validColumns: string[] = ["id", "user_1_id", "user_2_id", "winner_id", "created_at", "finished_at", "user_1_score", "user_2_score"];
+    var sort: keyof Match;
+	if (validColumns.includes(sortBy as string)) {
+      sort = sortBy as keyof Match;
+    } else {
+		sort = 'created_at' as keyof Match;
+	}
 
-    const matches = await matchService.getMatchesByUserId(userId, {
-      page,
+    // Ensure order is a valid sort order
+    let sortOrder = (order as string)?.toLowerCase();
+    if (!['asc', 'desc'].includes(sortOrder)) {
+      sortOrder = 'desc';
+    }
+
+    // Convert page to a number and provide a default value
+    var pageNumber = page ? parseInt(page as string, 10) : 1;
+    if (isNaN(pageNumber) || pageNumber < 1) {
+        pageNumber = 1;
+    }
+
+    // Convert limit to a number and provide a default value
+    var pageSize = limit ? parseInt(limit as string, 10) : 10;
+    if (isNaN(pageSize) || pageSize < 1) {
+		pageSize = 10;
+    }
+
+    const matches = await matchService.getMatchesByUserId(userId as string, {
+      page: pageNumber,
       pageSize,
-      sortBy,
+      sortBy: sort,
       sortOrder: sortOrder as "asc" | "desc"
     });
     

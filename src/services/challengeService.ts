@@ -6,7 +6,7 @@ import { PaginatedResponse } from "./userService";
 export type Challenge = Database['public']['Tables']['Challenge']['Row'];
 export type ChallengeInsert = Database['public']['Tables']['Challenge']['Insert'];
 export type ChallengeUpdate = Database['public']['Tables']['Challenge']['Update'];
-export type ChallengeStatus = Database['public']['Enums']['challenge_status'];
+export type ChallengeStatus = Database['public']['Enums']['match_status'];
 
 export class ChallengeService {
   private getClient() {

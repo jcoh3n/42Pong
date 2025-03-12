@@ -1,109 +1,57 @@
-import { Table, Text, Flex, Badge, Avatar, Box } from "@radix-ui/themes";
-import { type User } from "@/services/userService";
-import { PositionChange } from "./PositionChange";
-
-interface LeaderboardData {
-  position: number;
-  user: User;
-  positionChange: number;
-  changeClass: string;
-}
+import { Table, Box } from "@radix-ui/themes";
+import { useSession } from "next-auth/react";
+import useUserMatches from "@/hooks/matches/useUserMatches";
+import { useMemo } from "react";
+import { LeaderboardHeader } from "./LeaderboardHeader";
+import { LeaderboardRow } from "./LeaderboardRow";
+import { EmptyLeaderboard } from "./EmptyLeaderboard";
+import { type LeaderboardData, type LeaderboardStats } from "@/types/leaderboard";
+import { calculateUserStats } from "@/utils/stats";
 
 interface LeaderboardTableProps {
   data: LeaderboardData[];
 }
 
 export function LeaderboardTable({ data }: LeaderboardTableProps) {
+  const { data: session } = useSession();
+  
+  // Create a fixed-size array of hooks based on the maximum number of users we expect
+  const MAX_USERS = 100;
+  const matchesResults = Array(MAX_USERS).fill(null).map((_, index) => {
+    const userId = data[index]?.user.id;
+    return useUserMatches(userId || '', { pageSize: 100 });
+  });
+
+  // Calculate stats for all users once
+  const userStats = useMemo(() => {
+    const stats = new Map<string, LeaderboardStats>();
+    data.forEach(item => {
+      const userMatchesResult = matchesResults.find((result, index) => data[index]?.user.id === item.user.id);
+      const matches = userMatchesResult?.matches || [];
+      stats.set(item.user.id, calculateUserStats(item.user.id, matches));
+    });
+    return stats;
+  }, [data, matchesResults]);
+
   return (
-    <Table.Root 
-      size="2" 
-      style={{ 
-        width: '100%',
-        borderCollapse: 'separate',
-        borderSpacing: 0
-      }}
-    >
-      <Table.Header>
-        <Table.Row>
-          <Table.ColumnHeaderCell 
-            width="100px"
-            style={{
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              padding: '12px 16px',
-            }}
-          >
-            <Text size="2" weight="medium">Position</Text>
-          </Table.ColumnHeaderCell>
-          <Table.ColumnHeaderCell
-            style={{
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              padding: '12px 16px',
-            }}
-          >
-            <Text size="2" weight="medium">Name</Text>
-          </Table.ColumnHeaderCell>
-          <Table.ColumnHeaderCell 
-            align="right" 
-            width="120px"
-            style={{
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              padding: '12px 16px',
-            }}
-          >
-            <Text size="2" weight="medium">ELO</Text>
-          </Table.ColumnHeaderCell>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {data.map((item, index) => (
-          <Table.Row 
-            key={item.user.id} 
-            style={{
-              transition: 'background-color 0.2s',
-            }}
-          >
-            <Table.Cell>
-              <Flex align="center" gap="2">
-                <Text size="2" weight="medium">{item.position}</Text>
-                <PositionChange change={item.positionChange} />
-              </Flex>
-            </Table.Cell>
-            <Table.Cell>
-              <Flex align="center" gap="3">
-                <Avatar
-                  size="2"
-                  src={item.user.avatar_url || "https://via.placeholder.com/40"}
-                  fallback={item.user.login.substring(0, 2).toUpperCase()}
-                  radius="full"
-                />
-                <Text size="2" weight="medium">{item.user.login}</Text>
-              </Flex>
-            </Table.Cell>
-            <Table.Cell align="right">
-              <Badge variant="soft" color="gray" radius="full">
-                <Text size="2" weight="medium" className="font-mono">
-                  {item.user.elo_score}
-                </Text>
-              </Badge>
-            </Table.Cell>
-          </Table.Row>
-        ))}
-        {data.length === 0 && (
-          <Table.Row>
-            <Table.Cell colSpan={3}>
-              <Text align="center" size="2" color="gray">
-                No players found
-              </Text>
-            </Table.Cell>
-          </Table.Row>
-        )}
-      </Table.Body>
-    </Table.Root>
+    <Box className="max-h-[calc(100vh-250px)] overflow-y-auto scrollbar-thin scrollbar-thumb-[var(--gray-5)] scrollbar-track-transparent">
+      <Table.Root size="2" className="w-full border-separate border-spacing-0">
+        <LeaderboardHeader />
+        <Table.Body>
+          {data.length > 0 ? (
+            data.map((item) => (
+              <LeaderboardRow
+                key={item.user.id}
+                item={item}
+                stats={userStats.get(item.user.id)}
+                isCurrentUser={session?.user?.email === item.user.login}
+              />
+            ))
+          ) : (
+            <EmptyLeaderboard />
+          )}
+        </Table.Body>
+      </Table.Root>
+    </Box>
   );
 } 

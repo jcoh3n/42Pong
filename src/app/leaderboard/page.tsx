@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import useUsers from "@/hooks/users/useUsers";
 import { 
   Container, 
@@ -11,79 +11,135 @@ import {
   Box, 
   Text,
   Card,
-  Avatar,
+  IconButton,
   Badge,
 } from "@radix-ui/themes";
+import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { GiPingPongBat, GiTrophyCup } from "react-icons/gi";
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
-import { DateRangeSelector } from "@/components/leaderboard/DateRangeSelector";
-import DashboardLayout from "../dashboard-layout";
+import Loading from "@/components/Loading";
 
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const [timeFrame, setTimeFrame] = useState("monthly");
-  
-  // Use the hook with sorting by elo_score in descending order
+  const [searchQuery, setSearchQuery] = useState("");
   const { users, isLoading } = useUsers({
     sortBy: "elo_score",
     sortOrder: "desc",
-    pageSize: 50, // Show more users on the leaderboard
+    pageSize: 100,
   });
 
-  // Mock data for position changes (in a real app, this would come from an API)
-  const positionChanges = users.map((user, index) => {
-    // Generate random position changes between -3 and +3
-    const change = Math.floor(Math.random() * 7) - 3;
-    return { 
-      userId: user.id, 
-      change,
-      // Classes to add based on the change value
-      changeClass: change > 0 ? "positive" : change < 0 ? "negative" : "neutral"
-    };
-  });
-  
-  // Create leaderboard data with position changes
-  const leaderboardData = users.map((user, index) => {
-    const positionChange = positionChanges.find(pc => pc.userId === user.id) || { change: 0, changeClass: "neutral" };
-    return {
-      position: index + 1,
-      user,
-      positionChange: positionChange.change,
-      changeClass: positionChange.changeClass
-    };
-  });
+  // Filtrer les utilisateurs en fonction de la recherche
+  const filteredUsers = users.filter(user => 
+    user.login.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Créer les données du leaderboard
+  const leaderboardData = filteredUsers.map((user, index) => ({
+    position: index + 1,
+    user,
+    positionChange: 0,
+    changeClass: "neutral"
+  }));
+
+  // Trouver la position de l'utilisateur connecté
+  const currentUserPosition = users.findIndex(user => user.login === session?.user?.email) + 1;
 
   if (status === "loading" || isLoading) {
     return (
-      <DashboardLayout>
-        <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-          <Container size="3" py="9">
-            <Flex align="center" justify="center" style={{ minHeight: "70vh" }}>
-              <Text size="3">Loading...</Text>
-            </Flex>
-          </Container>
-        </Box>
-      </DashboardLayout>
+      <Box className="min-h-screen flex items-center justify-center bg-[var(--gray-2)]">
+        <Loading />
+      </Box>
     );
   }
 
   return (
-    <DashboardLayout>
-      <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-        <Container size="3" py="9">
-          <Card size="2" style={{ width: '100%', height: '100%' }}>
-            <Flex direction="column" gap="5">
-              <Flex justify="between" align="center" py="4" px="6">
-                <Heading size="5">Leaderboard</Heading>
+    <Box className="min-h-screen bg-[#0F172A]">
+      <Container size="3" className="py-6">
+        <Flex direction="column" gap="4">
+          <Card size="2" className="bg-[#1E293B] border-none rounded-xl overflow-hidden">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] opacity-[0.02]" />
+              
+              <Flex direction="column" gap="4" className="p-4">
+                <Flex align="center" gap="3" className="flex-wrap sm:flex-nowrap">
+                  <div className="relative w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] shadow-lg transform hover:scale-105 transition-transform">
+                    <GiPingPongBat size={24} className="text-[#0F172A] transform hover:rotate-12 transition-transform" />
+                  </div>
+                  <div>
+                    <Flex align="baseline" gap="2">
+                      <Text size="6" weight="bold" className="text-white">
+                        42 Pong
+                      </Text>
+                      <Text size="2" className="text-[#94A3B8] tracking-wide uppercase">
+                        Leaderboard
+                      </Text>
+                    </Flex>
+                  </div>
+                </Flex>
+                
+                <Flex direction="column" gap="3" className="sm:flex-row sm:items-center">
+                  <Box className="w-full sm:flex-1">
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                        <MagnifyingGlassIcon width="14" height="14" className="text-[#94A3B8] group-hover:text-[#0EA5E9] transition-colors" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Rechercher un joueur..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-[#334155] bg-[#0F172A] text-white transition-all duration-200 
+                          focus:outline-none focus:border-[#0EA5E9] focus:ring-1 focus:ring-[#0EA5E9] focus:ring-opacity-50
+                          placeholder-[#64748B] group-hover:border-[#94A3B8]"
+                      />
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] opacity-0 group-hover:opacity-[0.03] pointer-events-none transition-opacity" />
+                    </div>
+                  </Box>
+                  
+                  {currentUserPosition > 0 && (
+                    <Box className="w-full sm:w-auto">
+                      <Card className="bg-[#0F172A] border border-[#334155] rounded-lg overflow-hidden group hover:border-[#0EA5E9] transition-colors">
+                        <Flex align="center" justify="center" gap="3" className="py-2 px-4">
+                          <Text className="text-[#94A3B8] text-sm group-hover:text-[#0EA5E9] transition-colors">
+                            Votre rang
+                          </Text>
+                          <div className="px-2 py-1 bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] rounded-md shadow-sm group-hover:shadow-md transition-shadow">
+                            <Text size="3" weight="bold" className="text-[#0F172A] font-mono">
+                              #{currentUserPosition}
+                            </Text>
+                          </div>
+                        </Flex>
+                      </Card>
+                    </Box>
+                  )}
+                </Flex>
               </Flex>
+            </div>
+          </Card>
 
-              <Box>
+          {/* Tableau principal */}
+          <Card size="2" className="w-full bg-[#1E293B] border-none rounded-xl overflow-hidden">
+            <Flex direction="column">
+              <Box className="px-4 py-3 border-b border-[#334155]">
+                <Flex justify="between" align="center">
+                  <Flex gap="2" align="center">
+                    <Text size="1" className="text-[#94A3B8] uppercase tracking-wider font-medium">
+                      Classement
+                    </Text>
+                    <Badge variant="surface" className="bg-[#0F172A] text-[#94A3B8] group-hover:bg-[#0EA5E9] group-hover:text-white transition-colors">
+                      {filteredUsers.length}
+                    </Badge>
+                  </Flex>
+                </Flex>
+              </Box>
+
+              <Box className="overflow-hidden">
                 <LeaderboardTable data={leaderboardData} />
               </Box>
             </Flex>
           </Card>
-        </Container>
-      </Box>
-    </DashboardLayout>
+        </Flex>
+      </Container>
+    </Box>
   );
 }

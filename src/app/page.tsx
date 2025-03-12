@@ -60,7 +60,7 @@ export default function HomePage() {
   const handleViewLeaderboard = () => router.push('/leaderboard');
   const handleViewHistory = () => router.push('/games/history');
   const handleViewProfile = () => router.push('/profile');
-  const handleFindOpponent = () => router.push('/games/new');
+  const handleFindOpponent = () => router.push('/games/');
   
   // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
   useEffect(() => {

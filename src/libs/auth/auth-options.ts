@@ -1,7 +1,6 @@
 import type { NextAuthOptions } from "next-auth";
 import { FortyTwoProvider } from "./42-provider";
 import { userService } from "@/services";
-import { v4 as uuidv4 } from 'uuid';
 
 // Types pour l'authentification
 declare module "next-auth" {
@@ -52,23 +51,40 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user }) {
+      if (!user?.login || !user?.id) {
+        console.error("[Auth] Missing required user data:", user);
+        return false;
+      }
+
       try {
         // Vérifier si l'utilisateur existe déjà
-        const existingUser = await userService.getUserById(user.id);
-        if (existingUser) return true;
+        const existingUser = await userService.getUserByLogin(user.login);
+        if (existingUser) {
+          // Mettre à jour les informations de l'utilisateur si nécessaire
+          if (existingUser.avatar_url !== user.image) {
+            await userService.updateUser(existingUser.id, {
+              avatar_url: user.image || "",
+            });
+          }
+          return true;
+        }
 
-        // Créer le nouvel utilisateur
+        // Créer le nouvel utilisateur avec l'ID 42
         await userService.createUser({
-          id: uuidv4(),
+          id: user.id,
           login: user.login,
           avatar_url: user.image || "",
           elo_score: 1000,
+          created_at: new Date().toISOString(),
+          theme: "dark",
+          language: "fr",
+          notifications: true
         });
 
         return true;
       } catch (error) {
-        console.error("[Auth] User creation error:", error);
-        return true; // Permettre la connexion même en cas d'erreur
+        console.error("[Auth] User creation/update error:", error);
+        return false;
       }
     },
 
@@ -79,6 +95,12 @@ export const authOptions: NextAuthOptions = {
         token.expiresAt = account.expires_at;
         token.user = user as FortyTwoUser;
       }
+
+      // Vérifier si le token est expiré
+      if (token.expiresAt && Date.now() >= token.expiresAt * 1000) {
+        return {};
+      }
+
       return token;
     },
 

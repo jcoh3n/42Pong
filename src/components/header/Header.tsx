@@ -3,63 +3,87 @@
 import { Flex, Box, Avatar } from "@radix-ui/themes";
 import { SearchBar } from "./SearchBar";
 import { NotificationBell } from "./NotificationBell";
-import { UserProfile } from "./UserProfile";
 import Link from "next/link";
-import { type User } from "@/services/types";
+import useCurrentUser from "@/hooks/useCurrentUser";
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { MobileOnly, DesktopOnly } from "@/components/ui/ResponsiveContainer";
 
 interface HeaderProps {
-  user?: User;
+	onMenuClick?: () => void;
 }
 
-export function Header({ user }: HeaderProps) {
-  return (
-    <Box 
-      style={{ 
-        borderBottom: '1px solid var(--gray-5)',
-        backgroundColor: 'white',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-      }}
-    >
-      <Flex 
-        align="center" 
-        justify="between" 
-        px="5" 
-        py="3"
-        style={{ height: '64px' }}
-      >
-        {/* Left side - Logo */}
-        <Flex align="center" gap="2">
-          <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Flex align="center" gap="2">
-              <Box style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                width: '32px',
-                height: '32px'
-              }}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect width="24" height="24" rx="6" fill="black" />
-                  <path d="M7 13L10 10M10 10L7 7M10 10H16.5M14 7L17 10M17 10L14 13M17 10H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Box>
-            </Flex>
-          </Link>
-        </Flex>
+export function Header({ onMenuClick }: HeaderProps) {
+	const { data: user } = useCurrentUser();
+	
+	const handleSearch = (query: string) => {
+		console.log("Searching for:", query);
+	};
 
-        {/* Center - Search Bar */}
-        <Box style={{ flexGrow: 1, maxWidth: '600px', margin: '0 24px' }}>
-          <SearchBar />
-        </Box>
+	return (
+		<Box className="border-b border-gray-800 sticky top-0 z-10 bg-background w-full">
+			<Flex 
+				align="center" 
+				justify="between" 
+				px="4" 
+				py="3"
+				className="h-16"
+			>
+				{/* Left side - Menu button on mobile, User Profile on desktop */}
+				<Flex align="center" gap="2">
+					{/* Menu button - visible only on mobile */}
+					<MobileOnly>
+						<Box 
+							onClick={onMenuClick} 
+							className="cursor-pointer p-2 hover:bg-gray-800 rounded-full transition-colors duration-200"
+							aria-label="Menu"
+							role="button"
+							tabIndex={0}
+							onKeyDown={(e) => e.key === 'Enter' && onMenuClick && onMenuClick()}
+						>
+							<HamburgerMenuIcon width="24" height="24" />
+						</Box>
+					</MobileOnly>
+					
+					{/* User profile - desktop only */}
+					<DesktopOnly>
+						<Link 
+							href="/profile" 
+							prefetch 
+							className="no-underline text-current"
+						>
+							<Flex align="center" gap="3">
+								{user && (
+									<>
+										<Avatar
+											size="2"
+											src={user.avatar_url || undefined}
+											fallback={user.login?.[0]?.toUpperCase() || "U"}
+											radius="full"
+											className="border border-gray-700"
+										/>
+										<span className="text-sm font-medium text-gray-200">
+											{user.login}
+										</span>
+									</>
+								)}
+							</Flex>
+						</Link>
+					</DesktopOnly>
+				</Flex>
 
-        {/* Right side - Notifications and User Profile */}
-        <Flex align="center" gap="4">
-          <NotificationBell count={2} />
-          {user && <UserProfile user={user} />}
-        </Flex>
-      </Flex>
-    </Box>
-  );
+				{/* Center - Search Bar - responsive width */}
+				<Box className="w-full max-w-[200px] sm:max-w-[300px] md:max-w-[400px] lg:max-w-[500px] mx-4">
+					<SearchBar 
+						onSearch={handleSearch}
+						placeholder="Search item"
+					/>
+				</Box>
+
+				{/* Right side - Notifications */}
+				<Flex align="center" gap="4">
+					<NotificationBell count={2} />
+				</Flex>
+			</Flex>
+		</Box>
+	);
 } 

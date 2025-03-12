@@ -1,47 +1,40 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "@radix-ui/themes/styles.css";
-import useCurrentUser from '@/hooks/useCurrentUser';
+import usePreferences from '@/hooks/usePreferences';
 import { Theme } from '@radix-ui/themes';
-import { log } from 'console';
+import { ThemeProvider } from "next-themes";
 
 export default function ThemeLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-	const { data: currentUser, isLoading } = useCurrentUser();
-	const savedTheme = global?.window?.localStorage.getItem('theme') as 'system' | 'dark' | 'light' || 'system';
-	const [theme, setTheme] = useState<'dark' | 'light' | undefined>(
-		savedTheme === 'system' ? undefined : savedTheme as 'dark' | 'light'
-	);
+	const preferences = usePreferences();
+	const [mounted, setMounted] = useState(false);
 
+	// Éviter l'hydratation incompatible en attendant le montage côté client
 	useEffect(() => {
-		if (isLoading) return;
-		if (!currentUser) return;
+		setMounted(true);
+	}, []);
 
-		// Set theme based on user preferences if valid
-		if (currentUser?.theme && ['system', 'dark', 'light'].includes(currentUser.theme)) {
-			if (currentUser.theme === 'system') {
-				setTheme(undefined);
-				global?.window?.localStorage.setItem('theme', 'system');
-			} else {
-				setTheme(currentUser.theme as 'dark' | 'light');
-				global?.window?.localStorage.setItem('theme', currentUser.theme);
-			}
-		}
-	}, [currentUser, isLoading]);
+	if (!mounted) {
+		return null; // Éviter le flash de contenu non thémé
+	}
 
-  return (
-	<Theme
-		accentColor="blue"
-		appearance={theme}
-		grayColor="slate"
-		scaling="100%"
-		radius="medium"
-	>
-		{children}
-	</Theme>
-  );
+	return (
+		<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+			<Theme
+				appearance="dark"
+				accentColor="blue"
+				grayColor="slate"
+				scaling="100%"
+				radius="medium"
+				className="radix-themes dark"
+			>
+				{children}
+			</Theme>
+		</ThemeProvider>
+	);
 }

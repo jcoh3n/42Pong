@@ -2,7 +2,19 @@ import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 
 // Define user-specific types
-export type User = Database['public']['Tables']['Users']['Row'];
+export type User = {
+  id: string;
+  login: string;
+  avatar_url: string;
+  elo_score: number;
+  created_at: string;
+  theme: string;
+  language: string;
+  notifications: boolean;
+  wins: number;
+  total_games: number;
+};
+
 export type UserInsert = Database['public']['Tables']['Users']['Insert'];
 export type UserUpdate = Database['public']['Tables']['Users']['Update'];
 
@@ -15,9 +27,7 @@ export interface PaginatedResponse<T> {
   hasMore: boolean;
 }
 
-export type FetchedUser = User & {
-	wins: number;
-}
+export type FetchedUser = User;
 
 export class UserService {
   private getClient() {
@@ -37,17 +47,15 @@ export class UserService {
       sortOrder = 'desc'
     } = options || {};
 
-    // Calculate offset based on page and pageSize
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    // Create query with pagination
     let query = this.getClient()
       .from('Users')
       .select(`
-		*,
-		Matches!winner_id(count)
-	`, { count: 'estimated' })
+        *,
+        Matches!winner_id(count)
+      `, { count: 'estimated' })
       .order(sortBy, { ascending: sortOrder === 'asc' })
       .range(from, to);
 
@@ -63,7 +71,8 @@ export class UserService {
     return {
       data: data?.map(user => ({
         ...user,
-        wins: user.Matches[0]?.count || 0
+        wins: user.Matches[0]?.count || 0,
+        total_games: user.Matches[0]?.count || 0
       })) || [],
       count: totalCount,
       page,
@@ -75,37 +84,55 @@ export class UserService {
   async getUserById(id: string): Promise<User | null> {
     const { data, error } = await this.getClient()
       .from('Users')
-      .select('*')
+      .select(`
+        *,
+        Matches!winner_id(count)
+      `)
       .eq('id', id)
       .single();
 
     if (error) {
       console.error(`Error fetching user with id ${id}:`, error);
       if (error.code === 'PGRST116') {
-        return null; // Record not found
+        return null;
       }
       throw error;
     }
 
-    return data;
+    if (!data) return null;
+
+    return {
+      ...data,
+      wins: data.Matches[0]?.count || 0,
+      total_games: data.Matches[0]?.count || 0
+    };
   }
 
   async getUserByLogin(login: string): Promise<User | null> {
     const { data, error } = await this.getClient()
       .from('Users')
-      .select('*')
+      .select(`
+        *,
+        Matches!winner_id(count)
+      `)
       .eq('login', login)
       .single();
 
     if (error) {
       console.error(`Error fetching user with login ${login}:`, error);
       if (error.code === 'PGRST116') {
-        return null; // Record not found
+        return null;
       }
       throw error;
     }
 
-    return data;
+    if (!data) return null;
+
+    return {
+      ...data,
+      wins: data.Matches[0]?.count || 0,
+      total_games: data.Matches[0]?.count || 0
+    };
   }
 
   async searchUsers(searchTerm: string, options?: {
@@ -117,14 +144,15 @@ export class UserService {
       pageSize = 10
     } = options || {};
 
-    // Calculate offset based on page and pageSize
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
-    // Create query with pagination and search
     const { data, error, count } = await this.getClient()
       .from('Users')
-      .select('*', { count: 'exact' })
+      .select(`
+        *,
+        Matches!winner_id(count)
+      `, { count: 'exact' })
       .or(`login.ilike.%${searchTerm}%`)
       .order('elo_score', { ascending: false })
       .range(from, to);
@@ -137,7 +165,11 @@ export class UserService {
     const totalCount = count || 0;
     
     return {
-      data: data || [],
+      data: data?.map(user => ({
+        ...user,
+        wins: user.Matches[0]?.count || 0,
+        total_games: user.Matches[0]?.count || 0
+      })) || [],
       count: totalCount,
       page,
       pageSize,
@@ -149,7 +181,10 @@ export class UserService {
     const { data, error } = await this.getClient()
       .from('Users')
       .insert(user)
-      .select('*')
+      .select(`
+        *,
+        Matches!winner_id(count)
+      `)
       .single();
 
     if (error) {
@@ -157,7 +192,11 @@ export class UserService {
       throw error;
     }
 
-    return data;
+    return {
+      ...data,
+      wins: data.Matches[0]?.count || 0,
+      total_games: data.Matches[0]?.count || 0
+    };
   }
 
   async updateUser(id: string, updates: UserUpdate): Promise<User> {
@@ -165,7 +204,10 @@ export class UserService {
       .from('Users')
       .update(updates)
       .eq('id', id)
-      .select('*')
+      .select(`
+        *,
+        Matches!winner_id(count)
+      `)
       .single();
 
     if (error) {
@@ -173,7 +215,11 @@ export class UserService {
       throw error;
     }
 
-    return data;
+    return {
+      ...data,
+      wins: data.Matches[0]?.count || 0,
+      total_games: data.Matches[0]?.count || 0
+    };
   }
 
   async updateEloScore(id: string, newScore: number): Promise<User> {

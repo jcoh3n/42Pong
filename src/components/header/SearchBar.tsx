@@ -1,61 +1,83 @@
 "use client";
 
-import { useState } from "react";
-import { Flex, TextField } from "@radix-ui/themes";
+import { useState, useRef, useEffect } from "react";
+import { Flex } from "@radix-ui/themes";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import { KeyboardShortcut } from "./KeyboardShortcut";
 
-export function SearchBar() {
-  const [searchValue, setSearchValue] = useState("");
+interface SearchBarProps {
+  onSearch?: (query: string) => void;
+  placeholder?: string;
+}
 
-  const handleSearch = (e: React.FormEvent) => {
+export function SearchBar({ 
+  onSearch, 
+  placeholder = "Search item" 
+}: SearchBarProps) {
+  const [isFocused, setIsFocused] = useState(false);
+  const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Handle keyboard shortcut to focus the search input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Searching for:", searchValue);
-    // Implement search functionality here
+    onSearch?.(query);
   };
 
   return (
-    <form onSubmit={handleSearch} style={{ width: '100%' }}>
-      <TextField.Root 
-        size="3"
+    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+      <Flex 
+        align="center" 
+        justify="between"
         style={{
-          width: '100%',
           backgroundColor: 'var(--gray-3)',
-          border: 'none',
-          borderRadius: '8px'
+          borderRadius: '100px',
+          padding: '8px 16px',
+          width: '100%',
+          border: isFocused ? '1px solid var(--gray-7)' : '1px solid transparent',
+          transition: 'border-color 0.15s ease',
         }}
       >
-        <TextField.Slot>
-          <MagnifyingGlassIcon height={16} width={16} />
-        </TextField.Slot>
-        <TextField.Input 
-          placeholder="Search item"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          style={{
-            backgroundColor: 'transparent',
-            '&::placeholder': {
-              color: 'var(--gray-9)'
-            }
-          }}
-        />
-        {searchValue && (
-          <TextField.Slot pr="2">
-            <Flex 
-              align="center" 
-              justify="center"
-              style={{
-                fontSize: '12px',
-                color: 'var(--gray-10)',
-                backgroundColor: 'var(--gray-5)',
-                padding: '2px 8px',
-                borderRadius: '4px'
-              }}
-            >
-              ⌘ K
-            </Flex>
-          </TextField.Slot>
-        )}
-      </TextField.Root>
+        <Flex align="center" gap="2" style={{ flexGrow: 1 }}>
+          <MagnifyingGlassIcon 
+            color="var(--gray-9)" 
+            width={16} 
+            height={16}
+          />
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={placeholder}
+            value={query}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              fontSize: '14px',
+              color: 'var(--gray-12)',
+              width: '100%',
+              padding: '0',
+            }}
+          />
+        </Flex>
+        
+        <KeyboardShortcut shortcut="⌘K" />
+      </Flex>
     </form>
   );
 } 

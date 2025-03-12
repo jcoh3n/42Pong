@@ -14,19 +14,19 @@ export type Database = {
           created_at: string
           created_by: string
           id: string
-          status: Database["public"]["Enums"]["challenge_status"]
+          status: Database["public"]["Enums"]["match_status"]
         }
         Insert: {
           created_at?: string
           created_by?: string
           id?: string
-          status?: Database["public"]["Enums"]["challenge_status"]
+          status?: Database["public"]["Enums"]["match_status"]
         }
         Update: {
           created_at?: string
           created_by?: string
           id?: string
-          status?: Database["public"]["Enums"]["challenge_status"]
+          status?: Database["public"]["Enums"]["match_status"]
         }
         Relationships: []
       }
@@ -63,7 +63,11 @@ export type Database = {
         Row: {
           created_at: string
           finished_at: string | null
+          forfeited_by: string | null
           id: string
+          score_to_win: number
+          status: Database["public"]["Enums"]["match_status"]
+          type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
           user_1_score: number
           user_2_id: string
@@ -75,7 +79,11 @@ export type Database = {
         Insert: {
           created_at?: string
           finished_at?: string | null
+          forfeited_by?: string | null
           id?: string
+          score_to_win?: number
+          status?: Database["public"]["Enums"]["match_status"]
+          type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
           user_1_score?: number
           user_2_id: string
@@ -87,7 +95,11 @@ export type Database = {
         Update: {
           created_at?: string
           finished_at?: string | null
+          forfeited_by?: string | null
           id?: string
+          score_to_win?: number
+          status?: Database["public"]["Enums"]["match_status"]
+          type?: Database["public"]["Enums"]["match_type"]
           user_1_id?: string
           user_1_score?: number
           user_2_id?: string
@@ -97,6 +109,13 @@ export type Database = {
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "Matches_forfeited_by_fkey"
+            columns: ["forfeited_by"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "Matches_user_1_fkey"
             columns: ["user_1_id"]
@@ -120,36 +139,97 @@ export type Database = {
           },
         ]
       }
+      matchmaking_queue: {
+        Row: {
+          id: string
+          joined_at: string | null
+          player_id: string
+          status: Database["public"]["Enums"]["matchmaking_status"]
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          player_id: string
+          status?: Database["public"]["Enums"]["matchmaking_status"]
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          player_id?: string
+          status?: Database["public"]["Enums"]["matchmaking_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matchmaking_queue_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: true
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Notifications: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          seen: boolean | null
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id: string
+          seen?: boolean | null
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          seen?: boolean | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Notifications_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Users: {
         Row: {
           avatar_url: string
           created_at: string
           elo_score: number
           id: string
-          login: string
-          theme: string
           language: string
+          login: string
           notifications: boolean
+          theme: string
         }
         Insert: {
           avatar_url: string
           created_at?: string
           elo_score?: number
           id?: string
-          login: string
-          theme?: string
           language?: string
+          login: string
           notifications?: boolean
+          theme?: string
         }
         Update: {
           avatar_url?: string
           created_at?: string
           elo_score?: number
           id?: string
-          login?: string
-          theme?: string
           language?: string
+          login?: string
           notifications?: boolean
+          theme?: string
         }
         Relationships: []
       }
@@ -158,11 +238,51 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_player_to_queue: {
+        Args: {
+          player_id: string
+        }
+        Returns: Json
+      }
+      check_match_winner: {
+        Args: {
+          match_id: string
+        }
+        Returns: Json
+      }
+      create_match_from_queue: {
+        Args: {
+          player1_id: string
+          player2_id: string
+        }
+        Returns: Json
+      }
+      create_notification: {
+        Args: {
+          user_id: string
+          title: string
+          content: string
+        }
+        Returns: undefined
+      }
+      increase_user_score: {
+        Args: {
+          match_id: string
+          user_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
+<<<<<<< HEAD
       challenge_status: "pending" | "ongoing" | "completed"
       matchmaking_status: "waiting" | "matched" | "cancelled"
+=======
+      match_status: "pending" | "ongoing" | "completed" | "cancelled"
+      match_type: "normal" | "ranked" | "friendly"
+      matchmaking_status: "waiting" | "matched" | "cancelled"
+      score_to_win: "5" | "7" | "11"
+>>>>>>> dev
     }
     CompositeTypes: {
       [_ in never]: never

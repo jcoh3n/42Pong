@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { authOptions } from '@/lib/auth/auth-options';
+import { authOptions } from '@/libs/auth/auth-options';
 import { getServerSession } from 'next-auth';
 import { userService } from '@/services';
 

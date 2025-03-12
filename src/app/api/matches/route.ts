@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth/auth-options";
+import { authOptions } from "@/libs/auth/auth-options";
 import { matchService } from "@/services";
 
 // Valid column names for sorting
