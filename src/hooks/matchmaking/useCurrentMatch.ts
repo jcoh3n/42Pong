@@ -9,6 +9,8 @@ import { Match, matchService, User } from '@/services';
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import useUser from '../users/useUser';
+import { createClient } from '@/libs/supabase/client';
+import { Database } from '@/types/database.types';
 
 interface MatchData {
 	match?: Match,
@@ -22,9 +24,9 @@ interface MatchData {
 		error: any;
 		user?: User | null;
 	},
-}
+};
 
-const useCurrentMatch = (): {
+export type CurrentMatchData = {
 	data?: MatchData | null;
 	error: Error | undefined;
 	isLoading: boolean;
@@ -32,7 +34,9 @@ const useCurrentMatch = (): {
 	forfeitMatch: () => Promise<void>;
 	incrementScore: () => Promise<void>;
 	leaveMatch: () => boolean;
-} => {
+};
+
+const useCurrentMatch = (): CurrentMatchData => {
 	const { data, error, isLoading, mutate } = useMatchmaking();
 	const currentUserData = useCurrentUser();
 	const [match, setMatch] = useState<Match | null>(null);
@@ -110,7 +114,6 @@ const useCurrentMatch = (): {
 			console.log('Score updated successfully:', response.data?.updated_score);
 			toast.success(`Score updated successfully`);
 
-			// Refresh the data
 			mutate();
 		} catch (error) {
 			console.error('Error incrementing score:', error);

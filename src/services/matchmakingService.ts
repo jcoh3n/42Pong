@@ -222,7 +222,7 @@ export const getPlayerActiveMatch = async (
     .from('Matches')
     .select('*')
     .or(`user_1_id.eq.${playerId},user_2_id.eq.${playerId}`)
-    .is('finished_at', null)
+    .not('status', 'eq', 'completed')
     .single();
 
 	if (error?.code === 'PGRST116') {

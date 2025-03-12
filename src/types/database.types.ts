@@ -36,6 +36,7 @@ export type Database = {
           finished_at: string | null
           forfeited_by: string | null
           id: string
+          score_to_win: number
           status: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
@@ -49,6 +50,7 @@ export type Database = {
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
+          score_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["match_type"]
           user_1_id: string
@@ -62,6 +64,7 @@ export type Database = {
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
+          score_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
           type?: Database["public"]["Enums"]["match_type"]
           user_1_id?: string
@@ -206,6 +209,12 @@ export type Database = {
         }
         Returns: Json
       }
+      check_match_winner: {
+        Args: {
+          match_id: string
+        }
+        Returns: Json
+      }
       create_match_from_queue: {
         Args: {
           player1_id: string
@@ -233,6 +242,7 @@ export type Database = {
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
       match_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
+      score_to_win: "5" | "7" | "11"
     }
     CompositeTypes: {
       [_ in never]: never

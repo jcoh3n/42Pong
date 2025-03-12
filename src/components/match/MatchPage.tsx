@@ -2,15 +2,22 @@ import React from 'react';
 import { Box, Container, Text, Flex, Button } from "@radix-ui/themes";
 import { MatchmakingProps } from "@/components/matchmaking/MatchmakingMenu";
 import Loading from "@/components/Loading";
-import useCurrentMatch from '@/hooks/matchmaking/useCurrentMatch';
+import useCurrentMatch, { CurrentMatchData } from '@/hooks/matchmaking/useCurrentMatch';
 import MatchInfo from './MatchInfo';
 import ScoreButtons from './ScoreButtons';
 import WinPopup from './WinPopup';
+import LosePopup from './LosePopup';
 
 // Main MatchPage component
-const MatchPage = (props: MatchmakingProps) => {
+const MatchPage: React.FC<CurrentMatchData> = ({
+	data,
+	isLoading,
+	error,
+	forfeitMatch,
+	incrementScore,
+	leaveMatch
+}) => {
 	// Use the useCurrentMatch hook to get all match-related data and functions
-	const { data, isLoading, error, forfeitMatch, incrementScore, leaveMatch } = useCurrentMatch();
 
 	if (isLoading) {
 		return <Loading />;
@@ -37,6 +44,12 @@ const MatchPage = (props: MatchmakingProps) => {
 		(match.user_2_id === currentUser?.id && match.user_2_score > match.user_1_score)
 	);
 
+	// Determine if the current user is the loser
+	const isLoser = match?.status === 'completed' && (
+		(match.user_1_id === currentUser?.id && match.user_1_score < match.user_2_score) ||
+		(match.user_2_id === currentUser?.id && match.user_2_score < match.user_1_score)
+	);
+
 	if (!match) {
 		return (
 			<Box className="min-h-screen">
@@ -50,10 +63,18 @@ const MatchPage = (props: MatchmakingProps) => {
 	return (
 		<Box className="min-h-screen">
 			<Container size="3" py="9">
+				{/* Win Popup */}
 				<WinPopup
 					isOpen={isWinner}
 					onClose={() => leaveMatch()}
 				/>
+
+				{/* Lose Popup */}
+				<LosePopup
+					isOpen={isLoser}
+					onClose={() => leaveMatch()}
+				/>
+
 				<Flex direction="column" gap="6" align="center">
 					{/* Match information */}
 					<MatchInfo

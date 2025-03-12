@@ -55,12 +55,8 @@ export async function POST() {
 			return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 		}
 
-		console.log('adding to queue');
-		
 		const { data, error } = await addToQueue(currentUser.id);
 		
-		console.log('added to queue: ', { data, error });
-
 		if (error || !data) {
 			return NextResponse.json({ error: error?.message }, { status: 500 });
 		}

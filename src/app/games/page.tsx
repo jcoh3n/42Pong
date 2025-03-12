@@ -4,11 +4,11 @@ import useMatchmaking from "@/hooks/matchmaking/useMatchmaking";
 import React from "react";
 import MatchmakingMenu, { MatchmakingProps } from "@/components/matchmaking/MatchmakingMenu";
 import MatchPage from "@/components/match/MatchPage";
+import useCurrentMatch from "@/hooks/matchmaking/useCurrentMatch";
 
 
 export default function GamePage() {
 	const matchmakingData = useMatchmaking();
-	
 	const props: MatchmakingProps = {
 		matchmakingData: matchmakingData.data,
 		matchmakingError: matchmakingData.error,
@@ -18,8 +18,10 @@ export default function GamePage() {
 		timeInQueue: matchmakingData.timeInQueue
 	};
 
-	if (matchmakingData.data?.data?.inMatch) {
-		return <MatchPage {...props} />;
+	const currentMatchData = useCurrentMatch();
+
+	if (currentMatchData.data?.match) {
+		return <MatchPage {...currentMatchData} />;
 	} else if (matchmakingData.data?.data?.inQueue) {
 		// return queue page
 	} else {
