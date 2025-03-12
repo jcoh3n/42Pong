@@ -9,6 +9,7 @@ import { ThemeProvider } from "next-themes";
 import ThemeLayout from "@/components/ThemeLayout";
 import { Header } from "@/components/header/Header";
 import { Toaster } from 'react-hot-toast'
+import WinPopup from "@/components/match/WinPopup";
 
 
 export const metadata: Metadata = {

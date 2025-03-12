@@ -13,9 +13,6 @@ export default function useUser(login?: string, id?: string) {
         return userService.getUserById(id);
       }
       return null;
-    },
-    {
-      refreshInterval: 5000 // Rafraîchir toutes les 5 secondes
     }
   );
 

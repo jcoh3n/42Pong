@@ -7,6 +7,7 @@ import { Box, Text } from '@radix-ui/themes';
 import { Container } from '@radix-ui/themes';
 import { Flex } from '@radix-ui/themes';
 import Loading from './Loading';
+import WinPopup from './match/WinPopup';
 
 interface ProtectedProps {
   children: ReactNode;
@@ -31,7 +32,7 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
 
   return(
     <Suspense fallback={<Loading />}>
-      {children}
+		{children}
     </Suspense>
   );
 }

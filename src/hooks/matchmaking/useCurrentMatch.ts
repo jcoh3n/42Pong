@@ -6,7 +6,7 @@ import fetcher from '@/libs/fetcher';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useMatchmaking from './useMatchmaking';
 import { Match, matchService, User } from '@/services';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import useUser from '../users/useUser';
 
@@ -31,10 +31,31 @@ const useCurrentMatch = (): {
 	mutate: KeyedMutator<any>;
 	forfeitMatch: () => Promise<void>;
 	incrementScore: () => Promise<void>;
+	leaveMatch: () => boolean;
 } => {
 	const { data, error, isLoading, mutate } = useMatchmaking();
 	const currentUserData = useCurrentUser();
-	const match = data?.data?.matchData;
+	const [match, setMatch] = useState<Match | null>(null);
+
+	useEffect(() => {
+		// Set match from data if it's null
+		if (!match && data?.data?.matchData) {
+			setMatch(data.data.matchData);
+		} else if (match?.id && match.id === data?.data?.matchData?.id) {
+			setMatch(data.data.matchData);
+		}
+	}, [match?.id, data?.data?.matchData])
+
+	// Check if match is completed and set it to null if it is
+	const leaveMatch = useCallback(() => {
+		if (match?.status === 'completed') {
+			setMatch(null);
+			mutate();
+			return true;
+		}
+
+		return false;
+	}, [match?.status, mutate]);
 
 	const { data: currentUser } = currentUserData;
 
@@ -60,6 +81,15 @@ const useCurrentMatch = (): {
 		}
 	}, [match?.id, match?.user_1_id, mutate]);
 
+	// Periodically refresh match data every 3 seconds
+	useEffect(() => {
+		const interval = setInterval(() => {
+			mutate();
+		}, 1000);
+		
+		// Clean up interval on component unmount
+		return () => clearInterval(interval);
+	}, [mutate]);
 
 	const incrementScore = useCallback(async () => {
 		if (!match?.id || !currentUser?.id) {
@@ -98,6 +128,7 @@ const useCurrentMatch = (): {
 		mutate,
 		incrementScore,
 		forfeitMatch,
+		leaveMatch,
 	};
 };
 

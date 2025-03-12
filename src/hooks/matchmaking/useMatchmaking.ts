@@ -18,7 +18,7 @@ const useMatchmaking = (): {
 	stopMatchmaking: () => Promise<void>;
 	timeInQueue: string | null;
 } => {
-	const { data, error, isLoading, mutate } = useSWR('/api/matchmaking', fetcher, { refreshInterval: 1000 });
+	const { data, error, isLoading, mutate } = useSWR('/api/matchmaking', fetcher);
 
 	const matchmakingData = data as MatchmakingResponse;
 
@@ -60,12 +60,13 @@ const useMatchmaking = (): {
 			setTimeInQueue(null);
 			return () => {};
 		}
-		
+
 		const joinedAt = new Date(matchmakingData.data.queueData?.joined_at || new Date()).getTime();
 		
 		const updateTime = () => {
 			const now = new Date().getTime();
 			setTimeInQueue(Math.floor((now - joinedAt) / 1000));
+			mutate();
 		};
 		
 		// Initial calculation
