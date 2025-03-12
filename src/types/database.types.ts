@@ -30,35 +30,6 @@ export type Database = {
         }
         Relationships: []
       }
-      matchmaking_queue: {
-        Row: {
-          id: string
-          player_id: string
-          joined_at: string
-          status: Database["public"]["Enums"]["matchmaking_status"]
-        }
-        Insert: {
-          id?: string
-          player_id: string
-          joined_at?: string
-          status?: Database["public"]["Enums"]["matchmaking_status"]
-        }
-        Update: {
-          id?: string
-          player_id?: string
-          joined_at?: string
-          status?: Database["public"]["Enums"]["matchmaking_status"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "matchmaking_queue_player_id_fkey"
-            columns: ["player_id"]
-            isOneToOne: false
-            referencedRelation: "Users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
       Matches: {
         Row: {
           created_at: string
@@ -73,8 +44,6 @@ export type Database = {
           user_2_id: string
           user_2_score: number
           winner_id: string | null
-          match_type: string
-          status: string
         }
         Insert: {
           created_at?: string
@@ -89,8 +58,6 @@ export type Database = {
           user_2_id: string
           user_2_score?: number
           winner_id?: string | null
-          match_type?: string
-          status?: string
         }
         Update: {
           created_at?: string
@@ -105,8 +72,6 @@ export type Database = {
           user_2_id?: string
           user_2_score?: number
           winner_id?: string | null
-          match_type?: string
-          status?: string
         }
         Relationships: [
           {
@@ -274,15 +239,10 @@ export type Database = {
       }
     }
     Enums: {
-<<<<<<< HEAD
-      challenge_status: "pending" | "ongoing" | "completed"
-      matchmaking_status: "waiting" | "matched" | "cancelled"
-=======
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
       match_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
       score_to_win: "5" | "7" | "11"
->>>>>>> dev
     }
     CompositeTypes: {
       [_ in never]: never
