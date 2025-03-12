@@ -59,13 +59,14 @@ const MatchmakingMenu = () => {
 
 	return (
 		<div 
-			className="min-h-screen w-full flex items-center justify-center"
+			className="h-full w-full flex items-center justify-center overflow-y-auto"
 			style={{
-				background: "linear-gradient(135deg, #121826 0%, #1E2A38 100%)"
+				background: "linear-gradient(135deg, #121826 0%, #1E2A38 100%)",
+				minHeight: "100%"
 			}}
 		>
-			<div className="w-[90%] sm:w-[85%] md:w-[80%] lg:w-[70%] max-w-2xl mx-auto py-8">
-				<div className="space-y-4">
+			<div className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-3xl mx-auto py-8 sm:py-12">
+				<div className="space-y-6 sm:space-y-8 md:space-y-10">
 					{GAME_MODES.map((mode, index) => (
 						<GameModeCard
 							key={mode.title}

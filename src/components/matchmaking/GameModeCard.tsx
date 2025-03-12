@@ -41,7 +41,7 @@ const GameModeCard: React.FC<GameModeCardProps> = ({
           w-full relative overflow-hidden rounded-2xl
           ${isActive ? 'shadow-2xl' : 'hover:shadow-xl'}
           transition-all duration-200
-          h-[100px] sm:h-[120px] md:h-[130px]
+          h-[150px] sm:h-[160px] md:h-[180px] lg:h-[200px]
         `}
         style={{
           background: bgColor,
@@ -57,10 +57,10 @@ const GameModeCard: React.FC<GameModeCardProps> = ({
         />
 
         <div className="absolute inset-0 flex items-center px-6 sm:px-8">
-          <div className="flex items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-6 sm:gap-8">
             <div 
               className={`
-                p-3 sm:p-4 rounded-xl
+                p-4 sm:p-5 md:p-6 rounded-xl
                 transition-colors duration-200 backdrop-blur-sm
                 ${isActive ? 'bg-white/30' : 'bg-white/20'}
                 transform-gpu hover:scale-105
@@ -71,14 +71,14 @@ const GameModeCard: React.FC<GameModeCardProps> = ({
             >
               <Icon 
                 className={`
-                  w-8 h-8 sm:w-10 sm:h-10 transition-transform
+                  w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-transform
                   ${isActive ? 'scale-110' : ''}
                 `} 
                 style={{ color: 'white' }} 
               />
             </div>
             <div className="flex items-center gap-4">
-              <h3 className="text-xl sm:text-2xl font-bold text-white">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                 {title}
               </h3>
             </div>

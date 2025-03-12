@@ -106,7 +106,13 @@ export default function RootLayout({
                 }}
               >
                 <Header onMenuClick={toggleSidebar} />
-                <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+                <div style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  backgroundColor: 'var(--gray-2)', 
+                  overflow: 'auto',
+                  position: 'relative'
+                }}>
                   <Protected>
                     {children}
                   </Protected>
