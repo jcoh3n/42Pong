@@ -6,6 +6,7 @@ import MatchInfo from './MatchInfo';
 import ScoreButtons from './ScoreButtons';
 import WinPopup from './WinPopup';
 import LosePopup from './LosePopup';
+import toast from 'react-hot-toast';
 
 export type MatchPageProps = {
 	matchId: string,
@@ -26,6 +27,7 @@ const MatchPage: React.FC<MatchPageProps> = ({
 		error,
 		forfeitMatch,
 		incrementScore,
+		isForfeiting
 	} = useCurrentMatch(matchId);
 
 	if (isLoading) {
@@ -49,13 +51,7 @@ const MatchPage: React.FC<MatchPageProps> = ({
 	const isLoser = match?.status === 'completed' && match.winner_id === opponent.user?.id;
 
 	if (!match) {
-		return (
-			<Box className="min-h-screen">
-				<Container size="3" py="9">
-					<Text>No active match found</Text>
-				</Container>
-			</Box>
-		);
+		onLeave()
 	}
 
 	return (
@@ -93,6 +89,7 @@ const MatchPage: React.FC<MatchPageProps> = ({
 						size="2"
 						variant="soft"
 						color="red"
+						disabled={isForfeiting}
 						onClick={forfeitMatch}
 						className="mt-4 transition-all duration-200 hover:bg-red-200"
 					>

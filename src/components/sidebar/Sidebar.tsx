@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
 import { signOut } from "next-auth/react";
+import useCurrentUser from "@/hooks/useCurrentUser";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -25,6 +26,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [activeItem, setActiveItem] = useState(usePathname());
+  const { data: currentUser } = useCurrentUser();
   const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
 
   useEffect(() => {
@@ -122,18 +124,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           />
         </Flex>
       </Box>
-      
-      {/* Bottom Navigation */}
-      <Box py="3">
-        <Separator size="4" mb="3" />
-        <Flex direction="column" gap="2">
-          <SidebarNavItem
-		  	onItemClick={signOut}
-            icon={<ExitIcon width="20" height="20" />} 
-            label="Log out"
-          />
-        </Flex>
-      </Box>
+      {currentUser && (
+		<Box py="3" style={{justifySelf: 'end'}}>
+			<Separator size="4" mb="3" />
+			<Flex direction="column" gap="2">
+			<SidebarNavItem
+				onItemClick={signOut}
+				icon={<ExitIcon width="20" height="20" />} 
+				label="Log out"
+			/>
+			</Flex>
+		</Box>
+	  )}
     </Box>
   );
 }
