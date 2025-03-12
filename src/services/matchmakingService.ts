@@ -22,9 +22,12 @@ export type MatchmakingQueueStatus = Database['public']['Enums']['matchmaking_st
  */
 export const addToQueue = async (playerId: string) => {
   // Check if player is already in queue
-  	const { data } = await supabase.rpc('add_player_to_queue', {
+  	const { data, error } = await supabase.rpc('add_player_to_queue', {
    		player_id: playerId
 	});
+
+	console.log('addToQueue: ', data, error);
+	
 
 	return data as {
 		data?: MatchmakingQueue;
