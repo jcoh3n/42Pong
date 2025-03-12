@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import serverAuth from "@/lib/auth/serverAuth";
+import serverAuth from "@/libs/auth/serverAuth";
 import { NextApiRequest } from "next";
 import { NextApiResponse } from "next";
 

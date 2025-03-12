@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth/next";
 import { NextResponse } from "next/server";
-import { authOptions } from "@/lib/auth/auth-options";
+import { authOptions } from "@/libs/auth/auth-options";
 import { matchService } from "@/services";
-import serverAuth from "@/lib/auth/serverAuth";
+import serverAuth from "@/libs/auth/serverAuth";
 
 // Valid column names for sorting
 type SortByColumn = "id" | "user_1_id" | "user_2_id" | "winner_id" | "created_at" | "finished_at" | "user_1_score" | "user_2_score";
