@@ -86,7 +86,7 @@ export default function RootLayout({
               {/* Overlay pour mobile quand le sidebar est ouvert */}
               {isSidebarOpen && !isDesktop && (
                 <div 
-                  className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden transition-opacity duration-300 ease-in-out"
+                  className="fixed inset-0 bg-black opacity-40 z-20 lg:hidden transition-opacity duration-300 ease-in-out"
                   onClick={() => setIsSidebarOpen(false)}
                 />
               )}
