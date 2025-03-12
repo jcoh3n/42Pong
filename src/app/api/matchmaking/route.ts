@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import serverAuth from "@/lib/auth/serverAuth";
+import serverAuth from "@/libs/auth/serverAuth";
 import { createClient } from "@/libs/supabase/server";
 import { addToQueue, getPlayerActiveMatch, getPlayerQueueStatus, MatchmakingQueue, removeFromQueue } from "@/services/matchmakingService";
 import { Database } from "@/types/database.types";

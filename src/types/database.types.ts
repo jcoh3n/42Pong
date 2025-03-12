@@ -171,30 +171,30 @@ export type Database = {
           created_at: string
           elo_score: number
           id: string
-          language: string | null
+          language: string
           login: string
-          notifications: boolean | null
-          theme: string | null
+          notifications: boolean
+          theme: string
         }
         Insert: {
           avatar_url: string
           created_at?: string
           elo_score?: number
           id?: string
-          language?: string | null
+          language?: string
           login: string
-          notifications?: boolean | null
-          theme?: string | null
+          notifications?: boolean
+          theme?: string
         }
         Update: {
           avatar_url?: string
           created_at?: string
           elo_score?: number
           id?: string
-          language?: string | null
+          language?: string
           login?: string
-          notifications?: boolean | null
-          theme?: string | null
+          notifications?: boolean
+          theme?: string
         }
         Relationships: []
       }

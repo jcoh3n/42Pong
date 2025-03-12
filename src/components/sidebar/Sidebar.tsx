@@ -127,7 +127,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       <Box py="3">
         <Separator size="4" mb="3" />
         <Flex direction="column" gap="2">
-          <SidebarNavItem 
+          <SidebarNavItem
 		  	onItemClick={signOut}
             icon={<ExitIcon width="20" height="20" />} 
             label="Log out"
