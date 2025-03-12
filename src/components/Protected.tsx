@@ -6,6 +6,7 @@ import useCurrentUser from '@/hooks/useCurrentUser';
 import { Box } from '@radix-ui/themes';
 import Loading from './Loading';
 import WinPopup from './match/WinPopup';
+import LoginContent from '@/app/login/page';
 
 interface ProtectedProps {
   children: ReactNode;
@@ -15,19 +16,6 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { data: currentUser, isLoading, error } = useCurrentUser();
-
-  useEffect(() => {
-    if (!isLoading && (!currentUser || error)) {
-      // Stocker le chemin actuel dans le localStorage pour la redirection après login
-      if (typeof window !== 'undefined' && pathname !== '/login') {
-        localStorage.setItem('loginRedirect', pathname);
-      }
-      router.replace(`/login`);
-    } else if (currentUser && pathname === '/login') {
-      // Si l'utilisateur est connecté et sur la page de login, rediriger vers la page d'accueil
-      router.replace('/');
-    }
-  }, [currentUser, isLoading, error, router, pathname]);
 
   // Pendant le chargement initial
   if (isLoading) {
@@ -47,7 +35,7 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
 
   // Si l'utilisateur n'est pas authentifié, ne rien afficher (la redirection est gérée par useEffect)
   if (!currentUser) {
-    return null;
+    return <LoginContent />;
   }
 
   // Afficher le contenu protégé
