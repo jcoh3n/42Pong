@@ -38,6 +38,7 @@ export type Database = {
           id: string
           receiver_id: string
           sender_id: string
+          status: Database["public"]["Enums"]["invitation_status"]
         }
         Insert: {
           accepted?: boolean
@@ -46,6 +47,7 @@ export type Database = {
           id?: string
           receiver_id: string
           sender_id: string
+          status?: Database["public"]["Enums"]["invitation_status"]
         }
         Update: {
           accepted?: boolean
@@ -54,6 +56,7 @@ export type Database = {
           id?: string
           receiver_id?: string
           sender_id?: string
+          status?: Database["public"]["Enums"]["invitation_status"]
         }
         Relationships: [
           {
@@ -324,6 +327,7 @@ export type Database = {
       }
     }
     Enums: {
+      invitation_status: "pending" | "accepted" | "cancelled"
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
       matche_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
