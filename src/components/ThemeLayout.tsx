@@ -11,7 +11,6 @@ export default function ThemeLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-	const preferences = usePreferences();
 	const [mounted, setMounted] = useState(false);
 
 	// Éviter l'hydratation incompatible en attendant le montage côté client
@@ -23,13 +22,10 @@ export default function ThemeLayout({
 		return null; // Éviter le flash de contenu non thémé
 	}
 
-	// Ensure theme is one of the valid values
-	const theme = preferences.theme === 'system' ? 'inherit' : preferences.theme;
-
 	return (
-		<ThemeProvider attribute="class" enableSystem>
+		<ThemeProvider attribute="class">
 			<Theme
-				appearance={theme}
+				appearance='dark'
 				accentColor="blue"
 				grayColor="slate"
 				scaling="100%"
