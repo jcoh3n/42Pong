@@ -41,18 +41,19 @@ export function SearchBar({
       <Flex 
         align="center" 
         justify="between"
-        style={{
-          backgroundColor: 'var(--gray-3)',
-          borderRadius: '100px',
-          padding: '8px 16px',
-          width: '100%',
-          border: isFocused ? '1px solid var(--gray-7)' : '1px solid transparent',
-          transition: 'border-color 0.15s ease',
-        }}
+        className={`
+          relative bg-gray-800/30 rounded-xl px-3 py-1.5 w-full
+          border border-gray-700/20 backdrop-blur-sm
+          transition-all duration-200 group
+          ${isFocused ? 'bg-gray-800/40 border-blue-500/30 shadow-lg shadow-blue-500/5' : 'hover:border-gray-600/30'}
+        `}
       >
         <Flex align="center" gap="2" style={{ flexGrow: 1 }}>
           <MagnifyingGlassIcon 
-            color="var(--gray-9)" 
+            className={`
+              transition-colors duration-200
+              ${isFocused ? 'text-blue-400' : 'text-gray-500 group-hover:text-gray-400'}
+            `}
             width={16} 
             height={16}
           />
@@ -64,19 +65,18 @@ export function SearchBar({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              outline: 'none',
-              fontSize: '14px',
-              color: 'var(--gray-12)',
-              width: '100%',
-              padding: '0',
-            }}
+            className="
+              bg-transparent border-none outline-none text-sm text-gray-100
+              placeholder:text-gray-500 w-full p-0
+              transition-colors duration-200
+            "
           />
         </Flex>
         
-        <KeyboardShortcut shortcut="⌘K" />
+        <KeyboardShortcut 
+          shortcut="⌘K" 
+          className={isFocused ? 'opacity-100' : 'opacity-60'} 
+        />
       </Flex>
     </form>
   );

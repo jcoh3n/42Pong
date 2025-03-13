@@ -1,13 +1,12 @@
 "use client";
 
-import { Box, Flex, Separator, Text } from "@radix-ui/themes";
+import { Box, Flex, Text, Avatar } from "@radix-ui/themes";
 import { 
   HomeIcon, 
   ListBulletIcon,
-  PersonIcon,
   GearIcon,
   ExitIcon,
-  Cross2Icon
+  Cross2Icon,
 } from "@radix-ui/react-icons";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { usePathname, useRouter } from "next/navigation";
@@ -15,6 +14,8 @@ import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
 import { signOut } from "next-auth/react";
+import useCurrentUser from "@/hooks/useCurrentUser";
+import Link from "next/link";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -26,12 +27,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [activeItem, setActiveItem] = useState(usePathname());
   const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+  const { data: user } = useCurrentUser();
 
   useEffect(() => {
     setActiveItem(pathname);
   }, [pathname]);
 
-  // Gérer la navigation et fermer le sidebar sur mobile
   const handleNavigation = (path: string) => {
     setActiveItem(path);
     if (!isDesktop && onClose) {
@@ -42,98 +43,135 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <Box
       className={`
-        h-full flex flex-col bg-background border-r border-gray-200 dark:border-gray-800
-        transition-opacity duration-300 ease-in-out
-        ${!isDesktop && !isOpen ? 'opacity-0' : 'opacity-100'}
-        ${!isDesktop && !isOpen ? 'hidden' : 'block'}
+        fixed z-50 w-[300px]
+        ${isDesktop 
+          ? 'top-0 left-0 bottom-0 p-4' 
+          : 'top-[84px] left-4 bottom-4 pointer-events-none'
+        }
+        ${!isDesktop && !isOpen ? 'opacity-0 -translate-x-full' : 'opacity-100 translate-x-0'}
+        transition-all duration-300 ease-in-out
       `}
-      style={{ 
-        width: '100%',
-        height: '100%'
-      }}
     >
-      {/* Logo and Title with Close button on mobile */}
-      <Flex align="center" justify="between" px="5" py="4">
-        <div onClick={() => router.push('/')} className="cursor-pointer flex flex-row items-center gap-2 ml-6">
-          <Box style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            width: '32px',
-            height: '32px'
-          }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="24" height="24" rx="6" fill="black" />
-              <path d="M7 13L10 10M10 10L7 7M10 10H16.5M14 7L17 10M17 10L14 13M17 10H10.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+      <div className={`
+        h-full rounded-2xl bg-[#0A1018]/95 backdrop-blur-md
+        border border-gray-800/50 shadow-lg shadow-black/10
+        overflow-hidden pointer-events-auto
+        flex flex-col
+        ${!isDesktop && 'max-h-[calc(100vh-100px)]'}
+      `}>
+        {/* Blur effect background */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-b from-[#0A1018]/50 to-[#0A1018]/30"
+          style={{
+            WebkitBackdropFilter: 'blur(8px)',
+            backdropFilter: 'blur(8px)',
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative flex-1 flex flex-col min-h-0">
+          {/* Header with Logo and Close button */}
+          <Flex align="center" justify="between" px="5" py="4" className="relative shrink-0">
+            <div onClick={() => router.push('/')} className="cursor-pointer flex items-center gap-3">
+              <div className="relative w-10 h-10 flex items-center justify-center">
+                {/* Ping Pong Paddle */}
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg" />
+                <div className="absolute inset-1 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full" />
+                {/* 42 Logo */}
+                <span className="relative text-blue-400 font-bold text-lg">42</span>
+              </div>
+              <Text size="5" weight="bold" className="text-gray-100">Pong</Text>
+            </div>
+            
+            {!isDesktop && (
+              <Box 
+                onClick={onClose}
+                className="cursor-pointer p-2 hover:bg-white/5 rounded-full transition-all duration-200"
+              >
+                <Cross2Icon width="20" height="20" className="text-gray-400" />
+              </Box>
+            )}
+          </Flex>
+
+          {/* User Profile - Desktop Only */}
+          {isDesktop && user && (
+            <Box className="px-4 py-3">
+              <Link href="/profile" className="no-underline block">
+                <div className="
+                  rounded-xl bg-white/5 border border-white/5
+                  p-4 group hover:bg-white/10 hover:border-blue-500/20
+                  transition-all duration-200
+                ">
+                  <Flex align="center" gap="3">
+                    <Avatar
+                      size="5"
+                      src={user.avatar_url || undefined}
+                      fallback={user.login?.[0]?.toUpperCase() || "U"}
+                      radius="full"
+                      className="
+                        border-2 border-gray-800
+                        transition-all duration-200
+                        group-hover:border-blue-500/50
+                        shadow-lg
+                      "
+                    />
+                    <Box>
+                      <Text className="text-gray-100 font-medium mb-1">{user.login}</Text>
+                      <Flex align="center" gap="2">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <Text size="1" className="text-gray-400">Online</Text>
+                      </Flex>
+                    </Box>
+                  </Flex>
+                </div>
+              </Link>
+            </Box>
+          )}
+          
+          {/* Main Navigation */}
+          <Box className="flex-1 overflow-y-auto py-4 px-2 min-h-0">
+            <Flex direction="column" gap="2">
+              <SidebarNavItem 
+                icon={<HomeIcon width="20" height="20" />} 
+                label="Home" 
+                href="/"
+                isActive={activeItem === '/'}
+                onItemClick={() => handleNavigation('/')}
+              />
+              <SidebarNavItem 
+                icon={<ListBulletIcon width="20" height="20" />} 
+                label="Games" 
+                href="/games"
+                isActive={activeItem === '/games'}
+                onItemClick={() => handleNavigation('/games')}
+              />
+              <SidebarNavItem 
+                icon={<ListBulletIcon width="20" height="20" />} 
+                label="Leaderboard" 
+                href="/leaderboard"
+                isActive={activeItem === '/leaderboard'}
+                onItemClick={() => handleNavigation('/leaderboard')}
+              />
+              <SidebarNavItem 
+                icon={<GearIcon width="20" height="20" />} 
+                label="Settings" 
+                href="/settings"
+                isActive={activeItem === '/settings'}
+                onItemClick={() => handleNavigation('/settings')}
+              />
+            </Flex>
           </Box>
-          <Text size="5" weight="bold">42Pong</Text>
+          
+          {/* Bottom Navigation */}
+          <Box p="4" className="shrink-0">
+            <SidebarNavItem
+              onItemClick={signOut}
+              icon={<ExitIcon width="20" height="20" />} 
+              label="Log out"
+            />
+          </Box>
         </div>
-        
-        {/* Close button - visible only on mobile */}
-        {!isDesktop && (
-          <Box 
-            onClick={onClose} 
-            className="cursor-pointer p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-          >
-            <Cross2Icon width="20" height="20" />
-          </Box>
-        )}
-      </Flex>
-      <Separator size="4" />
-      
-      {/* Main Navigation */}
-      <Box py="3" style={{ flex: 1, overflowY: 'auto' }}>
-        <Flex direction="column" gap="2">
-          <SidebarNavItem 
-            icon={<HomeIcon width="20" height="20" />} 
-            label="Home" 
-            href="/"
-            isActive={activeItem === '/'}
-            onItemClick={() => handleNavigation('/')}
-          />
-          <SidebarNavItem 
-            icon={<PersonIcon width="20" height="20" />} 
-            label="Profile" 
-            href="/profile"
-            isActive={activeItem === '/profile'}
-            onItemClick={() => handleNavigation('/profile')}
-          />
-          <SidebarNavItem 
-            icon={<ListBulletIcon width="20" height="20" />} 
-            label="Games" 
-            href="/games"
-            isActive={activeItem === '/games'}
-            onItemClick={() => handleNavigation('/games')}
-          />
-          <SidebarNavItem 
-            icon={<ListBulletIcon width="20" height="20" />} 
-            label="Leaderboard" 
-            href="/leaderboard"
-            isActive={activeItem === '/leaderboard'}
-            onItemClick={() => handleNavigation('/leaderboard')}
-          />
-          <SidebarNavItem 
-            icon={<GearIcon width="20" height="20" />} 
-            label="Settings" 
-            href="/settings"
-            isActive={activeItem === '/settings'}
-            onItemClick={() => handleNavigation('/settings')}
-          />
-        </Flex>
-      </Box>
-      
-      {/* Bottom Navigation */}
-      <Box py="3">
-        <Separator size="4" mb="3" />
-        <Flex direction="column" gap="2">
-          <SidebarNavItem
-		  	onItemClick={signOut}
-            icon={<ExitIcon width="20" height="20" />} 
-            label="Log out"
-          />
-        </Flex>
-      </Box>
+      </div>
     </Box>
   );
 }
