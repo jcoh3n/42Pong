@@ -63,20 +63,20 @@ const useCurrentMatch = (match_id: string): MatchData => {
 	}, [match?.id, matchMutate]);
 
 	const forfeitMatch = useCallback(async () => {
-		if (!match?.id || isForfeiting) {
+		if (!match?.id || isForfeiting || !currentUser) {
 			return;
 		}
 
 		try {
 			setIsForfeiting(true);
-			await matchService.forfeitMatch(match.id, match.user_1_id);
+			await matchService.forfeitMatch(match.id, currentUser.id);
 			matchMutate();
 		} catch (error) {
 			console.error('Error stopping match:', error);
 		} finally {
 			setIsForfeiting(false);
 		}
-	}, [match?.id, match?.user_1_id, matchMutate, isForfeiting]);
+	}, [match?.id, match?.user_1_id, matchMutate, isForfeiting, currentUser?.id]);
 
 	const incrementScore = useCallback(async () => {
 		if (!match?.id || !currentUser?.id) {

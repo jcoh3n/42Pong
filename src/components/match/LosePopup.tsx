@@ -11,6 +11,7 @@ interface LosePopupProps {
 const LosePopup = ({ isOpen, onClose, onPlayAgain }: LosePopupProps) => {
   return (
     <Dialog.Root open={isOpen}>
+	  <Dialog.Title />
       <Dialog.Content size="3" style={{ maxWidth: 450 }}>
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}

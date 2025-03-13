@@ -24,7 +24,7 @@ const GAME_MODES: GameMode[] = [
 		color: "#4CAF50",
 		bgColor: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
 		glowColor: "rgba(76, 175, 80, 0.3)",
-		mode: 'friendly',
+		mode: 'normal',
 	},
 	{
 		title: "Ranked Match",
