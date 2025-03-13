@@ -1,8 +1,9 @@
 import type { NextAuthOptions } from "next-auth";
 import { FortyTwoProvider } from "./42-provider";
 import { userService } from "@/services";
+import { v4 as uuidv4 } from "uuid";
 
-// Types pour l'authentification
+// Type definitions for NextAuth
 declare module "next-auth" {
   interface User {
     id: string;
@@ -33,13 +34,14 @@ declare module "next-auth/jwt" {
   }
 }
 
-// Type pour l'utilisateur 42
+// Extended 42 user type with internal database ID
 interface FortyTwoUser {
   id: string;
   name?: string | null;
   email?: string | null;
   image?: string | null;
   login: string;
+  dbId?: string;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -57,21 +59,23 @@ export const authOptions: NextAuthOptions = {
       }
 
       try {
-        // Vérifier si l'utilisateur existe déjà
         const existingUser = await userService.getUserByLogin(user.login);
+        
         if (existingUser) {
-          // Mettre à jour les informations de l'utilisateur si nécessaire
+          // Update avatar if changed
           if (existingUser.avatar_url !== user.image) {
             await userService.updateUser(existingUser.id, {
               avatar_url: user.image || "",
             });
           }
+          (user as FortyTwoUser).dbId = existingUser.id;
           return true;
         }
 
-        // Créer le nouvel utilisateur avec l'ID 42
+        // Create new user with generated UUID
+        const dbId = uuidv4();
         await userService.createUser({
-          id: user.id,
+          id: dbId,
           login: user.login,
           avatar_url: user.image || "",
           elo_score: 1000,
@@ -81,6 +85,7 @@ export const authOptions: NextAuthOptions = {
           notifications: true
         });
 
+        (user as FortyTwoUser).dbId = dbId;
         return true;
       } catch (error) {
         console.error("[Auth] User creation/update error:", error);
@@ -90,13 +95,16 @@ export const authOptions: NextAuthOptions = {
 
     async jwt({ token, account, user }) {
       if (account && user) {
+        const ft_user = user as FortyTwoUser;
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
         token.expiresAt = account.expires_at;
-        token.user = user as FortyTwoUser;
+        token.user = {
+          ...ft_user,
+          id: ft_user.dbId || ft_user.id
+        };
       }
 
-      // Vérifier si le token est expiré
       if (token.expiresAt && Date.now() >= token.expiresAt * 1000) {
         return {};
       }
@@ -108,7 +116,7 @@ export const authOptions: NextAuthOptions = {
       if (token.user) {
         session.accessToken = token.accessToken;
         session.user = {
-          id: token.user.id,
+          id: token.user.dbId || token.user.id,
           name: token.user.name,
           email: token.user.email,
           image: token.user.image,
