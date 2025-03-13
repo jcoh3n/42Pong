@@ -32,25 +32,28 @@ export type Database = {
       }
       friendly_invitation: {
         Row: {
-          accepted_at: string
+          accepted_at: string | null
           created_at: string
           id: string
+          points_to_win: Database["public"]["Enums"]["score_to_win"]
           receiver_id: string
           sender_id: string
           status: Database["public"]["Enums"]["invitation_status"]
         }
         Insert: {
-          accepted_at: string
+          accepted_at?: string | null
           created_at?: string
           id?: string
+          points_to_win?: Database["public"]["Enums"]["score_to_win"]
           receiver_id: string
           sender_id: string
           status?: Database["public"]["Enums"]["invitation_status"]
         }
         Update: {
-          accepted_at?: string
+          accepted_at?: string | null
           created_at?: string
           id?: string
+          points_to_win?: Database["public"]["Enums"]["score_to_win"]
           receiver_id?: string
           sender_id?: string
           status?: Database["public"]["Enums"]["invitation_status"]
@@ -186,27 +189,40 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          invitation_id: string | null
           seen: boolean
           title: string
+          type: Database["public"]["Enums"]["notification_type"]
           user_id: string
         }
         Insert: {
           content: string
           created_at?: string
           id?: string
+          invitation_id?: string | null
           seen?: boolean
           title: string
+          type: Database["public"]["Enums"]["notification_type"]
           user_id: string
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
+          invitation_id?: string | null
           seen?: boolean
           title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "Notifications_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "Notifications"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "Notifications_user_id_fkey"
             columns: ["user_id"]
@@ -286,14 +302,34 @@ export type Database = {
             }
             Returns: Json
           }
-      create_notification: {
-        Args: {
-          user_id: string
-          title: string
-          content: string
-        }
-        Returns: undefined
-      }
+      create_notification:
+        | {
+            Args: {
+              user_id: string
+              title: string
+              content: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              user_id: string
+              title: string
+              content: string
+              type: Database["public"]["Enums"]["notification_type"]
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              user_id: string
+              title: string
+              content: string
+              type: Database["public"]["Enums"]["notification_type"]
+              invitation_id?: string
+            }
+            Returns: undefined
+          }
       create_users_and_manage_matchmaking: {
         Args: {
           user1_name: string
@@ -328,6 +364,7 @@ export type Database = {
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
       matche_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
+      notification_type: "invitation" | "message" | "announcement"
       score_to_win: "5" | "7" | "11"
     }
     CompositeTypes: {
