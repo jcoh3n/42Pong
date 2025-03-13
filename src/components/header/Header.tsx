@@ -20,8 +20,8 @@ export function Header({ onMenuClick }: HeaderProps) {
 	return (
 		<Box 
 			className={`
-				fixed top-0 right-0 z-50
-				${isDesktop ? 'left-[300px]' : 'left-0'}
+				fixed top-0 right-0 z-40
+				${isDesktop ? 'left-[332px]' : 'left-0'}
 				transition-all duration-300 p-4
 			`}
 		>
@@ -72,7 +72,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 					</Box>
 
 					{/* Right side - User Profile (mobile) and Notifications */}
-					<Flex align="center" gap="3">
+					<Flex align="center" gap="3" className="ml-auto">
 						<MobileOnly>
 							{user && (
 								<Link href="/profile" className="no-underline text-current">

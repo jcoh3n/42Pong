@@ -46,8 +46,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         fixed z-50 w-[300px]
         ${isDesktop 
           ? 'top-4 left-4 bottom-4' 
-          : 'top-[84px] left-4 bottom-4 pointer-events-none'
-        }
+          : 'top-[84px] left-4 bottom-4'}
         ${!isDesktop && !isOpen ? 'opacity-0 -translate-x-full' : 'opacity-100 translate-x-0'}
         transition-all duration-300 ease-in-out
       `}
