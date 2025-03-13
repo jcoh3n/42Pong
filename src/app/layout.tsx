@@ -65,7 +65,6 @@ export default function RootLayout({
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-                background: "linear-gradient(135deg, #121826 0%, #1E2A38 100%)",
               }}
             >
               <Header onMenuClick={toggleSidebar} />

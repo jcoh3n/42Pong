@@ -23,6 +23,7 @@ export default function ThemeLayout({
 		return null; // Éviter le flash de contenu non thémé
 	}
 
+	// Ensure theme is one of the valid values
 	const theme = preferences.theme === 'system' ? 'inherit' : preferences.theme;
 
 	return (
@@ -33,7 +34,8 @@ export default function ThemeLayout({
 				grayColor="slate"
 				scaling="100%"
 				radius="medium"
-				className="radix-themes dark"
+				// Remove the hardcoded "dark" class that was overriding the theme
+				className="radix-themes"
 			>
 				{children}
 			</Theme>
