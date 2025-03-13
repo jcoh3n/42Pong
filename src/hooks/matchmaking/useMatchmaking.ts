@@ -20,9 +20,15 @@ const useMatchmaking = (): {
 } => {
 	const { data, error, isLoading, mutate } = useSWR('/api/matchmaking', fetcher);
 
+	const [timeInQueue, setTimeInQueue] = useState<number | null>(null);
+	const [isStarting, setIsStarting] = useState(false);
+	const [isStopping, setIsStopping] = useState(false);
+
 	const matchmakingData = data as MatchmakingResponse;
 
 	const startMatchmaking = useCallback(async () => {
+		setIsStarting(true);
+		
 		try {
 			const response = await fetch('/api/matchmaking', { method: 'POST' });
 			
@@ -34,22 +40,27 @@ const useMatchmaking = (): {
 			mutate();
 		} catch (error) {
 			toast.error('Network error. Please check your connection.');
+		} finally {
+			setIsStarting(false);
 		}
-	}, [mutate]);
+	}, [mutate, setIsStarting]);
 
 	const stopMatchmaking = useCallback(async () => {
+		setIsStopping(true);
+
 		const response = await fetch('/api/matchmaking', {
 			method: 'DELETE',
 		});
+
+		mutate();
+		setTimeInQueue(null);
+		setIsStopping(false);
 
 		if (!response.ok) {
 			toast.error('Failed to stop matchmaking');
 			return;
 		}
-		mutate();
 	}, [mutate]);
-
-	const [timeInQueue, setTimeInQueue] = useState<number | null>(null);
 
 	useEffect(() => {
 		if (!matchmakingData?.data?.inQueue) {
@@ -58,7 +69,7 @@ const useMatchmaking = (): {
 		}
 
 		const joinedAt = new Date(matchmakingData.data.queueData?.joined_at || new Date()).getTime();
-		
+
 		const updateTime = () => {
 			const now = new Date().getTime();
 			setTimeInQueue(Math.floor((now - joinedAt) / 1000));
@@ -93,7 +104,7 @@ const useMatchmaking = (): {
 	return {
 		data: data as MatchmakingResponse,
 		error,
-		isLoading,
+		isLoading: isLoading || isStarting || isStopping,
 		mutate,
 		startMatchmaking,
 		stopMatchmaking,
