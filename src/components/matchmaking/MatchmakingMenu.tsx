@@ -6,6 +6,7 @@ import GameModeCard from './GameModeCard';
 import QueueTimer from './QueueTimer';
 import { Database } from '@/types/database.types';
 import { IconType } from 'react-icons';
+import { MatchType } from '@/services';
 
 type GameMode = {
 	title: string;
@@ -13,7 +14,7 @@ type GameMode = {
 	color: string;
 	bgColor: string;
 	glowColor: string;
-	mode: Database["public"]["Enums"]["matche_type"];
+	mode: MatchType;
 };
 
 const GAME_MODES: GameMode[] = [
@@ -69,8 +70,8 @@ const MatchmakingMenu = () => {
 					{GAME_MODES.map((mode) => {
 						const inModeQueue = isInQueue && matchmakingData.data?.queueData?.matche_type === mode.mode;
 						const isActive = !isInQueue || inModeQueue;
-
-						const start = () => startMatchmaking(mode.mode);
+	
+						const hasMatchmaking = mode.mode === 'normal' || mode.mode === 'ranked';
 
 						return (
 						<GameModeCard
@@ -82,9 +83,9 @@ const MatchmakingMenu = () => {
 							glowColor={mode.glowColor}
 							isLoading={matchmakingIsLoading}
 							isActive={isActive}
-							onClick={isInQueue ? stopMatchmaking : start}
-							additionalContent={
-								mode.title === "Quick Match" && isInQueue && <QueueTimer time={timeInQueue} />
+							onClick={isInQueue ? stopMatchmaking : () => startMatchmaking(mode.mode)}
+							additionalContent={hasMatchmaking && isInQueue &&
+								<QueueTimer time={timeInQueue} />
 							}
 						/>
 					)})}

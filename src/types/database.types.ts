@@ -219,7 +219,7 @@ export type Database = {
         | {
             Args: {
               player_id: string
-              type: Database["public"]["Enums"]["matche_type"]
+              type?: Database["public"]["Enums"]["matche_type"]
             }
             Returns: Json
           }
