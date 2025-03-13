@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import serverAuth from "@/libs/auth/serverAuth";
 import { createClient } from "@/libs/supabase/server";
 import { addToQueue, getPlayerActiveMatch, getPlayerQueueStatus, MatchmakingQueue, removeFromQueue } from "@/services/matchmakingService";
 import { Database } from "@/types/database.types";
 import { Match } from "@/services/matchService";
 import { PostgrestError } from "@supabase/supabase-js";
+import { MatchType } from "@/services";
 
 export type MatchmakingResponse = {
 	data?: {
@@ -48,15 +49,26 @@ export async function GET(): Promise<NextResponse<MatchmakingResponse>> {
 	}
 }
 
-export async function POST() {
+export async function POST(
+	req: NextRequest
+) {
 	try {
 		const currentUser = await serverAuth();
 		if (!currentUser) {
 			return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
 		}
 
-		const { data, error } = await addToQueue(currentUser.id);
-		
+		const { mode } = Object.fromEntries(req.nextUrl.searchParams.entries());
+		const modes = ['normal', 'friendly', 'ranked'];
+
+		var match_type;
+		if (modes.includes(mode)) {
+			match_type = mode as MatchType;
+		} else {
+			match_type = undefined;
+		}
+
+		const { data, error } = await addToQueue(currentUser.id, match_type);
 		if (error || !data) {
 			return NextResponse.json({ error: error?.message }, { status: 500 });
 		}

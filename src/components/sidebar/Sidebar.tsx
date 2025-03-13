@@ -26,6 +26,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [activeItem, setActiveItem] = useState(usePathname());
+  const { data: currentUser } = useCurrentUser();
   const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
   const { data: user } = useCurrentUser();
 

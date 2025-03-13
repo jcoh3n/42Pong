@@ -16,6 +16,7 @@ import useMatch from '../matches/useMatch';
 export type MatchData = {
 	match: Match | null;
 	isLoading: boolean;
+	isForfeiting: boolean;
 	error: any;
 	currentUser: {
 		isLoading: boolean;
@@ -45,6 +46,8 @@ const useCurrentMatch = (match_id: string): MatchData => {
 
 	// Fetch opponent user data
 	const opponentData = useUser(undefined, opponentId);
+
+	const [isForfeiting, setIsForfeiting] = useState(false);
 	
 	// Set up an interval to refresh match data every second
 	useEffect(() => {
@@ -60,17 +63,20 @@ const useCurrentMatch = (match_id: string): MatchData => {
 	}, [match?.id, matchMutate]);
 
 	const forfeitMatch = useCallback(async () => {
-		if (!match?.id) {
+		if (!match?.id || isForfeiting || !currentUser) {
 			return;
 		}
 
 		try {
-			await matchService.forfeitMatch(match.id, match.user_1_id);
+			setIsForfeiting(true);
+			await matchService.forfeitMatch(match.id, currentUser.id);
 			matchMutate();
 		} catch (error) {
 			console.error('Error stopping match:', error);
+		} finally {
+			setIsForfeiting(false);
 		}
-	}, [match?.id, match?.user_1_id, matchMutate]);
+	}, [match?.id, match?.user_1_id, matchMutate, isForfeiting, currentUser?.id]);
 
 	const incrementScore = useCallback(async () => {
 		if (!match?.id || !currentUser?.id) {
@@ -103,6 +109,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		currentUser: currentUserData,
 		opponent: opponentData,
 		isLoading: isMatchLoading,
+		isForfeiting,
 		mutate: matchMutate,
 		incrementScore,
 		forfeitMatch,

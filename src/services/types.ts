@@ -9,6 +9,7 @@ export type UserUpdate = Database['public']['Tables']['Users']['Update'];
 export type Match = Database['public']['Tables']['Matches']['Row'];
 export type MatchInsert = Database['public']['Tables']['Matches']['Insert'];
 export type MatchUpdate = Database['public']['Tables']['Matches']['Update'];
+export type MatchType = Database['public']['Enums']['matche_type'];
 
 // Matchmaking types
 export type Matchmaking = Database['public']['Tables']['matchmaking_queue']['Row'];

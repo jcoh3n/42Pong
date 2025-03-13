@@ -23,10 +23,12 @@ export default function ThemeLayout({
 		return null; // Éviter le flash de contenu non thémé
 	}
 
+	const theme = preferences.theme === 'system' ? 'inherit' : preferences.theme;
+
 	return (
-		<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+		<ThemeProvider attribute="class" enableSystem>
 			<Theme
-				appearance="dark"
+				appearance={theme}
 				accentColor="blue"
 				grayColor="slate"
 				scaling="100%"

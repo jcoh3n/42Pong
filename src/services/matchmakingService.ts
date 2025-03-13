@@ -1,6 +1,7 @@
 import { createClient, PostgrestError } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
 import { Match } from './matchService';
+import { MatchType } from './types';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -20,10 +21,11 @@ export type MatchmakingQueueStatus = Database['public']['Enums']['matchmaking_st
  * @param playerId The ID of the player to add to the queue
  * @returns The queue entry or error
  */
-export const addToQueue = async (playerId: string) => {
+export const addToQueue = async (playerId: string, mode?: MatchType) => {
   // Check if player is already in queue
   	const { data, error } = await supabase.rpc('add_player_to_queue', {
-   		player_id: playerId
+   		player_id: playerId,
+		type: mode
 	});
 
 	console.log('addToQueue: ', data, error);
@@ -157,10 +159,17 @@ export const processMatchmakingQueue = async () => {
  * @param player2_id The ID of the second player
  * @returns The created match or error
  */
-export const createMatch = async (player1_id: string, player2_id: string) => {
-  	const { data, error } = await supabase.rpc('create_match_from_queue', {
+export const createMatch = async (
+	player1_id: string,
+	player2_id: string,
+	mode: MatchType = 'normal',
+	points_to_win: 5 | 7 | 11 = 7,
+) => {
+  	const { data, error } = await supabase.rpc('create_matche', {
 		player1_id,
-		player2_id
+		player2_id,
+		matche_type: mode,
+		score_to_win: points_to_win
 	});
 
 	if (!data) {
