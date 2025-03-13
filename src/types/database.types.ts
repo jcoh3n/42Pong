@@ -36,9 +36,10 @@ export type Database = {
           finished_at: string | null
           forfeited_by: string | null
           id: string
+          match_type: Database["public"]["Enums"]["matche_type"]
           score_to_win: number
           status: Database["public"]["Enums"]["match_status"]
-          type: Database["public"]["Enums"]["match_type"]
+          type: Database["public"]["Enums"]["matche_type"]
           user_1_id: string
           user_1_score: number
           user_2_id: string
@@ -50,9 +51,10 @@ export type Database = {
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
+          match_type?: Database["public"]["Enums"]["matche_type"]
           score_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
-          type: Database["public"]["Enums"]["match_type"]
+          type: Database["public"]["Enums"]["matche_type"]
           user_1_id: string
           user_1_score?: number
           user_2_id: string
@@ -64,9 +66,10 @@ export type Database = {
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
+          match_type?: Database["public"]["Enums"]["matche_type"]
           score_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
-          type?: Database["public"]["Enums"]["match_type"]
+          type?: Database["public"]["Enums"]["matche_type"]
           user_1_id?: string
           user_1_score?: number
           user_2_id?: string
@@ -82,14 +85,14 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Matches_user_1_fkey"
+            foreignKeyName: "Matches_user_1_id_fkey"
             columns: ["user_1_id"]
             isOneToOne: false
             referencedRelation: "Users"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Matches_user_2_fkey"
+            foreignKeyName: "Matches_user_2_id_fkey"
             columns: ["user_2_id"]
             isOneToOne: false
             referencedRelation: "Users"
@@ -108,18 +111,21 @@ export type Database = {
         Row: {
           id: string
           joined_at: string | null
+          matche_type: Database["public"]["Enums"]["matche_type"] | null
           player_id: string
           status: Database["public"]["Enums"]["matchmaking_status"]
         }
         Insert: {
           id?: string
           joined_at?: string | null
+          matche_type?: Database["public"]["Enums"]["matche_type"] | null
           player_id: string
           status?: Database["public"]["Enums"]["matchmaking_status"]
         }
         Update: {
           id?: string
           joined_at?: string | null
+          matche_type?: Database["public"]["Enums"]["matche_type"] | null
           player_id?: string
           status?: Database["public"]["Enums"]["matchmaking_status"]
         }
@@ -203,22 +209,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      add_player_to_queue: {
-        Args: {
-          player_id: string
-        }
-        Returns: Json
-      }
-      check_match_winner: {
+      add_player_to_queue:
+        | {
+            Args: {
+              player_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              player_id: string
+              type: Database["public"]["Enums"]["matche_type"]
+            }
+            Returns: Json
+          }
+      check_matche_winner: {
         Args: {
           match_id: string
         }
         Returns: Json
       }
-      create_match_from_queue: {
+      create_matche: {
         Args: {
           player1_id: string
           player2_id: string
+          matche_type?: string
+          score_to_win?: number
         }
         Returns: Json
       }
@@ -230,6 +246,21 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_users_and_manage_matchmaking: {
+        Args: {
+          user1_name: string
+          user2_name: string
+        }
+        Returns: Json
+      }
+      delete_row_from_table: {
+        Args: {
+          table_name: string
+          column_name: string
+          column_value: unknown
+        }
+        Returns: undefined
+      }
       increase_user_score: {
         Args: {
           match_id: string
@@ -237,10 +268,16 @@ export type Database = {
         }
         Returns: Json
       }
+      remove_from_matchmaking_queue: {
+        Args: {
+          player_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
-      match_type: "normal" | "ranked" | "friendly"
+      matche_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
       score_to_win: "5" | "7" | "11"
     }

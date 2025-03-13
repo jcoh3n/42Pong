@@ -4,28 +4,42 @@ import { GiPingPongBat } from 'react-icons/gi';
 import useMatchmaking from '@/hooks/matchmaking/useMatchmaking';
 import GameModeCard from './GameModeCard';
 import QueueTimer from './QueueTimer';
+import { Database } from '@/types/database.types';
+import { IconType } from 'react-icons';
 
-const GAME_MODES = [
+type GameMode = {
+	title: string;
+	icon: IconType;
+	color: string;
+	bgColor: string;
+	glowColor: string;
+	mode: Database["public"]["Enums"]["matche_type"];
+};
+
+const GAME_MODES: GameMode[] = [
 	{
 		title: "Quick Match",
 		icon: GiPingPongBat,
 		color: "#4CAF50",
 		bgColor: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
-		glowColor: "rgba(76, 175, 80, 0.3)"
+		glowColor: "rgba(76, 175, 80, 0.3)",
+		mode: 'friendly',
 	},
 	{
 		title: "Ranked Match",
 		icon: FaTrophy,
 		color: "#007BFF",
 		bgColor: "linear-gradient(135deg, #007BFF 0%, #0056B3 100%)",
-		glowColor: "rgba(0, 123, 255, 0.3)"
+		glowColor: "rgba(0, 123, 255, 0.3)",
+		mode: 'ranked'
 	},
 	{
 		title: "Challenge Friend",
 		icon: FaUserFriends,
 		color: "#FF9800",
 		bgColor: "linear-gradient(135deg, #FF9800 0%, #F57C00 100%)",
-		glowColor: "rgba(255, 152, 0, 0.3)"
+		glowColor: "rgba(255, 152, 0, 0.3)",
+		mode: 'friendly'
 	}
 ];
 
@@ -36,7 +50,7 @@ const MatchmakingMenu = () => {
 		error: matchmakingError, 
 		isLoading: matchmakingIsLoading, 
 		startMatchmaking, 
-		stopMatchmaking, 
+		stopMatchmaking,
 		timeInQueue 
 	} = useMatchmaking();
 
@@ -52,7 +66,13 @@ const MatchmakingMenu = () => {
 		>
 			<div className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-3xl mx-auto py-8 sm:py-12">
 				<div className="space-y-6 sm:space-y-8 md:space-y-10">
-					{GAME_MODES.map((mode, index) => (
+					{GAME_MODES.map((mode) => {
+						const inModeQueue = isInQueue && matchmakingData.data?.queueData?.matche_type === mode.mode;
+						const isActive = !isInQueue || inModeQueue;
+
+						const start = () => startMatchmaking(mode.mode);
+
+						return (
 						<GameModeCard
 							key={mode.title}
 							title={mode.title}
@@ -60,14 +80,14 @@ const MatchmakingMenu = () => {
 							color={mode.color}
 							bgColor={mode.bgColor}
 							glowColor={mode.glowColor}
-							isLoading={mode.title === "Quick Match" && matchmakingIsLoading}
-							isActive={mode.title === "Quick Match" && isInQueue}
-							onClick={mode.title === "Quick Match" ? (isInQueue ? stopMatchmaking : startMatchmaking) : () => {}}
+							isLoading={matchmakingIsLoading}
+							isActive={isActive}
+							onClick={isInQueue ? stopMatchmaking : start}
 							additionalContent={
 								mode.title === "Quick Match" && isInQueue && <QueueTimer time={timeInQueue} />
 							}
 						/>
-					))}
+					)})}
 				</div>
 			</div>
 		</div>

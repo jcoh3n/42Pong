@@ -8,13 +8,16 @@ import { toast } from 'react-hot-toast';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { MatchmakingResponse } from '@/app/api/matchmaking/route';
 import { now } from 'next-auth/client/_utils';
+import { Database } from '@/types/database.types'
+
+type Mode = Database['public']['Enums']['matche_type'];
 
 const useMatchmaking = (): {
 	data: MatchmakingResponse | undefined;
 	error: Error | undefined;
 	isLoading: boolean;
 	mutate: KeyedMutator<any>;
-	startMatchmaking: () => Promise<void>;
+	startMatchmaking: (mode?: Mode) => Promise<void>;
 	stopMatchmaking: () => Promise<void>;
 	timeInQueue: string | null;
 } => {
@@ -26,12 +29,12 @@ const useMatchmaking = (): {
 
 	const matchmakingData = data as MatchmakingResponse;
 
-	const startMatchmaking = useCallback(async () => {
+	const startMatchmaking = useCallback(async (mode: Mode = 'normal') => {
 		setIsStarting(true);
 		
 		try {
-			const response = await fetch('/api/matchmaking', { method: 'POST' });
-			
+			const response = await fetch(`/api/matchmaking?mode=${mode}`, { method: 'POST' });
+
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
 				toast.error(errorData.message || 'Failed to start matchmaking');

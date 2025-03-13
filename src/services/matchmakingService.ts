@@ -157,10 +157,17 @@ export const processMatchmakingQueue = async () => {
  * @param player2_id The ID of the second player
  * @returns The created match or error
  */
-export const createMatch = async (player1_id: string, player2_id: string) => {
-  	const { data, error } = await supabase.rpc('create_match_from_queue', {
+export const createMatch = async (
+	player1_id: string,
+	player2_id: string,
+	mode: Database['public']['Enums']['matche_type'] = 'normal',
+	points_to_win: 5 | 7 | 11 = 7,
+) => {
+  	const { data, error } = await supabase.rpc('create_matche', {
 		player1_id,
-		player2_id
+		player2_id,
+		matche_type: mode,
+		score_to_win: points_to_win
 	});
 
 	if (!data) {
