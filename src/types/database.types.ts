@@ -209,35 +209,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      add_player_to_queue:
-        | {
-            Args: {
-              player_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              player_id: string
-              type?: Database["public"]["Enums"]["matche_type"]
-            }
-            Returns: Json
-          }
+      add_player_to_queue: {
+        Args: {
+          player_id: string
+          type?: Database["public"]["Enums"]["matche_type"]
+        }
+        Returns: Json
+      }
       check_matche_winner: {
         Args: {
           match_id: string
         }
         Returns: Json
       }
-      create_matche: {
-        Args: {
-          player1_id: string
-          player2_id: string
-          matche_type?: string
-          score_to_win?: number
-        }
-        Returns: Json
-      }
+      create_matche:
+        | {
+            Args: {
+              player1_id: string
+              player2_id: string
+              matche_type?: Database["public"]["Enums"]["matche_type"]
+              score_to_win?: number
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              player1_id: string
+              player2_id: string
+              matche_type?: string
+              score_to_win?: number
+            }
+            Returns: Json
+          }
       create_notification: {
         Args: {
           user_id: string
