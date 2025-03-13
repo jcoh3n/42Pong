@@ -22,6 +22,7 @@ export default function ThemeLayout({
 		return null; // Éviter le flash de contenu non thémé
 	}
 
+	
 	return (
 		<ThemeProvider attribute="class">
 			<Theme
