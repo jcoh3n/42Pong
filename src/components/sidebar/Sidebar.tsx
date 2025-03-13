@@ -45,7 +45,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       className={`
         fixed z-50 w-[300px]
         ${isDesktop 
-          ? 'top-0 left-0 bottom-0 p-4' 
+          ? 'top-4 left-4 bottom-4' 
           : 'top-[84px] left-4 bottom-4 pointer-events-none'
         }
         ${!isDesktop && !isOpen ? 'opacity-0 -translate-x-full' : 'opacity-100 translate-x-0'}
@@ -53,23 +53,24 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       `}
     >
       <div className={`
-        h-full rounded-2xl bg-[#0A1018]/95 backdrop-blur-md
-        border border-gray-800/50 shadow-lg shadow-black/10
+        h-full bg-gray-900/5 backdrop-blur-md
+        rounded-2xl
+        border border-white/10
         overflow-hidden pointer-events-auto
-        flex flex-col
-        ${!isDesktop && 'max-h-[calc(100vh-100px)]'}
+        flex flex-col relative
+        shadow-xl shadow-black/5
       `}>
         {/* Blur effect background */}
         <div 
-          className="absolute inset-0 bg-gradient-to-b from-[#0A1018]/50 to-[#0A1018]/30"
+          className="absolute inset-0 bg-gradient-to-b from-white/10 to-white/5 rounded-2xl"
           style={{
-            WebkitBackdropFilter: 'blur(8px)',
-            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            backdropFilter: 'blur(12px)',
           }}
         />
 
         {/* Content */}
-        <div className="relative flex-1 flex flex-col min-h-0">
+        <div className="relative flex-1 flex flex-col min-h-0 z-10">
           {/* Header with Logo and Close button */}
           <Flex align="center" justify="between" px="5" py="4" className="relative shrink-0">
             <div onClick={() => router.push('/')} className="cursor-pointer flex items-center gap-3">
@@ -98,7 +99,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             <Box className="px-4 py-3">
               <Link href="/profile" className="no-underline block">
                 <div className="
-                  rounded-xl bg-white/5 border border-white/5
+                  rounded-xl bg-white/5 border border-white/10
                   p-4 group hover:bg-white/10 hover:border-blue-500/20
                   transition-all duration-200
                 ">
