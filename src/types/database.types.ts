@@ -186,28 +186,31 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          seen: boolean | null
+          seen: boolean
           title: string
+          user_id: string
         }
         Insert: {
           content: string
           created_at?: string
-          id: string
-          seen?: boolean | null
+          id?: string
+          seen?: boolean
           title: string
+          user_id: string
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
-          seen?: boolean | null
+          seen?: boolean
           title?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "Notifications_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
+            foreignKeyName: "Notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "Users"
             referencedColumns: ["id"]
           },
