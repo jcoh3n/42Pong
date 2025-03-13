@@ -324,7 +324,7 @@ export type Database = {
       }
     }
     Enums: {
-      invitation_status: "pending" | "accepted" | "cancelled"
+      invitation_status: "pending" | "accepted" | "cancelled" | "refused"
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
       matche_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
