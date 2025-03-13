@@ -32,7 +32,6 @@ export type Database = {
       }
       friendly_invitation: {
         Row: {
-          accepted: boolean
           accepted_at: string
           created_at: string
           id: string
@@ -41,7 +40,6 @@ export type Database = {
           status: Database["public"]["Enums"]["invitation_status"]
         }
         Insert: {
-          accepted?: boolean
           accepted_at: string
           created_at?: string
           id?: string
@@ -50,7 +48,6 @@ export type Database = {
           status?: Database["public"]["Enums"]["invitation_status"]
         }
         Update: {
-          accepted?: boolean
           accepted_at?: string
           created_at?: string
           id?: string
