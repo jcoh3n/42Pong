@@ -19,6 +19,17 @@
   }
 }
 
+/* Masquer la barre de défilement tout en gardant la fonctionnalité */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Chrome, Safari et Opera */
+*::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

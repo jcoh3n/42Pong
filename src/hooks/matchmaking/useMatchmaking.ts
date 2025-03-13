@@ -31,8 +31,6 @@ const useMatchmaking = (): {
 				toast.error(errorData.message || 'Failed to start matchmaking');
 				return;
 			}
-			
-			toast.success('Matchmaking started');
 			mutate();
 		} catch (error) {
 			toast.error('Network error. Please check your connection.');
@@ -48,8 +46,6 @@ const useMatchmaking = (): {
 			toast.error('Failed to stop matchmaking');
 			return;
 		}
-
-		toast.success('Matchmaking stopped');
 		mutate();
 	}, [mutate]);
 

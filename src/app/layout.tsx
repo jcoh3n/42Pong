@@ -59,56 +59,60 @@ export default function RootLayout({
           <ThemeLayout>
             <Flex 
               style={{ 
-                width: '100%', 
+                width: '100vw', 
                 height: '100vh', 
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'row'
+                flexDirection: 'column',
+                position: 'relative',
+                background: "linear-gradient(135deg, #121826 0%, #1E2A38 100%)",
               }}
             >
-              {/* Sidebar - responsive */}
-              <div 
-                className={`
-                  ${!isDesktop ? 'fixed inset-y-0 left-0 z-30' : 'relative'}
-                  transform transition-transform duration-300 ease-in-out
-                  ${!isDesktop && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
-                `}
-                style={{ 
-                  width: '300px',
-                  flexShrink: 0,
-                  height: '100%'
-                }}
-              >
-                <Sidebar 
-                  isOpen={isSidebarOpen} 
-                  onClose={() => setIsSidebarOpen(false)} 
-                />
-              </div>
+              <Header onMenuClick={toggleSidebar} />
               
-              {/* Overlay pour mobile quand le sidebar est ouvert */}
-              {isSidebarOpen && !isDesktop && (
-                <div 
-                  className="fixed inset-0 bg-black opacity-40 z-20 lg:hidden transition-opacity duration-300 ease-in-out"
-                  onClick={() => setIsSidebarOpen(false)}
-                />
-              )}
-
-              {/* Contenu principal */}
-              <Flex 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  overflow: 'hidden', 
-                  flexDirection: 'column',
-                  flexGrow: 1
-                }}
-              >
-                <Header onMenuClick={toggleSidebar} />
-                <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--gray-2)', overflow: 'auto' }}>
+              <Flex style={{ 
+                flex: 1,
+                position: 'relative',
+                overflow: 'hidden',
+                width: '100%',
+              }}>
+                {/* Zone de contenu principal */}
+                <main style={{ 
+                  width: '100%',
+                  height: '100%',
+                  position: 'relative',
+                  overflow: 'auto',
+                }}>
                   <Protected>
                     {children}
                   </Protected>
+                </main>
+
+                {/* Sidebar - responsive */}
+                <div 
+                  className={`
+                    fixed top-4 bottom-4 left-4 z-50
+                    transform transition-all duration-300 ease-in-out
+                    ${!isDesktop && !isSidebarOpen ? '-translate-x-full' : 'translate-x-0'}
+                  `}
+                  style={{ 
+                    width: '300px',
+                    height: 'calc(100vh - 32px)',
+                  }}
+                >
+                  <Sidebar 
+                    isOpen={isSidebarOpen} 
+                    onClose={() => setIsSidebarOpen(false)} 
+                  />
                 </div>
+                
+                {/* Overlay pour mobile quand le sidebar est ouvert */}
+                {isSidebarOpen && !isDesktop && (
+                  <div 
+                    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300 ease-in-out"
+                    onClick={() => setIsSidebarOpen(false)}
+                  />
+                )}
               </Flex>
             </Flex>
           </ThemeLayout>
