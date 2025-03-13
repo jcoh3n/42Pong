@@ -33,15 +33,14 @@ const MatchmakingMenu = () => {
 								<Text size="2" color="gray">
 									Join a random game with another player
 								</Text>
-
 								{
-									matchmakingIsLoading ? (
-										<Button size="3" variant="soft" mt="2">
+									matchmakingIsLoading || (matchmakingData?.data?.inQueue && !timeInQueue ) ? (
+										<Button size="3" disabled className='disabled:opacity-70' variant="soft" mt="2">
 											<div><Loading /></div>
 										</Button>
 									) : matchmakingData?.data?.inQueue ? (
 										<Button size="3" variant="soft" mt="2" onClick={stopMatchmaking}>
-											Cancel ({timeInQueue || <div><Loading /></div>})
+											Cancel ({timeInQueue})
 										</Button>
 									) : (
 										<Button size="3" variant="soft" mt="2" onClick={startMatchmaking}>

@@ -92,7 +92,7 @@ export default function RootLayout({
                   onClick={() => setIsSidebarOpen(false)}
                 />
               )}
-              
+
               {/* Contenu principal */}
               <Flex 
                 style={{ 

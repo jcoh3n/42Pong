@@ -51,7 +51,7 @@ const useMatchmaking = (): {
 
 		toast.success('Matchmaking stopped');
 		mutate();
-	}, []);
+	}, [mutate]);
 
 	const [timeInQueue, setTimeInQueue] = useState<number | null>(null);
 
