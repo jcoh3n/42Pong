@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --header-padding: 74px; /* Variable for space below header */
+  --header-padding: 80px; /* Variable for space below header */
   --page-background: #f5f5f5; /* Variable for page content background */
   --page-gradient-from: #1a202c; /* gray-900 */
   --page-gradient-to: #2d3748; /* gray-800 */

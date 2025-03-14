@@ -43,6 +43,10 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     }
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <Box
       className={`

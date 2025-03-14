@@ -48,7 +48,7 @@ export default function Profile() {
 
   return (
     <Box style={{ minHeight: "100vh" }}>
-      <Container size="3" py="9" className="shadow-sm">
+      <Container size="3" className="shadow-sm">
         <Flex direction="column" gap="6">
           <Button
             variant="ghost"

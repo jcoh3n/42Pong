@@ -88,10 +88,9 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
     <Card style={{ 
       borderRadius: '16px',
       boxShadow: '0 6px 16px rgba(0, 0, 0, 0.2)',
-      background: 'rgba(30, 41, 59, 0.7)',
+      background: 'rgba(30, 41, 59, 0.95)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
       overflow: 'hidden',
-      backdropFilter: 'blur(10px)'
     }}>
       <Flex justify="between" align="center" p="4">
         <Flex align="center" gap="2">

@@ -27,15 +27,16 @@ export function Header({ onMenuClick }: HeaderProps) {
 			`}
 		>
 			<div 
-				className="
-					relative rounded-2xl bg-gray-900/95 backdrop-blur-md
-					border border-gray-800/50 shadow-lg shadow-black/10
+				className={`
+					relative rounded-2xl backdrop-blur-md
+					border border-gray-800/50 
+					${window.scrollY > 70 ? 'shadow-xl shadow-black/10' : 'shadow-none'}
 					overflow-hidden
-				"
+				`} // to remove transparency: bg-gray-900/95
 			>
 				{/* Blur effect background */}
 				<div 
-					className="absolute inset-0 bg-gradient-to-b from-gray-900/50 to-gray-900/30"
+					className="absolute inset-0 bg-gradient-to-b from-[var(--page-gradient-from)]/50 to-[var(--page-gradient-to)]/0"
 					style={{
 						WebkitBackdropFilter: 'blur(8px)',
 						backdropFilter: 'blur(8px)',

@@ -57,8 +57,7 @@ function LoginContent() {
         <Card size="3" style={{ 
           width: "100%",
           maxWidth: "400px",
-          background: "rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(10px)"
+          background: "rgba(30, 41, 59, 0.95)",
         }}>
           <Flex direction="column" gap="4" align="center" p="6">
             <img
