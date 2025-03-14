@@ -10,6 +10,7 @@ import { MatchType } from '@/services';
 import UserSearchModal from './UserSearchModal';
 import { InvitationService } from '@/services/invitationService';
 import { useSession } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
 
 type GameMode = {
 	title: string;
@@ -59,7 +60,6 @@ const MatchmakingMenu = () => {
 
 	const { data: session } = useSession();
 	const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-	const [isInviting, setIsInviting] = useState(false);
 	const invitationService = new InvitationService();
 
 	const isInQueue = matchmakingData?.data?.inQueue;
@@ -80,14 +80,37 @@ const MatchmakingMenu = () => {
 	const handleUserSelect = async (userId: string) => {
 		if (!session?.user?.id) return;
 
-		setIsInviting(true);
 		try {
 			await invitationService.createFriendlyInvitation(session.user.id, userId);
-			setIsSearchModalOpen(false);
+			toast.success('Invitation sent successfully!');
 		} catch (error) {
 			console.error('Error sending invitation:', error);
-		} finally {
-			setIsInviting(false);
+			toast.error('Failed to send invitation. Please try again.');
+		}
+	};
+
+	const handleUserDeselect = async (userId: string) => {
+		if (!session?.user?.id) return;
+
+		try {
+			// First, find the invitation between current user and selected user
+			const invitations = await invitationService.getFriendlyInvitations(session.user.id);
+			const targetInvitation = invitations.find(inv => 
+				inv.status === 'pending' && (
+					(inv.sender_id === session.user.id && inv.receiver_id === userId) ||
+					(inv.sender_id === userId && inv.receiver_id === session.user.id)
+				)
+			);
+
+			if (targetInvitation) {
+				await invitationService.updateInvitationStatus(targetInvitation.id, 'cancelled');
+				toast.success('Invitation cancelled successfully!');
+			} else {
+				toast.error('Could not find the invitation to cancel.');
+			}
+		} catch (error) {
+			console.error('Error cancelling invitation:', error);
+			toast.error('Failed to cancel invitation. Please try again.');
 		}
 	};
 
@@ -130,6 +153,7 @@ const MatchmakingMenu = () => {
 				isOpen={isSearchModalOpen}
 				onClose={() => setIsSearchModalOpen(false)}
 				onSelectUser={handleUserSelect}
+				onDeselectUser={handleUserDeselect}
 				currentUserId={session?.user?.id || ''}
 			/>
 		</div>

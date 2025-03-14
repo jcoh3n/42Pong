@@ -25,16 +25,6 @@ export class InvitationService {
       throw error;
     }
 
-    // Create notification for the receiver
-    const notificationService = new NotificationService();
-    await notificationService.createNotification({
-      user_id: receiverId,
-      title: 'New Game Invitation',
-      content: 'You have received a new friendly game invitation',
-      type: 'invitation',
-      invitation_id: data.id
-    });
-
     return data;
   }
 

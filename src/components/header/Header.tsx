@@ -90,7 +90,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 								</Link>
 							)}
 						</MobileOnly>
-						<NotificationBell count={2} />
+						<NotificationBell />
 					</Flex>
 				</Flex>
 			</div>

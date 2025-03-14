@@ -80,6 +80,9 @@ export class NotificationService {
     const from = (page - 1) * pageSize;
     const to = from + pageSize - 1;
 
+    console.debug(`Fetching notifications for user ${userId} with options:`, options);
+    console.debug(`Calculated range: from ${from} to ${to}`);
+
     // Create query with pagination
     let query = this.getClient()
       .from('Notifications')
@@ -89,6 +92,7 @@ export class NotificationService {
     // Filter by unseen if requested
     if (onlyUnseen) {
       query = query.eq('seen', false);
+      console.debug(`Filtering for unseen notifications.`);
     }
 
     // Add sorting and pagination
@@ -104,6 +108,7 @@ export class NotificationService {
     }
 
     const totalCount = count || 0;
+    console.debug(`Fetched ${data?.length || 0} notifications. Total count: ${totalCount}`);
     
     return {
       data: data || [],

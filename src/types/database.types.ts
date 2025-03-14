@@ -220,7 +220,7 @@ export type Database = {
             foreignKeyName: "Notifications_invitation_id_fkey"
             columns: ["invitation_id"]
             isOneToOne: false
-            referencedRelation: "Notifications"
+            referencedRelation: "friendly_invitation"
             referencedColumns: ["id"]
           },
           {
