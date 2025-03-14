@@ -6,7 +6,7 @@ import fetcher from '@/libs/fetcher';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useMatchmaking from './useMatchmaking';
 import { Match, matchService, User } from '@/services';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import useUser from '../users/useUser';
 import { createClient } from '@/libs/supabase/client';
@@ -36,6 +36,7 @@ export type MatchData = {
 const useCurrentMatch = (match_id: string): MatchData => {
 	const currentUserData = useCurrentUser();
 	const { data: currentUser } = currentUserData;
+	const supabase = createClient();
 	
 	const { match, isLoading: isMatchLoading, error: matchError, mutate: matchMutate} = useMatch(match_id);
 
@@ -48,19 +49,48 @@ const useCurrentMatch = (match_id: string): MatchData => {
 	const opponentData = useUser(undefined, opponentId);
 
 	const [isForfeiting, setIsForfeiting] = useState(false);
+	const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
+	const hasSetupRealtimeRef = useRef(false);
 	
-	// Set up an interval to refresh match data every second
+	// Set up real-time subscription to match updates
 	useEffect(() => {
-		// Only set up the interval if we have an active match
-		if (match?.id) {
-			const intervalId = setInterval(() => {
-				matchMutate();
-			}, 1000);
-			
-			// Clean up the interval when the component unmounts or match changes
-			return () => clearInterval(intervalId);
+		// Only subscribe if we have a valid match ID and haven't set up yet
+		if (!match_id || hasSetupRealtimeRef.current) {
+			return;
 		}
-	}, [match?.id, matchMutate]);
+		
+		console.log('Setting up real-time subscription for match:', match_id);
+		
+		// Create handler for match updates
+		const handler = (payload: any) => {
+			console.log('Match updated:', payload);
+			// Refresh match data when any update happens
+			matchMutate();
+		};
+		
+		// Subscribe to changes for this match using direct channel
+		const channel = supabase.channel(`match-${match_id}`)
+			.on('postgres_changes', {
+				event: '*',  // Listen for all events
+				schema: 'public',
+				table: 'Matches',
+				filter: `id=eq.${match_id}`  // Only for this specific match
+			}, handler)
+			.subscribe();
+		
+		// Store unsubscribe function for cleanup
+		unsubscribeRef.current = () => supabase.removeChannel(channel);
+		hasSetupRealtimeRef.current = true;
+		
+		// Clean up on unmount or when match_id changes
+		return () => {
+			if (unsubscribeRef.current) {
+				console.log('Cleaning up realtime subscription for match:', match_id);
+				unsubscribeRef.current();
+				hasSetupRealtimeRef.current = false;
+			}
+		};
+	}, [match_id, matchMutate, supabase]);
 
 	const forfeitMatch = useCallback(async () => {
 		if (!match?.id || isForfeiting || !currentUser) {
@@ -76,7 +106,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		} finally {
 			setIsForfeiting(false);
 		}
-	}, [match?.id, match?.user_1_id, matchMutate, isForfeiting, currentUser?.id]);
+	}, [match?.id, matchMutate, isForfeiting, currentUser]);
 
 	const incrementScore = useCallback(async () => {
 		if (!match?.id || !currentUser?.id) {

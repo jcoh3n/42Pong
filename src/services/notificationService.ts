@@ -87,7 +87,7 @@ export class NotificationService {
     let query = this.getClient()
       .from('Notifications')
       .select('*', { count: 'exact' })
-      .eq('id', userId);
+      .eq('user_id', userId);
 
     // Filter by unseen if requested
     if (onlyUnseen) {
@@ -204,7 +204,7 @@ export class NotificationService {
     const { error } = await this.getClient()
       .from('Notifications')
       .update({ seen: true })
-      .eq('id', userId);
+      .eq('user_id', userId);
 
     if (error) {
       console.error(`Error marking all notifications as seen for user ${userId}:`, error);
@@ -242,7 +242,7 @@ export class NotificationService {
     const { error } = await this.getClient()
       .from('Notifications')
       .delete()
-      .eq('id', userId);
+      .eq('user_id', userId);
 
     if (error) {
       console.error(`Error deleting all notifications for user ${userId}:`, error);

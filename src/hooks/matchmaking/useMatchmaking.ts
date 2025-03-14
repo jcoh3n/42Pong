@@ -3,10 +3,12 @@
 import useSWR from 'swr';
 import { KeyedMutator } from 'swr';
 import fetcher from '@/libs/fetcher';
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { MatchType } from '@/services/types';
 import { toast } from 'react-hot-toast';
 import { MatchmakingResponse } from '@/app/api/matchmaking/route';
+import useCurrentUser from '@/hooks/useCurrentUser';
+import { createClient } from '@/libs/supabase/client';
 
 const useMatchmaking = (): {
 	data: MatchmakingResponse | undefined;
@@ -17,6 +19,12 @@ const useMatchmaking = (): {
 	stopMatchmaking: () => Promise<void>;
 	timeInQueue: string | null;
 } => {
+	const { data: currentUser } = useCurrentUser();
+	const userId = currentUser?.id;
+	const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
+	const hasSetupRealtimeRef = useRef(false);
+	const supabase = createClient();
+
 	const { data, error, isLoading, mutate } = useSWR('/api/matchmaking', fetcher);
 
 	const [timeInQueue, setTimeInQueue] = useState<number | null>(null);
@@ -24,6 +32,63 @@ const useMatchmaking = (): {
 	const [isStopping, setIsStopping] = useState(false);
 
 	const matchmakingData = data as MatchmakingResponse;
+
+	// Setup Supabase Realtime subscription
+	useEffect(() => {
+		if (!userId || hasSetupRealtimeRef.current) {
+			return;
+		}
+		
+		console.log('Setting up real-time subscription for matchmaking queue:', userId);
+		
+		// Create channel for all event types
+		const channel = supabase.channel(`matchmaking-queue-${userId}`)
+			.on('postgres_changes', {
+				event: 'INSERT',
+				schema: 'public',
+				table: 'matchmaking_queue',
+				filter: `user_id=eq.${userId}`
+			}, (payload) => {
+				console.log('Matchmaking queue updated (INSERT):', payload);
+				// Force refresh data from API to get complete state
+				mutate();
+			})
+			.on('postgres_changes', {
+				event: 'UPDATE',
+				schema: 'public',
+				table: 'matchmaking_queue',
+				filter: `user_id=eq.${userId}`
+			}, (payload) => {
+				console.log('Matchmaking queue updated (UPDATE):', payload);
+				// Force refresh data from API to get complete state
+				mutate();
+			})
+			.on('postgres_changes', {
+				event: 'DELETE',
+				schema: 'public',
+				table: 'matchmaking_queue',
+				filter: `user_id=eq.${userId}`
+			}, (payload) => {
+				console.log('Matchmaking queue updated (DELETE):', payload);
+				// Reset local state and refresh data
+				setTimeInQueue(null);
+				mutate();
+			})
+			.subscribe();
+		
+		// Store unsubscribe function for cleanup
+		unsubscribeRef.current = () => supabase.removeChannel(channel);
+		hasSetupRealtimeRef.current = true;
+		
+		// Clean up on unmount
+		return () => {
+			if (unsubscribeRef.current) {
+				console.log('Cleaning up realtime subscription for matchmaking:', userId);
+				unsubscribeRef.current();
+				hasSetupRealtimeRef.current = false;
+			}
+		};
+	}, [userId, mutate, supabase]);
 
 	const startMatchmaking = useCallback(async (mode: MatchType = 'normal') => {
 		setIsStarting(true);
@@ -73,7 +138,6 @@ const useMatchmaking = (): {
 		const updateTime = () => {
 			const now = new Date().getTime();
 			setTimeInQueue(Math.floor((now - joinedAt) / 1000));
-			mutate();
 		};
 
 		// Initial calculation
