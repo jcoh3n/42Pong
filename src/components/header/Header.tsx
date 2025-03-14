@@ -16,7 +16,7 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
 	const { data: user } = useCurrentUser();
-	const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+	const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
 	
 	return (
 		<Box 

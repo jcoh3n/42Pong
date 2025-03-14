@@ -25,8 +25,8 @@ export function ResponsiveContainer({
   tabletContent,
   breakpoint = 'lg' 
 }: ResponsiveContainerProps) {
-  const isDesktop = useMediaQuery(MEDIA_QUERIES[breakpoint]);
-  const isTablet = useMediaQuery(MEDIA_QUERIES.md);
+	const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
+	const isTablet = useMediaQuery(MEDIA_QUERIES.md);
   
   if (!isDesktop && !isTablet && mobileContent) {
     return <>{mobileContent}</>;
@@ -43,7 +43,7 @@ export function ResponsiveContainer({
  * Composant qui n'affiche son contenu que sur mobile
  */
 export function MobileOnly({ children }: { children: ReactNode }) {
-  const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+	const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
   
   if (isDesktop) {
     return null;
@@ -56,7 +56,7 @@ export function MobileOnly({ children }: { children: ReactNode }) {
  * Composant qui n'affiche son contenu que sur desktop
  */
 export function DesktopOnly({ children }: { children: ReactNode }) {
-  const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+	const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
   
   if (!isDesktop) {
     return null;

@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+  const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
   
   // Verrouiller le défilement lorsque le sidebar est ouvert sur mobile
   useScrollLock(isSidebarOpen && !isDesktop);
@@ -32,7 +32,7 @@ export default function RootLayout({
     if (!isDesktop) {
       setIsSidebarOpen(false);
     }
-  }, [children, isDesktop]);
+  }, [isDesktop]);
   
   // Ouvrir automatiquement le sidebar sur desktop
   useEffect(() => {

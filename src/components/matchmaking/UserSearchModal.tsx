@@ -177,7 +177,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
     
     executeUserOperation(id, async () => {
       if (hasPendingInvitation) {
-        await onDeselectUser(id);
+        onDeselectUser(id);
         
         // Update local state to reflect the change
         setPendingInvitationUsers(prev => 
@@ -192,7 +192,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
           )
         );
       } else {
-        await onSelectUser(id);
+        onSelectUser(id);
         
         // Update local state to reflect the change
         setUsers(prev => 
@@ -227,71 +227,73 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
   
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-      <div className="
-        bg-gray-800/80 backdrop-blur-md 
-        rounded-lg p-6 w-full max-w-md
-        border border-gray-700/50
-        shadow-xl shadow-black/20
-      ">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-white">Search Users</h2>
-          <button
-            onClick={handleClose}
-            className="text-gray-400 hover:text-white transition-colors"
-          >
-            <FaTimes size={20} />
-          </button>
-        </div>
+  return (<>
+  		<div 
+			className="absolute inset-0 bg-gradient-to-b z-50 from-white/10 to-white/5 rounded-2xl"
+			style={{
+			WebkitBackdropFilter: 'blur(12px)',
+			backdropFilter: 'blur(12px)',
+			}}
+		/>
+		<div className="fixed inset-0 flex items-center justify-center z-50">
+			<div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+				<div className="flex justify-between items-center mb-4">
+				<h2 className="text-xl font-semibold text-white">Search Users</h2>
+				<button
+					onClick={handleClose}
+					className="text-gray-400 hover:text-white transition-colors"
+				>
+					<FaTimes size={20} />
+				</button>
+				</div>
 
-        <div className="relative mb-4">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by username..."
-            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
+				<div className="relative mb-4">
+				<input
+					type="text"
+					value={searchQuery}
+					onChange={(e) => setSearchQuery(e.target.value)}
+					placeholder="Search by username..."
+					className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+				/>
+				<FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+				</div>
 
-        {!searchQuery && pendingInvitationUsers.length > 0 && (
-          <div className="mb-4 flex items-center text-blue-400">
-            <FaUserFriends className="mr-2" />
-            <p>Users with pending invitations:</p>
-          </div>
-        )}
+				{!searchQuery && pendingInvitationUsers.length > 0 && (
+				<div className="mb-4 flex items-center text-blue-400">
+					<FaUserFriends className="mr-2" />
+					<p>Users with pending invitations:</p>
+				</div>
+				)}
 
-        {error && (
-          <div className="text-red-500 mb-4">{error}</div>
-        )}
+				{error && (
+				<div className="text-red-500 mb-4">{error}</div>
+				)}
 
-        <div className="max-h-96 overflow-y-auto">
-          {isLoading ? (
-            <div className="text-center text-gray-400 py-4">Loading...</div>
-          ) : displayUsers.length === 0 ? (
-            <div className="text-center text-gray-400 py-4">
-              {searchQuery 
-                ? 'No users found matching your search' 
-                : 'No pending invitations found'}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {displayUsers.map((user) => (
-                <UserCard 
-                  key={user.id}
-                  user={user}
-                  onAction={handleUserAction}
-                  isProcessing={isProcessing(user.id)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+				<div className="max-h-96 overflow-y-auto">
+				{isLoading ? (
+					<div className="text-center text-gray-400 py-4">Loading...</div>
+				) : displayUsers.length === 0 ? (
+					<div className="text-center text-gray-400 py-4">
+					{searchQuery 
+						? 'No users found matching your search' 
+						: 'No pending invitations found'}
+					</div>
+				) : (
+					<div className="space-y-2">
+					{displayUsers.map((user) => (
+						<UserCard 
+						key={user.id}
+						user={user}
+						onAction={handleUserAction}
+						isProcessing={isProcessing(user.id)}
+						/>
+					))}
+					</div>
+				)}
+				</div>
+			</div>
+		</div>
+	</>);
 };
 
 // Extracted user card component for better readability

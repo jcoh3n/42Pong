@@ -29,7 +29,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [activeItem, setActiveItem] = useState(usePathname());
   const { data: currentUser } = useCurrentUser();
-  const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+  const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
   const { data: user } = useCurrentUser();
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
     <Box
       className={`
-        fixed z-50 w-[300px]
+        fixed z-40 w-[300px]
         ${isDesktop 
           ? 'top-4 left-4 bottom-4' 
           : 'top-[84px] left-4 bottom-4'}
