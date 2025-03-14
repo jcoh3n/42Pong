@@ -85,13 +85,13 @@ export default function HomePage() {
       <Container size="3" py="6">
         <Flex direction="column" gap="8">
           {/* En-tête avec salutation et carte de profil */}
-          <Card style={{ 
+          <Card style={{
+			zIndex: 2,
             borderRadius: '16px',
             overflow: 'hidden',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             background: 'rgba(30, 41, 59, 0.7)',
-            backdropFilter: 'blur(10px)'
           }}>
             <Flex p="5" direction="column" gap="4">
               <Flex align="center" gap="4">

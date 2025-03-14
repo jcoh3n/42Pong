@@ -61,7 +61,7 @@ const GameModeCard: React.FC<GameModeCardProps> = ({
             <div 
               className={`
                 p-4 sm:p-5 md:p-6 rounded-xl
-                transition-colors duration-200
+                transition-colors duration-200 backdrop-blur-sm
                 ${isActive ? 'bg-white/30' : 'bg-white/20'}
                 transform-gpu hover:scale-105
               `}

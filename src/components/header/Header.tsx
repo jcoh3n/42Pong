@@ -28,7 +28,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 		>
 			<div 
 				className={`
-					relative rounded-2xl backdrop-blur-md
+					relative rounded-2xl
 					border border-gray-800/50 
 					${window.scrollY > 70 ? 'shadow-xl shadow-black/10' : 'shadow-none'}
 					overflow-hidden

@@ -150,7 +150,7 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
       </Popover.Trigger>
       
       <Popover.Content>
-        <Box className="w-80 rounded-xl bg-gray-900/95 shadow-xl">
+        <Box className="w-80 rounded-xl shadow-xl">
           <Box p="3">
             <Flex justify="between" align="center" mb="3">
               <Text weight="medium" size="3">Notifications</Text>

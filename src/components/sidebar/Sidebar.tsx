@@ -59,7 +59,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       `}
     >
       <div className={`
-        h-full bg-gray-900/5 backdrop-blur-md
+        h-full bg-gray-900/5
         rounded-2xl
         border border-white/10
         overflow-hidden pointer-events-auto
