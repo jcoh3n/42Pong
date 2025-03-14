@@ -118,7 +118,6 @@ const MatchmakingMenu = () => {
 		<div 
 			className="h-full w-full flex items-center justify-center overflow-y-auto"
 			style={{
-				background: "linear-gradient(135deg, #121826 0%, #1E2A38 100%)",
 				minHeight: "100%"
 			}}
 		>

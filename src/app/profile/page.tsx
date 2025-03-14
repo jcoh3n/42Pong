@@ -47,7 +47,7 @@ export default function Profile() {
   const stats = calculateStats(matches, currentUser?.id);
 
   return (
-    <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
+    <Box style={{ minHeight: "100vh" }}>
       <Container size="3" py="9" className="shadow-sm">
         <Flex direction="column" gap="6">
           <Button

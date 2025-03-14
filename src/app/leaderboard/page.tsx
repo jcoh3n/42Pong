@@ -46,17 +46,17 @@ export default function LeaderboardPage() {
 
   if (status === "loading" || isLoading) {
     return (
-      <Box className="min-h-screen flex items-center justify-center bg-[var(--gray-2)]">
+      <Box className="min-h-screen flex items-center justify-center">
         <Loading />
       </Box>
     );
   }
 
   return (
-    <Box className="min-h-screen bg-[#0F172A]">
+    <Box className="min-h-screen">
       <Container size="3" className="py-6">
         <Flex direction="column" gap="4">
-          <Card size="2" className="bg-[#1E293B] border-none rounded-xl overflow-hidden">
+          <Card size="2" className="bg-[#1E293B] shadow-md border-none rounded-xl overflow-hidden">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-[#22D3EE] to-[#0EA5E9] opacity-[0.02]" />
               
@@ -118,7 +118,7 @@ export default function LeaderboardPage() {
           </Card>
 
           {/* Tableau principal */}
-          <Card size="2" className="w-full bg-[#1E293B] border-none rounded-xl overflow-hidden">
+          <Card size="2" className="w-full shadow-md bg-[#1E293B] border-none rounded-xl overflow-hidden">
             <Flex direction="column">
               <Box className="px-4 py-3 border-b border-[#334155]">
                 <Flex justify="between" align="center">

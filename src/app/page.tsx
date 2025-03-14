@@ -80,7 +80,7 @@ export default function HomePage() {
   }
   
   return (
-    <Box className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+    <Box className="min-h-screen">
       <Container size="3" py="6">
         <Flex direction="column" gap="8">
           {/* En-tête avec salutation et carte de profil */}

@@ -57,7 +57,7 @@ export default function RootLayout({
 		<Toaster />
         <AuthProvider>
           <ThemeLayout>
-            <Flex 
+            <Flex
               style={{ 
                 width: '100vw', 
                 height: '100vh', 
@@ -76,12 +76,16 @@ export default function RootLayout({
                 width: '100%',
               }}>
                 {/* Zone de contenu principal */}
-                <main style={{ 
-                  width: '100%',
-                  height: '100%',
-                  position: 'relative',
-                  overflow: 'auto',
-                }}>
+                <main 
+                  className="bg-gradient-to-b from-[var(--page-gradient-from)] to-[var(--page-gradient-to)]"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    position: 'relative',
+                    overflow: 'auto',
+                    paddingTop: 'var(--header-padding)',
+                  }}
+                >
                   <Protected>
                     {children}
                   </Protected>
@@ -99,7 +103,7 @@ export default function RootLayout({
                     height: 'calc(100vh - 32px)',
                   }}
                 >
-                  <Sidebar 
+                  <Sidebar
                     isOpen={isSidebarOpen} 
                     onClose={() => setIsSidebarOpen(false)} 
                   />
