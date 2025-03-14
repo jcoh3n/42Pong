@@ -283,53 +283,25 @@ export type Database = {
         }
         Returns: Json
       }
-      create_matche:
-        | {
-            Args: {
-              player1_id: string
-              player2_id: string
-              matche_type?: Database["public"]["Enums"]["matche_type"]
-              score_to_win?: number
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              player1_id: string
-              player2_id: string
-              matche_type?: string
-              score_to_win?: number
-            }
-            Returns: Json
-          }
-      create_notification:
-        | {
-            Args: {
-              user_id: string
-              title: string
-              content: string
-            }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              user_id: string
-              title: string
-              content: string
-              type: Database["public"]["Enums"]["notification_type"]
-            }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              user_id: string
-              title: string
-              content: string
-              type: Database["public"]["Enums"]["notification_type"]
-              invitation_id?: string
-            }
-            Returns: undefined
-          }
+      create_matche: {
+        Args: {
+          player1_id: string
+          player2_id: string
+          matche_type?: Database["public"]["Enums"]["matche_type"]
+          score_to_win?: number
+        }
+        Returns: Json
+      }
+      create_notification: {
+        Args: {
+          user_id: string
+          title: string
+          content: string
+          type: Database["public"]["Enums"]["notification_type"]
+          invitation_id?: string
+        }
+        Returns: undefined
+      }
       create_users_and_manage_matchmaking: {
         Args: {
           user1_name: string

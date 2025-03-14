@@ -83,7 +83,7 @@ const useMatchmaking = (): {
 		const interval = setInterval(updateTime, 1000);
 		return () => clearInterval(interval);
 	}, [matchmakingData?.data?.inQueue, matchmakingData?.data?.queueData?.joined_at]);
-	
+
 	const formatedTimeInQueue = useMemo(() => {
 		if (!timeInQueue) return null;
 		

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaTrophy, FaUserFriends } from 'react-icons/fa';
 import { GiPingPongBat } from 'react-icons/gi';
 import useMatchmaking from '@/hooks/matchmaking/useMatchmaking';
@@ -7,6 +7,9 @@ import QueueTimer from './QueueTimer';
 import { Database } from '@/types/database.types';
 import { IconType } from 'react-icons';
 import { MatchType } from '@/services';
+import UserSearchModal from './UserSearchModal';
+import { InvitationService } from '@/services/invitationService';
+import { useSession } from 'next-auth/react';
 
 type GameMode = {
 	title: string;
@@ -44,7 +47,6 @@ const GAME_MODES: GameMode[] = [
 	}
 ];
 
-
 const MatchmakingMenu = () => {
 	const { 
 		data: matchmakingData, 
@@ -55,7 +57,39 @@ const MatchmakingMenu = () => {
 		timeInQueue 
 	} = useMatchmaking();
 
+	const { data: session } = useSession();
+	const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+	const [isInviting, setIsInviting] = useState(false);
+	const invitationService = new InvitationService();
+
 	const isInQueue = matchmakingData?.data?.inQueue;
+
+	const handleGameModeClick = async (mode: MatchType) => {
+		if (mode === 'friendly') {
+			setIsSearchModalOpen(true);
+			return;
+		}
+
+		if (isInQueue) {
+			stopMatchmaking();
+		} else {
+			startMatchmaking(mode);
+		}
+	};
+
+	const handleUserSelect = async (userId: string) => {
+		if (!session?.user?.id) return;
+
+		setIsInviting(true);
+		try {
+			await invitationService.createFriendlyInvitation(session.user.id, userId);
+			setIsSearchModalOpen(false);
+		} catch (error) {
+			console.error('Error sending invitation:', error);
+		} finally {
+			setIsInviting(false);
+		}
+	};
 
 	return (
 		<div 
@@ -83,7 +117,7 @@ const MatchmakingMenu = () => {
 							glowColor={mode.glowColor}
 							isLoading={matchmakingIsLoading}
 							isActive={isActive}
-							onClick={isInQueue ? stopMatchmaking : () => startMatchmaking(mode.mode)}
+							onClick={() => handleGameModeClick(mode.mode)}
 							additionalContent={hasMatchmaking && isInQueue &&
 								<QueueTimer time={timeInQueue} />
 							}
@@ -91,6 +125,13 @@ const MatchmakingMenu = () => {
 					)})}
 				</div>
 			</div>
+
+			<UserSearchModal
+				isOpen={isSearchModalOpen}
+				onClose={() => setIsSearchModalOpen(false)}
+				onSelectUser={handleUserSelect}
+				currentUserId={session?.user?.id || ''}
+			/>
 		</div>
 	);
 };
