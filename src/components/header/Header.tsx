@@ -8,6 +8,7 @@ import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { MobileOnly } from "@/components/ui/ResponsiveContainer";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
+import { MatchmakingBubble } from "./MatchmakingBubble";
 
 interface HeaderProps {
 	onMenuClick?: () => void;
@@ -73,6 +74,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
 					{/* Right side - User Profile (mobile) and Notifications */}
 					<Flex align="center" gap="3" className="ml-auto">
+						<MatchmakingBubble />
 						<MobileOnly>
 							{user && (
 								<Link href="/profile" className="no-underline text-current">

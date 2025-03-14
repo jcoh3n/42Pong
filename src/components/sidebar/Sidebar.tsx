@@ -17,6 +17,7 @@ import { MEDIA_QUERIES } from "@/constants/breakpoints";
 import { signOut } from "next-auth/react";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import Link from "next/link";
+import { GamepadIcon } from "lucide-react";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -147,8 +148,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 isActive={activeItem === '/profile'}
                 onItemClick={() => handleNavigation('/profile')}
               />
-              <SidebarNavItem 
-                icon={<ListBulletIcon width="20" height="20" />} 
+              <SidebarNavItem
+                icon={<GamepadIcon width="20" height="20" />} 
                 label="Games" 
                 href="/games"
                 isActive={activeItem === '/games'}

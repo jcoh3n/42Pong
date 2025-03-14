@@ -28,8 +28,6 @@ export const addToQueue = async (playerId: string, mode?: MatchType) => {
 		type: mode
 	});
 
-	console.log('addToQueue: ', data, error);
-	
 
 	return data as {
 		data?: MatchmakingQueue;

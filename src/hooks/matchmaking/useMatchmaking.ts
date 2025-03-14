@@ -113,19 +113,19 @@ const useMatchmaking = (): {
 	const stopMatchmaking = useCallback(async () => {
 		setIsStopping(true);
 
+		setTimeInQueue(null);
 		const response = await fetch('/api/matchmaking', {
 			method: 'DELETE',
 		});
-
-		mutate();
-		setTimeInQueue(null);
-		setIsStopping(false);
-
+		
 		if (!response.ok) {
 			toast.error('Failed to stop matchmaking');
-			return;
 		}
-	}, [mutate]);
+
+		mutate();
+		setIsStopping(false);
+
+	}, [mutate, setTimeInQueue, setIsStopping]);
 
 	useEffect(() => {
 		if (!matchmakingData?.data?.inQueue) {
