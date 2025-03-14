@@ -41,12 +41,19 @@ export default function useInvitation(invitationId: string | null | undefined) {
     if (!invitationId) return;
     
     // Subscribe to the friendly_invitation table for changes to this invitation
-    const unsubscribe = subscribeToTable({
-      tableName: 'friendly_invitation',
-      rowId: invitationId,
-      onUpdate: () => mutate(),
-      onDelete: () => mutate(),
-    });
+    const unsubscribe = subscribeToTable(
+      `invitation_${invitationId}`, // channelName - unique identifier for this subscription
+      'friendly_invitation', // table name
+      '*', // listen to all events
+      (payload) => {
+        // Handle all changes with mutate
+        mutate();
+      },
+      {
+        // Filter to only get events for this specific invitation
+        filter: `id=eq.${invitationId}`
+      }
+    );
     
     return () => {
       unsubscribe();

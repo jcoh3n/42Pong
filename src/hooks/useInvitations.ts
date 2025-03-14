@@ -4,7 +4,7 @@ import useSWR from 'swr';
 import { useEffect } from 'react';
 import { invitationService } from '@/services';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import { subscribeToUserTable } from '@/utils/supabaseRealtime';
+import { subscribeToTableEvents } from '@/utils/supabaseRealtime';
 
 /**
  * Hook for fetching and managing user invitations
@@ -39,14 +39,23 @@ export default function useInvitations() {
   useEffect(() => {
     if (!userId) return;
     
-    // Subscribe to the friendly_invitation table for this user
-    const unsubscribe = subscribeToUserTable({
-      tableName: 'friendly_invitation',
-      userId,
-      onInsert: () => mutate(),
-      onUpdate: () => mutate(),
-      onDelete: () => mutate(),
-    });
+    // Subscribe to the friendly_invitation table for this user's invitations
+    // We need both sent and received, so we'll use subscribeToTableEvents
+    const unsubscribe = subscribeToTableEvents(
+      `invitations_${userId}`, // channelName - unique identifier for this subscription
+      'friendly_invitation', // table name
+      {
+        // Define handlers for different event types
+        INSERT: () => mutate(),
+        UPDATE: () => mutate(),
+        DELETE: () => mutate(),
+        '*': () => mutate(), // Catch-all for any event type
+      },
+      {
+        // Filter for invitations where the user is either the sender or receiver
+        filter: `or(sender_id.eq.${userId},receiver_id.eq.${userId})`
+      }
+    );
     
     return () => {
       unsubscribe();
