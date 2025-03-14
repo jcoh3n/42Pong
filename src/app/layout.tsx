@@ -86,9 +86,11 @@ export default function RootLayout({
                     paddingTop: 'var(--header-padding)',
                   }}
                 >
-                  <Protected>
-                    {children}
-                  </Protected>
+					<div className="p-5 ">
+						<Protected>
+							{children}
+						</Protected>
+					</div>
                 </main>
 
                 {/* Sidebar - responsive */}
