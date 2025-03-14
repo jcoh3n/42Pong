@@ -2,10 +2,12 @@
 
 import { Box, Flex, Popover, Text } from "@radix-ui/themes";
 import { BellIcon } from "@radix-ui/react-icons";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import useNotifications from "@/hooks/useNotifications";
 import { NotificationItem } from "./NotificationItem";
 import { Notification } from "@/services";
+import toast from "react-hot-toast";
+import Loading from "../Loading";
 
 interface NotificationBellProps {
   maxNotifications?: number;
@@ -13,6 +15,7 @@ interface NotificationBellProps {
 
 export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
+  
   const { 
     notifications, 
     unseenCount, 
@@ -20,7 +23,13 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
     error, 
     formatRelativeTime,
     markAsSeen,
-    markAllAsSeen 
+    markAllAsSeen,
+    acceptInvitation,
+    refuseInvitation,
+    isPendingInvitation,
+    getInvitationStatus,
+    isAcceptingInvitation,
+    isRefusingInvitation
   } = useNotifications({ 
     pageSize: maxNotifications,
     enableRealtime: true
@@ -45,19 +54,68 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
     }
   }, [markAsSeen]);
 
+  // Handle accepting an invitation
+  const handleAcceptInvitation = useCallback(async (notification: Notification) => {
+	if (notification.type !== 'invitation') return ;
+    console.log('Accepting invitation:', notification.id);
+    
+    try {
+      const success = await acceptInvitation(notification);
+      
+      if (success) {
+        // Show success message
+        toast.success('Invitation accepted successfully!');
+        console.log('Invitation accepted successfully');
+        
+        // Close the popover after successful acceptance (optional)
+        setIsOpen(false);
+      } else {
+        // Show error message
+        toast.error('Failed to accept invitation');
+        console.error('Failed to accept invitation');
+      }
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
+      // Show error message
+      toast.error('An error occurred while accepting invitation');
+    }
+  }, [acceptInvitation, setIsOpen]);
+
+  // Handle refusing an invitation
+  const handleRefuseInvitation = useCallback(async (notification: Notification) => {
+	if (notification.type !== 'invitation') return ;
+    console.log('Refusing invitation:', notification.id);
+
+    try {
+      const success = await refuseInvitation(notification);
+      
+      if (success) {
+        // Show success message
+        toast.success('Invitation refused');
+        console.log('Invitation refused successfully');
+      } else {
+        // Show error message
+        toast.error('Failed to refuse invitation');
+        console.error('Failed to refuse invitation');
+      }
+    } catch (error) {
+      console.error('Error refusing invitation:', error);
+      // Show error message
+      toast.error('An error occurred while refusing invitation');
+    }
+  }, [refuseInvitation]);
+
   // Handle "Mark all as read" button click
   const handleMarkAllAsRead = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering other click handlers
     markAllAsSeen();
   }, [markAllAsSeen]);
 
-  // Auto-mark notifications as seen when popover opens
+  // Optional: Auto-mark notifications as seen when popover opens
   useEffect(() => {
     if (isOpen && notifications.length > 0) {
-      // Optional: Automatically mark notifications as seen when viewed
-      // Uncomment if you want this behavior
-      // const unseenNotifications = notifications.filter(n => !n.seen);
-      // unseenNotifications.forEach(n => markAsSeen(n.id));
+      const unseenNotifications = notifications.filter(n => !n.seen);
+      unseenNotifications.forEach(n => markAsSeen(n.id));
     }
   }, [isOpen, notifications]);
 
@@ -92,22 +150,13 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
       </Popover.Trigger>
       
       <Popover.Content>
-        <Box className="w-80 rounded-xl bg-gray-900/95 backdrop-blur-lg border border-gray-800 shadow-xl">
+        <Box className="w-80 rounded-xl backdrop-blur-lg shadow-xl">
           <Box p="3">
             <Flex justify="between" align="center" mb="3">
               <Text weight="medium" size="3">Notifications</Text>
-              {unseenCount > 0 && (
-                <Text 
-                  size="1" 
-                  className="text-gray-400 hover:text-gray-200 cursor-pointer transition-colors duration-200"
-                  onClick={handleMarkAllAsRead}
-                >
-                  Mark all as read
-                </Text>
-              )}
             </Flex>
-            
-            <Flex direction="column" gap="2">
+
+            <Flex direction="column" gap="3">
               {isLoading ? (
                 // Loading state
                 <Box className="py-8 text-center">
@@ -124,15 +173,22 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
                   <Text size="1" className="text-gray-400">No notifications</Text>
                 </Box>
               ) : (
-                // Render notifications
-                notifications.map((notification) => (
-                  <NotificationItem 
-                    key={notification.id}
-                    notification={notification}
-                    formattedTime={formatRelativeTime(notification.created_at)}
-                    onClick={handleNotificationClick}
-                  />
-                ))
+                // Render a maximum of 3 notifications
+                <Suspense fallback={<Box className="py-8 text-center"><Loading /></Box>}>
+                  {notifications.slice(0, 3).map((notification) => (
+                    <NotificationItem 
+                      key={notification.id}
+                      notification={notification}
+                      formattedTime={formatRelativeTime(notification.created_at)}
+                      onClick={handleNotificationClick}
+                      onAccept={handleAcceptInvitation}
+                      onRefuse={handleRefuseInvitation}
+                      isAccepting={isAcceptingInvitation(notification.id)}
+                      isRefusing={isRefusingInvitation(notification.id)}
+                      getInvitationStatus={getInvitationStatus}
+                    />
+                  ))}
+                </Suspense>
               )}
             </Flex>
             

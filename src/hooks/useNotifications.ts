@@ -2,10 +2,11 @@
 
 import useSWR from 'swr';
 import { useCallback, useState, useEffect, useRef } from 'react';
-import { notificationService, Notification } from '@/services';
+import { notificationService, invitationService, Notification } from '@/services';
 import { PaginatedResponse } from '@/services/types';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { subscribeToUserTable } from '@/utils/supabaseRealtime';
+import useInvitationNotifications from './useInvitationNotifications';
 
 type NotificationOptions = {
   page?: number;
@@ -273,6 +274,21 @@ export default function useNotifications(options: NotificationOptions = {}) {
     }
   }, [userId, mutate, mutateUnseen]);
 
+  // Use the specialized hook for invitation notifications
+  const {
+    acceptInvitation,
+    refuseInvitation,
+    isPendingInvitation,
+    getInvitationStatus,
+    isInvitationNotification,
+    isAcceptingInvitation,
+    isRefusingInvitation,
+    isProcessingInvitation
+  } = useInvitationNotifications({
+    markAsSeen,
+    mutate
+  });
+
   return {
     notifications: data?.data || [],
     unseenCount: unseenData?.count || 0,
@@ -287,6 +303,14 @@ export default function useNotifications(options: NotificationOptions = {}) {
     mutate,
     formatRelativeTime,
     markAsSeen,
-    markAllAsSeen
+    markAllAsSeen,
+    acceptInvitation,
+    refuseInvitation,
+    isPendingInvitation,
+    getInvitationStatus,
+    isInvitationNotification,
+    isAcceptingInvitation,
+    isRefusingInvitation,
+    isProcessingInvitation
   };
 } 

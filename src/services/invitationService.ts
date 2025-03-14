@@ -43,6 +43,21 @@ export class InvitationService {
     return data || [];
   }
 
+  async getInvitationById(invitationId: string): Promise<FriendlyInvitation> {
+    const { data, error } = await this.getClient()
+      .from('friendly_invitation')
+      .select('*')
+      .eq('id', invitationId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching friendly invitation by ID:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
   async updateInvitationStatus(invitationId: string, status: 'accepted' | 'cancelled' | 'refused'): Promise<FriendlyInvitation> {
     const { data, error } = await this.getClient()
       .from('friendly_invitation')

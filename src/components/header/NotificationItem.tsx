@@ -1,57 +1,109 @@
-import React, { useState } from 'react';
-import { Avatar, Box, Flex, Text, Badge } from '@radix-ui/themes';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Box, Flex, Text, Badge, Button } from '@radix-ui/themes';
 import { Notification } from '@/services';
-import { GoBellFill } from 'react-icons/go';
-import { FaGamepad, FaEnvelope, FaBullhorn } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
+import { InvitationStatus, isInvitationNotification, InvitationNotification } from '@/hooks/useInvitationNotifications';
+import { 
+  getNotificationIcon, 
+  getNotificationFallback,
+  getNotificationStatusBadge,
+  supportsAction
+} from '@/utils/notificationRegistry';
 
 interface NotificationItemProps {
   notification: Notification;
   formattedTime: string;
   onClick?: (notification: Notification) => void;
+  onAccept?: (notification: Notification) => void;
+  onRefuse?: (notification: Notification) => void;
+  isAccepting?: boolean;
+  isRefusing?: boolean;
+  getInvitationStatus?: (notification: Notification) => Promise<InvitationStatus | null>;
 }
 
-export function NotificationItem({ notification, formattedTime, onClick }: NotificationItemProps) {
+export function NotificationItem({ 
+  notification, 
+  formattedTime, 
+  onClick, 
+  onAccept, 
+  onRefuse,
+  isAccepting = false,
+  isRefusing = false,
+  getInvitationStatus
+}: NotificationItemProps) {
   const [isHovering, setIsHovering] = useState(false);
   
-  // Generate avatar and icon based on notification type
-  const getAvatarInfo = () => {
-    // Default avatar fallback uses first two letters of the title
-    let fallback = notification.title.substring(0, 2);
-    let src = undefined;
-    let icon = <GoBellFill size={14} />;
-    
-    if (notification.type === 'invitation') {
-      // For game invitations
-      fallback = 'GI';
-      icon = <FaGamepad size={14} />;
-    } else if (notification.type === 'message') {
-      // For messages
-      fallback = 'MS';
-      icon = <FaEnvelope size={14} />;
-    } else if (notification.type === 'announcement') {
-      // For announcements
-      fallback = 'AN';
-      icon = <FaBullhorn size={14} />;
+  const isInvitation = isInvitationNotification(notification);
+
+  const [invitationStatus, setInvitationStatus] = useState<InvitationStatus | null>(null);
+
+  useEffect(() => {
+    if (isInvitation && getInvitationStatus) {
+      const fetchInvitationStatus = async () => {
+        const status = await getInvitationStatus(notification);
+        setInvitationStatus(status || null);
+      };
+      fetchInvitationStatus();
     }
+  }, [isInvitation, getInvitationStatus, notification]);
 
-    return { src, fallback, icon };
-  };
-
-  const { src, fallback, icon } = getAvatarInfo();
+  // Get icon and avatar fallback from registry
+  const Icon = getNotificationIcon(notification);
+  const fallback = getNotificationFallback(notification);
   
   const handleClick = () => {
     if (onClick) {
       onClick(notification);
     }
   };
+
+  const handleAccept = (e: React.MouseEvent) => {
+	e.stopPropagation(); // Prevent triggering the parent onClick
+	
+	if (!isInvitation) return;
+    if (onAccept && !isAccepting && !isRefusing) {
+      onAccept(notification);
+    }
+  };
+
+  const handleRefuse = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the parent onClick
+
+	if (!isInvitation) return;
+    if (onRefuse && !isAccepting && !isRefusing) {
+      onRefuse(notification);
+    }
+  };
+
+  // Get status message for non-pending invitations
+  const getStatusMessage = () => {
+    if (!isInvitation || !invitationStatus || invitationStatus === 'pending') return null;
+    
+    switch (invitationStatus) {
+      case 'accepted':
+        return 'You have accepted this game invitation';
+      case 'refused':
+        return 'You have refused this game invitation';
+      case 'cancelled':
+        return 'This game invitation was cancelled';
+      default:
+        return `Invitation status: ${invitationStatus}`;
+    }
+  };
+  
+  const statusMessage = getStatusMessage();
   
   return (
     <Flex 
       p="2" 
       gap="3"
       className={`
+		min-h-22
         rounded-lg cursor-pointer transition-all duration-200
-        ${notification.seen 
+        shadow-xl bg-gray-900/95
+		border-neutral-800
+		border-2
+		${notification.seen 
           ? isHovering ? 'bg-gray-800/50' : 'hover:bg-gray-800/50' 
           : isHovering ? 'bg-gray-800/50' : 'bg-gray-800/30 hover:bg-gray-800/50'
         }
@@ -59,21 +111,10 @@ export function NotificationItem({ notification, formattedTime, onClick }: Notif
       onClick={handleClick}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
+      position="relative"
     >
-      <Avatar 
-        src={src} 
-        fallback={fallback} 
-        size="2"
-        radius="full"
-        className={`
-          ring-2 transition-all duration-200
-          ${notification.seen 
-            ? 'ring-gray-700/50' 
-            : isHovering ? 'ring-blue-500/70' : 'ring-blue-500/50'
-          }
-        `}
-      />
-      <Box style={{ flex: 1 }}>
+      <Icon className='rounded-full mt-1' />
+	<Box style={{ flex: 1 }}>
         <Flex gap="1" align="center" justify="between">
           <Flex gap="1" align="center">
             <Text 
@@ -87,9 +128,6 @@ export function NotificationItem({ notification, formattedTime, onClick }: Notif
               <Badge size="1" color="blue" variant="solid" radius="full" />
             )}
           </Flex>
-          <Box className="text-gray-400">
-            {icon}
-          </Box>
         </Flex>
         <Text 
           size="1" 
@@ -97,8 +135,66 @@ export function NotificationItem({ notification, formattedTime, onClick }: Notif
         >
           {notification.content}
         </Text>
-        <Text size="1" className="text-gray-500 mt-1">{formattedTime}</Text>
+        
+        <Flex justify="between" align="center">
+          <Text size="1" className="text-gray-500 mt-1">{formattedTime}</Text>
+        </Flex>
       </Box>
+
+      {/* Action buttons for pending invitation notifications */}
+      {invitationStatus === 'pending' && supportsAction(notification, 'accept') && (isAccepting || isRefusing) && (
+        <Flex 
+          position="absolute" 
+          bottom="2" 
+          right="2"
+          gap="2"
+          className="animate-fadeIn"
+        >
+          <Button 
+            size="1" 
+            color="green" 
+            variant="soft" 
+            onClick={handleAccept}
+            className={`transition-all ${isAccepting || isRefusing ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110'}`}
+            disabled={isAccepting || isRefusing}
+          >
+            <Flex gap="1" align="center">
+              {isAccepting ? (
+                <FaSpinner size={12} className="animate-spin" />
+              ) : (
+                <FaCheck size={12} />
+              )}
+              <span>{isAccepting ? 'Accepting...' : 'Accept'}</span>
+            </Flex>
+          </Button>
+          <Button 
+            size="1" 
+            color="red" 
+            variant="soft" 
+            onClick={handleRefuse}
+            className={`transition-all ${isAccepting || isRefusing ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110'}`}
+            disabled={isAccepting || isRefusing}
+          >
+            <Flex gap="1" align="center">
+              {isRefusing ? (
+                <FaSpinner size={12} className="animate-spin" />
+              ) : (
+                <FaTimes size={12} />
+              )}
+              <span>{isRefusing ? 'Refusing...' : 'Refuse'}</span>
+            </Flex>
+          </Button>
+        </Flex>
+      )}
+
+	  {isInvitation && invitationStatus !== 'pending' && (
+		<Text 
+		  size="1" 
+		  className="text-gray-400 italic mt-2"
+		>
+		  {invitationStatus}
+		</Text>
+	  )}
     </Flex>
   );
 } 
