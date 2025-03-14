@@ -7,6 +7,7 @@ import {
   GearIcon,
   ExitIcon,
   Cross2Icon,
+  PersonIcon,
 } from "@radix-ui/react-icons";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { usePathname, useRouter } from "next/navigation";
@@ -138,6 +139,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href="/"
                 isActive={activeItem === '/'}
                 onItemClick={() => handleNavigation('/')}
+              />
+              <SidebarNavItem 
+                icon={<PersonIcon width="20" height="20" />} 
+                label="Profile" 
+                href="/profile"
+                isActive={activeItem === '/profile'}
+                onItemClick={() => handleNavigation('/profile')}
               />
               <SidebarNavItem 
                 icon={<ListBulletIcon width="20" height="20" />} 
