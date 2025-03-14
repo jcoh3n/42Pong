@@ -114,7 +114,7 @@ export function NotificationItem({
       position="relative"
     >
       <Icon className='rounded-full mt-1' />
-	<Box style={{ flex: 1 }}>
+	<Box style={{ flex: 1, flexDirection: 'column' }}>
         <Flex gap="1" align="center" justify="between">
           <Flex gap="1" align="center">
             <Text 
@@ -136,13 +136,13 @@ export function NotificationItem({
           {notification.content}
         </Text>
         
-        <Flex justify="between" align="center">
+        <Flex justify="between" align="center" className=''>
           <Text size="1" className="text-gray-500 mt-1">{formattedTime}</Text>
         </Flex>
       </Box>
 
       {/* Action buttons for pending invitation notifications */}
-      {invitationStatus === 'pending' && supportsAction(notification, 'accept') && (isAccepting || isRefusing) && (
+      {isInvitation && invitationStatus === 'pending' && (
         <Flex 
           position="absolute" 
           bottom="2" 
@@ -190,7 +190,7 @@ export function NotificationItem({
 	  {isInvitation && invitationStatus !== 'pending' && (
 		<Text 
 		  size="1" 
-		  className="text-gray-400 italic mt-2"
+		  className="text-gray-500 italic mt-2"
 		>
 		  {invitationStatus}
 		</Text>
