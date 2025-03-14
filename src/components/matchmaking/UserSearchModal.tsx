@@ -226,7 +226,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
   const isLoading = searchQuery ? isLoadingSearch : isLoadingInvitations;
   
   if (!isOpen) return null;
-
+ 
   return (<>
   		<div 
 			className="absolute inset-0 bg-gradient-to-b z-50 from-white/10 to-white/5 rounded-2xl"
