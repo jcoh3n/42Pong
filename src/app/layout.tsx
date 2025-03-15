@@ -53,7 +53,7 @@ export default function RootLayout({
         <meta name="description" content="A Pong game for 42 students" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>
-      <body>
+      <body className="bg-gradient-to-b from-[var(--page-gradient-from)] to-[var(--page-gradient-to)]">
 		<Toaster />
         <AuthProvider>
           <ThemeLayout>

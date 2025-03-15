@@ -44,14 +44,6 @@ export default function LeaderboardPage() {
   // Trouver la position de l'utilisateur connecté
   const currentUserPosition = users.findIndex(user => user.login === session?.user?.email) + 1;
 
-  if (status === "loading" || isLoading) {
-    return (
-      <Box className="min-h-screen flex items-center justify-center">
-        <Loading />
-      </Box>
-    );
-  }
-
   return (
     <Box className="min-h-screen">
       <Container size="3" className="py-6">
@@ -118,26 +110,29 @@ export default function LeaderboardPage() {
           </Card>
 
           {/* Tableau principal */}
-          <Card size="2" className="w-full shadow-md bg-[#1E293B] border-none rounded-xl overflow-hidden">
-            <Flex direction="column">
-              <Box className="px-4 py-3 border-b border-[#334155]">
-                <Flex justify="between" align="center">
-                  <Flex gap="2" align="center">
-                    <Text size="1" className="text-[#94A3B8] uppercase tracking-wider font-medium">
-                      Classement
-                    </Text>
-                    <Badge variant="surface" className="bg-[#0F172A] text-[#94A3B8] group-hover:bg-[#0EA5E9] group-hover:text-white transition-colors">
-                      {filteredUsers.length}
-                    </Badge>
-                  </Flex>
-                </Flex>
-              </Box>
+		  
+			<Card size="2" className="w-full shadow-md bg-[#1E293B] border-none rounded-xl overflow-hidden">
+				<Flex direction="column">
+				<Box className="px-4 py-3 border-b border-[#334155]">
+					<Flex justify="between" align="center">
+					<Flex gap="2" align="center">
+						<Text size="1" className="text-[#94A3B8] uppercase tracking-wider font-medium">
+						Classement
+						</Text>
+						<Badge variant="surface" className="bg-[#0F172A] text-[#94A3B8] group-hover:bg-[#0EA5E9] group-hover:text-white transition-colors">
+						{filteredUsers.length}
+						</Badge>
+					</Flex>
+					</Flex>
+				</Box>
 
-              <Box className="overflow-hidden">
-                <LeaderboardTable data={leaderboardData} />
-              </Box>
-            </Flex>
-          </Card>
+				<Box className="overflow-hidden">
+					{isLoading ? <Loading /> : (
+						<LeaderboardTable data={leaderboardData} />
+					)}
+				</Box>
+				</Flex>
+			</Card>
         </Flex>
       </Container>
     </Box>
