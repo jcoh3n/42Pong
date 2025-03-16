@@ -11,7 +11,6 @@ export default function ThemeLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-	const preferences = usePreferences();
 	const [mounted, setMounted] = useState(false);
 
 	// Éviter l'hydratation incompatible en attendant le montage côté client
@@ -23,15 +22,17 @@ export default function ThemeLayout({
 		return null; // Éviter le flash de contenu non thémé
 	}
 
+	
 	return (
-		<ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+		<ThemeProvider attribute="class">
 			<Theme
-				appearance="dark"
+				appearance='dark'
 				accentColor="blue"
 				grayColor="slate"
 				scaling="100%"
 				radius="medium"
-				className="radix-themes dark"
+				// Remove the hardcoded "dark" class that was overriding the theme
+				className="radix-themes"
 			>
 				{children}
 			</Theme>

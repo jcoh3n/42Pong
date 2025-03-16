@@ -47,7 +47,7 @@ export default function PreferencesCard({
             />
           </Flex>
 
-          <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-[var(--gray-5)] transition-colors">
+          {/* <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-[var(--gray-5)] transition-colors">
             <Box>
               <Text as="div" size="2" weight="bold">
                 Theme
@@ -67,7 +67,7 @@ export default function PreferencesCard({
                 <Select.Item value="dark">Dark</Select.Item>
               </Select.Content>
             </Select.Root>
-          </Flex>
+          </Flex> */}
 
           <Flex justify="between" align="center" className="p-2 rounded-lg hover:bg-[var(--gray-5)] transition-colors">
             <Box>

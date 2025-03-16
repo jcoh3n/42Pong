@@ -17,7 +17,7 @@ const QueueTimer: React.FC<QueueTimerProps> = ({ time }) => {
         scale: 1,
         boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)"
       }}
-      className="flex items-center gap-2 sm:gap-3 bg-black/40 backdrop-blur-md rounded-xl px-4 sm:px-5 py-2 sm:py-2.5"
+      className="flex items-center gap-2 sm:gap-3 bg-gray-900/95 rounded-xl px-4 sm:px-5 py-2 sm:py-2.5"
     >
       <motion.div
         animate={{ rotate: 360 }}

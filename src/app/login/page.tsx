@@ -52,13 +52,12 @@ function LoginContent() {
   };
 
   return (
-    <Box className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+    <Box className="min-h-screen">
       <Flex align="center" justify="center" style={{ minHeight: "100vh" }}>
         <Card size="3" style={{ 
           width: "100%",
           maxWidth: "400px",
           background: "rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(10px)"
         }}>
           <Flex direction="column" gap="4" align="center" p="6">
             <img

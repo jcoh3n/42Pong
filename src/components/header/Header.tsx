@@ -8,6 +8,7 @@ import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { MobileOnly } from "@/components/ui/ResponsiveContainer";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
+import { MatchmakingBubble } from "./MatchmakingBubble";
 
 interface HeaderProps {
 	onMenuClick?: () => void;
@@ -15,7 +16,7 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
 	const { data: user } = useCurrentUser();
-	const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+	const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
 	
 	return (
 		<Box 
@@ -26,15 +27,16 @@ export function Header({ onMenuClick }: HeaderProps) {
 			`}
 		>
 			<div 
-				className="
-					relative rounded-2xl bg-gray-900/95 backdrop-blur-md
-					border border-gray-800/50 shadow-lg shadow-black/10
+				className={`
+					relative rounded-2xl
+					border border-gray-800/50 
+					${window.scrollY > 70 ? 'shadow-xl shadow-black/10' : 'shadow-none'}
 					overflow-hidden
-				"
+				`} // to remove transparency: bg-gray-900/95
 			>
 				{/* Blur effect background */}
 				<div 
-					className="absolute inset-0 bg-gradient-to-b from-gray-900/50 to-gray-900/30"
+					className="absolute inset-0 bg-gradient-to-b from-[var(--page-gradient-from)]/50 to-[var(--page-gradient-to)]/0"
 					style={{
 						WebkitBackdropFilter: 'blur(8px)',
 						backdropFilter: 'blur(8px)',
@@ -73,6 +75,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
 					{/* Right side - User Profile (mobile) and Notifications */}
 					<Flex align="center" gap="3" className="ml-auto">
+						<MatchmakingBubble />
 						<MobileOnly>
 							{user && (
 								<Link href="/profile" className="no-underline text-current">
@@ -90,7 +93,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 								</Link>
 							)}
 						</MobileOnly>
-						<NotificationBell count={2} />
+						<NotificationBell />
 					</Flex>
 				</Flex>
 			</div>

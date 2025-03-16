@@ -47,17 +47,17 @@ export default function Profile() {
   const stats = calculateStats(matches, currentUser?.id);
 
   return (
-    <Box style={{ minHeight: "100vh", backgroundColor: "var(--gray-2)" }}>
-      <Container size="3" py="9" className="shadow-sm">
+    <Box style={{ minHeight: "100vh" }}>
+      <Container size="3" className="shadow-sm">
         <Flex direction="column" gap="6">
           <Button
             variant="ghost"
-            onClick={() => router.push("/")}
+            onClick={() => router.back()}
             style={{ alignSelf: "flex-start", marginBottom: "1rem" }}
-            className="shadow-sm hover:shadow-md transition-shadow"
+            className="shadow-sm rounded-4xl hover:shadow-md transition-shadow"
           >
             <ArrowLeftIcon width="16" height="16" />
-            Back to Home
+            Back
           </Button>
 
           {currentUser && (

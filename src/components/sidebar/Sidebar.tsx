@@ -7,6 +7,7 @@ import {
   GearIcon,
   ExitIcon,
   Cross2Icon,
+  PersonIcon,
 } from "@radix-ui/react-icons";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ import { MEDIA_QUERIES } from "@/constants/breakpoints";
 import { signOut } from "next-auth/react";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import Link from "next/link";
+import { GamepadIcon } from "lucide-react";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -26,7 +28,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [activeItem, setActiveItem] = useState(usePathname());
-  const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+  const { data: currentUser } = useCurrentUser();
+  const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
   const { data: user } = useCurrentUser();
 
   useEffect(() => {
@@ -40,10 +43,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     }
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
     <Box
       className={`
-        fixed z-50 w-[300px]
+        fixed z-40 w-[300px]
         ${isDesktop 
           ? 'top-4 left-4 bottom-4' 
           : 'top-[84px] left-4 bottom-4'}
@@ -52,7 +59,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       `}
     >
       <div className={`
-        h-full bg-gray-900/5 backdrop-blur-md
+        h-full bg-gray-900/5
         rounded-2xl
         border border-white/10
         overflow-hidden pointer-events-auto
@@ -139,7 +146,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 onItemClick={() => handleNavigation('/')}
               />
               <SidebarNavItem 
-                icon={<ListBulletIcon width="20" height="20" />} 
+                icon={<PersonIcon width="20" height="20" />} 
+                label="Profile" 
+                href="/profile"
+                isActive={activeItem === '/profile'}
+                onItemClick={() => handleNavigation('/profile')}
+              />
+              <SidebarNavItem
+                icon={<GamepadIcon width="20" height="20" />} 
                 label="Games" 
                 href="/games"
                 isActive={activeItem === '/games'}

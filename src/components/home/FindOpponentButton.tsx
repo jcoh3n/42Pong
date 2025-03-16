@@ -88,7 +88,6 @@ const FindOpponentButton: React.FC<FindOpponentButtonProps> = ({ onClick }) => {
               borderRadius: '12px',
               background: 'rgba(255, 255, 255, 0.15)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
-              backdropFilter: 'blur(5px)',
               transition: 'background 0.2s ease'
             }}
             className="hover:bg-white/25"

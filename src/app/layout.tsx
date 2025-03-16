@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const isDesktop = useMediaQuery(MEDIA_QUERIES.lg);
+  const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
   
   // Verrouiller le défilement lorsque le sidebar est ouvert sur mobile
   useScrollLock(isSidebarOpen && !isDesktop);
@@ -32,7 +32,7 @@ export default function RootLayout({
     if (!isDesktop) {
       setIsSidebarOpen(false);
     }
-  }, [children, isDesktop]);
+  }, [isDesktop]);
   
   // Ouvrir automatiquement le sidebar sur desktop
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function RootLayout({
 		<Toaster />
         <AuthProvider>
           <ThemeLayout>
-            <Flex 
+            <Flex
               style={{ 
                 width: '100vw', 
                 height: '100vh', 
@@ -65,7 +65,6 @@ export default function RootLayout({
                 display: 'flex',
                 flexDirection: 'column',
                 position: 'relative',
-                background: "linear-gradient(135deg, #121826 0%, #1E2A38 100%)",
               }}
             >
               <Header onMenuClick={toggleSidebar} />
@@ -77,15 +76,21 @@ export default function RootLayout({
                 width: '100%',
               }}>
                 {/* Zone de contenu principal */}
-                <main style={{ 
-                  width: '100%',
-                  height: '100%',
-                  position: 'relative',
-                  overflow: 'auto',
-                }}>
-                  <Protected>
-                    {children}
-                  </Protected>
+                <main 
+                  className="bg-gradient-to-b from-[var(--page-gradient-from)] to-[var(--page-gradient-to)]"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    position: 'relative',
+                    overflow: 'auto',
+                    paddingTop: 'var(--header-padding)',
+                  }}
+                >
+					<div className="p-5 ">
+						<Protected>
+							{children}
+						</Protected>
+					</div>
                 </main>
 
                 {/* Sidebar - responsive */}
@@ -100,7 +105,7 @@ export default function RootLayout({
                     height: 'calc(100vh - 32px)',
                   }}
                 >
-                  <Sidebar 
+                  <Sidebar
                     isOpen={isSidebarOpen} 
                     onClose={() => setIsSidebarOpen(false)} 
                   />

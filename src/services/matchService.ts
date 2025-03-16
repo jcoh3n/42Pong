@@ -273,7 +273,7 @@ export class MatchService {
 		}
 
 		// Check if match is already finished
-		if (match.finished_at) {
+		if (match.status == 'completed') {
 			throw new Error(`Match with id ${id} is already finished`);
 		}
 

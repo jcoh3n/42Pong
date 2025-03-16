@@ -30,15 +30,61 @@ export type Database = {
         }
         Relationships: []
       }
+      friendly_invitation: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          id: string
+          points_to_win: Database["public"]["Enums"]["score_to_win"]
+          receiver_id: string
+          sender_id: string
+          status: Database["public"]["Enums"]["invitation_status"]
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          points_to_win?: Database["public"]["Enums"]["score_to_win"]
+          receiver_id: string
+          sender_id: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          id?: string
+          points_to_win?: Database["public"]["Enums"]["score_to_win"]
+          receiver_id?: string
+          sender_id?: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendly_invitation_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendly_invitation_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "Users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Matches: {
         Row: {
           created_at: string
           finished_at: string | null
           forfeited_by: string | null
           id: string
+          match_type: Database["public"]["Enums"]["matche_type"]
           score_to_win: number
           status: Database["public"]["Enums"]["match_status"]
-          type: Database["public"]["Enums"]["match_type"]
+          type: Database["public"]["Enums"]["matche_type"]
           user_1_id: string
           user_1_score: number
           user_2_id: string
@@ -50,9 +96,10 @@ export type Database = {
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
+          match_type?: Database["public"]["Enums"]["matche_type"]
           score_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
-          type: Database["public"]["Enums"]["match_type"]
+          type: Database["public"]["Enums"]["matche_type"]
           user_1_id: string
           user_1_score?: number
           user_2_id: string
@@ -64,9 +111,10 @@ export type Database = {
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
+          match_type?: Database["public"]["Enums"]["matche_type"]
           score_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
-          type?: Database["public"]["Enums"]["match_type"]
+          type?: Database["public"]["Enums"]["matche_type"]
           user_1_id?: string
           user_1_score?: number
           user_2_id?: string
@@ -82,14 +130,14 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Matches_user_1_fkey"
+            foreignKeyName: "Matches_user_1_id_fkey"
             columns: ["user_1_id"]
             isOneToOne: false
             referencedRelation: "Users"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Matches_user_2_fkey"
+            foreignKeyName: "Matches_user_2_id_fkey"
             columns: ["user_2_id"]
             isOneToOne: false
             referencedRelation: "Users"
@@ -108,18 +156,21 @@ export type Database = {
         Row: {
           id: string
           joined_at: string | null
+          matche_type: Database["public"]["Enums"]["matche_type"] | null
           player_id: string
           status: Database["public"]["Enums"]["matchmaking_status"]
         }
         Insert: {
           id?: string
           joined_at?: string | null
+          matche_type?: Database["public"]["Enums"]["matche_type"] | null
           player_id: string
           status?: Database["public"]["Enums"]["matchmaking_status"]
         }
         Update: {
           id?: string
           joined_at?: string | null
+          matche_type?: Database["public"]["Enums"]["matche_type"] | null
           player_id?: string
           status?: Database["public"]["Enums"]["matchmaking_status"]
         }
@@ -138,28 +189,44 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          seen: boolean | null
+          invitation_id: string | null
+          seen: boolean
           title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
         }
         Insert: {
           content: string
           created_at?: string
-          id: string
-          seen?: boolean | null
+          id?: string
+          invitation_id?: string | null
+          seen?: boolean
           title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
         }
         Update: {
           content?: string
           created_at?: string
           id?: string
-          seen?: boolean | null
+          invitation_id?: string | null
+          seen?: boolean
           title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "Notifications_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
+            foreignKeyName: "Notifications_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "friendly_invitation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "Users"
             referencedColumns: ["id"]
           },
@@ -206,19 +273,22 @@ export type Database = {
       add_player_to_queue: {
         Args: {
           player_id: string
+          type?: Database["public"]["Enums"]["matche_type"]
         }
         Returns: Json
       }
-      check_match_winner: {
+      check_matche_winner: {
         Args: {
           match_id: string
         }
         Returns: Json
       }
-      create_match_from_queue: {
+      create_matche: {
         Args: {
           player1_id: string
           player2_id: string
+          matche_type?: Database["public"]["Enums"]["matche_type"]
+          score_to_win?: number
         }
         Returns: Json
       }
@@ -227,6 +297,23 @@ export type Database = {
           user_id: string
           title: string
           content: string
+          type: Database["public"]["Enums"]["notification_type"]
+          invitation_id?: string
+        }
+        Returns: undefined
+      }
+      create_users_and_manage_matchmaking: {
+        Args: {
+          user1_name: string
+          user2_name: string
+        }
+        Returns: Json
+      }
+      delete_row_from_table: {
+        Args: {
+          table_name: string
+          column_name: string
+          column_value: unknown
         }
         Returns: undefined
       }
@@ -237,11 +324,19 @@ export type Database = {
         }
         Returns: Json
       }
+      remove_from_matchmaking_queue: {
+        Args: {
+          player_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
+      invitation_status: "pending" | "accepted" | "cancelled" | "refused"
       match_status: "pending" | "ongoing" | "completed" | "cancelled"
-      match_type: "normal" | "ranked" | "friendly"
+      matche_type: "normal" | "ranked" | "friendly"
       matchmaking_status: "waiting" | "matched" | "cancelled"
+      notification_type: "invitation" | "message" | "announcement"
       score_to_win: "5" | "7" | "11"
     }
     CompositeTypes: {

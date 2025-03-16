@@ -28,6 +28,7 @@ import {
   MatchHistory, 
   FindOpponentButton 
 } from "@/components/home";
+import Loading from '@/components/Loading';
 
 export default function HomePage() {
   const router = useRouter();
@@ -76,21 +77,21 @@ export default function HomePage() {
   
   // Si l'utilisateur n'est pas connecté, ne rien afficher (la redirection est gérée par useEffect)
   if (!currentUser) {
-    return null;
+    return <Loading />;
   }
-  
+
   return (
-    <Box className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+    <Box className="min-h-screen">
       <Container size="3" py="6">
         <Flex direction="column" gap="8">
           {/* En-tête avec salutation et carte de profil */}
-          <Card style={{ 
+          <Card style={{
+			zIndex: 2,
             borderRadius: '16px',
             overflow: 'hidden',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             background: 'rgba(30, 41, 59, 0.7)',
-            backdropFilter: 'blur(10px)'
           }}>
             <Flex p="5" direction="column" gap="4">
               <Flex align="center" gap="4">

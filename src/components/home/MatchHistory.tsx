@@ -91,7 +91,6 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       background: 'rgba(30, 41, 59, 0.7)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
       overflow: 'hidden',
-      backdropFilter: 'blur(10px)'
     }}>
       <Flex justify="between" align="center" p="4">
         <Flex align="center" gap="2">
