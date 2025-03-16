@@ -154,7 +154,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 onItemClick={() => handleNavigation('/profile')}
               />
               <SidebarNavItem
-                icon={<GiPingPongBat width="20" height="20" />} 
+                icon={<GiPingPongBat  width="20" height="20" />} 
                 label="Games" 
                 href="/games"
                 isActive={activeItem === '/games'}
