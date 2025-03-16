@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Dialog, TextField, Button, Flex, Text, Heading } from "@radix-ui/themes";
+import { Box, Dialog, Button, Flex, Text, Heading } from "@radix-ui/themes";
 import PongField from './PongField';
 import Image from 'next/image';
+import { FaMinus, FaPlus } from 'react-icons/fa';
 
 // Types
 type Player = {
@@ -63,6 +64,23 @@ const QuickMatchPage: React.FC = () => {
         setSetScores([]);
     };
 
+    // Fonctions pour incrémenter/décrémenter les scores
+    const incrementScore = (player: 'player1' | 'player2') => {
+        if (player === 'player1') {
+            setCurrentSetPlayer1Score(prev => prev + 1);
+        } else {
+            setCurrentSetPlayer2Score(prev => prev + 1);
+        }
+    };
+
+    const decrementScore = (player: 'player1' | 'player2') => {
+        if (player === 'player1') {
+            setCurrentSetPlayer1Score(prev => prev > 0 ? prev - 1 : 0);
+        } else {
+            setCurrentSetPlayer2Score(prev => prev > 0 ? prev - 1 : 0);
+        }
+    };
+
     // Fonction pour ajouter un set
     const addSet = () => {
         if (currentSetPlayer1Score === currentSetPlayer2Score) {
@@ -89,13 +107,13 @@ const QuickMatchPage: React.FC = () => {
         setSetScores([]);
     };
 
-    // Rendu du sélecteur de format de match
+    // Rendu du sélecteur de format de match - Design simplifié
     const renderFormatSelector = () => (
         <Box 
             style={{
                 width: '100vw',
                 height: '100vh',
-                backgroundColor: '#0369a1', // Bleu légèrement plus foncé
+                backgroundColor: '#308cf4', // Nouveau bleu demandé
                 position: 'fixed',
                 top: 0,
                 left: 0,
@@ -106,40 +124,51 @@ const QuickMatchPage: React.FC = () => {
                 alignItems: 'center',
             }}
         >
-            <Box className="w-full max-w-md mx-auto p-6 rounded-xl" style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(5px)',
-                borderRadius: '15px',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            <Box style={{
+                width: '90%',
+                maxWidth: '400px',
+                backgroundColor: 'rgba(30, 30, 30, 0.85)',
+                borderRadius: '16px',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
-                margin: '0 20px',
+                padding: '30px 20px',
             }}>
-                <Heading size="5" align="center" mb="6" style={{ color: 'white' }}>
-                    Sélectionnez le format du match
+                <Heading size="5" align="center" mb="6" style={{ color: 'white', fontSize: '24px' }}>
+                    Format du match
                 </Heading>
-                <Text size="2" align="center" mb="4" style={{ color: 'white' }}>
-                    Choisissez le nombre de sets nécessaires pour gagner
+                <Text size="2" align="center" mb="6" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '16px' }}>
+                    Nombre de sets pour gagner
                 </Text>
-                <Flex direction="column" gap="5">
+                <Flex direction="column" gap="4">
                     {[1, 2, 3].map((setsToWin) => (
                         <Button 
                             key={setsToWin}
                             size="3"
                             style={{
-                                height: '60px',
+                                height: '70px',
                                 fontSize: '18px',
                                 fontWeight: 'bold',
-                                backgroundColor: '#2563eb',
+                                backgroundColor: setsToWin === 1 ? '#1a56db' : 'rgba(255, 255, 255, 0.1)',
                                 color: 'white',
                                 border: 'none',
-                                borderRadius: '10px',
+                                borderRadius: '12px',
                                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s, background-color 0.2s',
+                                transition: 'all 0.2s ease',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                gap: '4px',
                             }}
                             onClick={() => startMatch(setsToWin)}
                         >
-                            {setsToWin === 1 ? 'Match simple' : `Best of ${setsToWin * 2 - 1}`} ({setsToWin} sets pour gagner)
+                            <span style={{ fontSize: '20px' }}>
+                                {setsToWin === 1 ? 'Match simple' : `Best of ${setsToWin * 2 - 1}`}
+                            </span>
+                            <span style={{ fontSize: '14px', opacity: 0.8 }}>
+                                {setsToWin} {setsToWin === 1 ? 'set' : 'sets'} pour gagner
+                            </span>
                         </Button>
                     ))}
                 </Flex>
@@ -147,100 +176,215 @@ const QuickMatchPage: React.FC = () => {
         </Box>
     );
 
-    // Dialogue pour ajouter un set
+    // Dialogue pour ajouter un set - Simplifié avec des boutons +/-
     const renderAddSetDialog = () => (
         <Dialog.Root open={showAddSetDialog} onOpenChange={setShowAddSetDialog}>
             <Dialog.Content style={{
                 maxWidth: '90%',
-                width: '350px',
-                borderRadius: '15px',
-                backgroundColor: '#0f172a',
+                width: '340px',
+                borderRadius: '16px',
+                backgroundColor: 'rgba(30, 30, 30, 0.95)',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                padding: '20px',
+                padding: '24px',
             }}>
-                <Dialog.Title style={{ color: 'white', fontSize: '20px', marginBottom: '10px' }}>
+                <Dialog.Title style={{ color: 'white', fontSize: '22px', marginBottom: '15px', textAlign: 'center', fontWeight: 'bold' }}>
                     Ajouter un set
                 </Dialog.Title>
-                <Dialog.Description size="2" mb="4" style={{ color: '#94a3b8' }}>
-                    Entrez les scores du set terminé
-                </Dialog.Description>
                 
-                <Flex direction="column" gap="4">
-                    <Flex justify="between" align="center" gap="4">
-                        <Box className="flex-1">
-                            <Text size="2" mb="2" style={{ color: 'white' }}>{player1.name}</Text>
-                            <TextField.Root>
-                                <TextField.Slot>
-                                    <input 
-                                        type="number" 
-                                        min="0"
-                                        value={currentSetPlayer1Score.toString()} 
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentSetPlayer1Score(parseInt(e.target.value) || 0)}
-                                        className="w-full p-2 border rounded"
-                                        style={{
-                                            backgroundColor: '#1e293b',
-                                            color: 'white',
-                                            border: '1px solid #475569',
-                                            borderRadius: '8px',
-                                            padding: '10px',
-                                            fontSize: '16px',
-                                            width: '100%',
-                                        }}
-                                    />
-                                </TextField.Slot>
-                            </TextField.Root>
-                        </Box>
-                        
-                        <Box className="flex-1">
-                            <Text size="2" mb="2" style={{ color: 'white' }}>{player2.name}</Text>
-                            <TextField.Root>
-                                <TextField.Slot>
-                                    <input 
-                                        type="number" 
-                                        min="0"
-                                        value={currentSetPlayer2Score.toString()} 
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCurrentSetPlayer2Score(parseInt(e.target.value) || 0)}
-                                        className="w-full p-2 border rounded"
-                                        style={{
-                                            backgroundColor: '#1e293b',
-                                            color: 'white',
-                                            border: '1px solid #475569',
-                                            borderRadius: '8px',
-                                            padding: '10px',
-                                            fontSize: '16px',
-                                            width: '100%',
-                                        }}
-                                    />
-                                </TextField.Slot>
-                            </TextField.Root>
-                        </Box>
+                <Flex direction="column" gap="6" style={{ marginTop: '20px' }}>
+                    {/* Score du joueur 1 */}
+                    <Flex direction="column" gap="2" align="center">
+                        <Text size="3" style={{ color: 'white', fontWeight: 'bold', fontSize: '18px' }}>{player1.name}</Text>
+                        <Flex align="center" gap="4">
+                            <button 
+                                onClick={() => decrementScore('player1')}
+                                style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    color: 'white',
+                                    fontSize: '20px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <FaMinus />
+                            </button>
+                            <div style={{
+                                width: '100px',
+                                height: '70px',
+                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                borderRadius: '12px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: 'white',
+                                fontSize: '32px',
+                                fontWeight: 'bold',
+                                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+                            }}>
+                                {currentSetPlayer1Score}
+                            </div>
+                            <button 
+                                onClick={() => incrementScore('player1')}
+                                style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#1a56db',
+                                    border: 'none',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    color: 'white',
+                                    fontSize: '20px',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <FaPlus />
+                            </button>
+                        </Flex>
                     </Flex>
                     
-                    <Flex gap="3" mt="4" justify="end">
+                    {/* Séparateur */}
+                    <div style={{ 
+                        width: '100%', 
+                        height: '1px', 
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        margin: '5px 0' 
+                    }}></div>
+                    
+                    {/* Score du joueur 2 */}
+                    <Flex direction="column" gap="2" align="center">
+                        <Text size="3" style={{ color: 'white', fontWeight: 'bold', fontSize: '18px' }}>{player2.name}</Text>
+                        <Flex align="center" gap="4">
+                            <button 
+                                onClick={() => decrementScore('player2')}
+                                style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    color: 'white',
+                                    fontSize: '20px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <FaMinus />
+                            </button>
+                            <div style={{
+                                width: '100px',
+                                height: '70px',
+                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                borderRadius: '12px',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                color: 'white',
+                                fontSize: '32px',
+                                fontWeight: 'bold',
+                                boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.2)'
+                            }}>
+                                {currentSetPlayer2Score}
+                            </div>
+                            <button 
+                                onClick={() => incrementScore('player2')}
+                                style={{
+                                    width: '50px',
+                                    height: '50px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#1a56db',
+                                    border: 'none',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    color: 'white',
+                                    fontSize: '20px',
+                                    cursor: 'pointer',
+                                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.95)'}
+                                onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <FaPlus />
+                            </button>
+                        </Flex>
+                    </Flex>
+                    
+                    {/* Boutons d'action */}
+                    <Flex gap="4" mt="5" justify="center" style={{ marginTop: '25px' }}>
                         <Dialog.Close>
                             <Button style={{
-                                backgroundColor: '#475569',
+                                backgroundColor: 'rgba(0, 0, 0, 0.3)',
                                 color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '10px 15px',
+                                border: '1px solid rgba(255, 255, 255, 0.2)',
+                                borderRadius: '10px',
+                                padding: '12px 18px',
                                 fontSize: '16px',
+                                fontWeight: 'bold',
                                 cursor: 'pointer',
-                            }}>
+                                width: '130px',
+                                height: '50px',
+                                transition: 'all 0.2s ease',
+                            }}
+                            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            >
                                 Annuler
                             </Button>
                         </Dialog.Close>
                         <Button onClick={addSet} style={{
-                            backgroundColor: '#2563eb',
+                            backgroundColor: '#1a56db',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '8px',
-                            padding: '10px 15px',
+                            borderRadius: '10px',
+                            padding: '12px 18px',
                             fontSize: '16px',
+                            fontWeight: 'bold',
                             cursor: 'pointer',
-                        }}>
-                            Enregistrer
+                            width: '130px',
+                            height: '50px',
+                            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)',
+                            transition: 'all 0.2s ease',
+                        }}
+                        onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                        onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        >
+                            Valider
                         </Button>
                     </Flex>
                 </Flex>
@@ -269,6 +413,7 @@ const QuickMatchPage: React.FC = () => {
                         setScores={setScores}
                         onAddSet={() => setShowAddSetDialog(true)}
                         onCancel={resetMatch}
+                        maxSets={matchSettings ? matchSettings.maxSets : 3}
                     />
                     {renderAddSetDialog()}
                 </>
