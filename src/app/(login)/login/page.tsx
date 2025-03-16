@@ -8,9 +8,6 @@ import toast from "react-hot-toast";
 import PongPaddle from "@/components/PongPaddle/PongPaddle";
 
 function LoginContent() {
-	return (
-		<PongPaddle />
-	)
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
