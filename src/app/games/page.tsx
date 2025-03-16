@@ -5,7 +5,8 @@ import React, { useEffect, useState } from "react";
 import MatchmakingMenu from "@/components/matchmaking/MatchmakingMenu";
 import MatchPage from "@/components/match/MatchPage";
 import MatchPageDev from "@/components/match/MatchPageDev";
-import useCurrentMatch from "@/hooks/matchmaking/useCurrentMatch";
+import QuickMatchPage from "@/components/match/QuickMatchPage";
+import { FaLaptopHouse } from "react-icons/fa";
 
 /**
  * ORGANISATION DU DÉVELOPPEMENT
@@ -27,7 +28,9 @@ import useCurrentMatch from "@/hooks/matchmaking/useCurrentMatch";
  */
 
 // Constante pour activer/désactiver le mode développement
-const DEV_MODE = true;
+const DEV_MODE = false;
+// Constante pour activer le mode QuickMatch
+const QUICK_MATCH_MODE = true;
 
 export default function GamePage() {
 	const matchmakingData = useMatchmaking();
@@ -43,18 +46,34 @@ export default function GamePage() {
 		setCurrentMatchId(null);
 	}
 
-	// Si on est en mode développement, on affiche directement la page de match en mode dev
-	if (DEV_MODE) {
-		return <MatchPageDev />;
+	// Si on est en mode QuickMatch, on affiche directement la page QuickMatch
+	if (QUICK_MATCH_MODE) {
+		return <QuickMatchPage />;
 	}
 
-	if (currentMatchId) {
-		return <MatchPage matchId={currentMatchId} onLeave={onCurrentMatchLeave} />;
-	} else if (matchmakingData.data?.data?.inQueue) {
-		// return queue page
-	} else {
-		// return matchmaking menu
-	}
+	// Style pour rendre la page non-scrollable et occuper tout l'écran
+	const fullScreenStyle: React.CSSProperties = {
+		height: '100vh',
+		width: '100vw',
+		overflow: 'hidden',
+		display: 'flex',
+		justifyContent: 'center',
+		alignItems: 'center',
+		position: 'fixed',
+		top: 0,
+		left: 0,
+		background: '#000'
+	};
 
-	return <MatchmakingMenu />;
+	return (
+		<div style={fullScreenStyle}>
+			{DEV_MODE ? (
+				<MatchPageDev />
+			) : currentMatchId ? (
+				<MatchPage matchId={currentMatchId} onLeave={onCurrentMatchLeave} />
+			) : (
+				<MatchmakingMenu />
+			)}
+		</div>
+	);
 }
