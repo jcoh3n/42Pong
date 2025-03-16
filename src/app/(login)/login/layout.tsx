@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import ThemeLayout from "@/components/ThemeLayout";
 import { Box } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
+import { Header } from "@/components/header/Header";
 
 export default function LoginLayout({
   children,
@@ -23,7 +24,7 @@ export default function LoginLayout({
         <Toaster />
         <AuthProvider>
           <ThemeLayout>
-            <Box className="min-h-screen bg-gradient-to-b from-[var(--page-gradient-from)] to-[var(--page-gradient-to)]">
+            <Box className="min-h-screen w-full bg-gradient-to-b from-[var(--page-gradient-from)] to-[var(--page-gradient-to)]">
               {children}
             </Box>
           </ThemeLayout>

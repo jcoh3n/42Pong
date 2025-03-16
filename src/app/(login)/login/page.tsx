@@ -5,8 +5,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Box, Button, Text, Card, Flex } from "@radix-ui/themes";
 import { useState, useEffect, Suspense } from "react";
 import toast from "react-hot-toast";
+import PongPaddle from "@/components/PongPaddle/PongPaddle";
 
 function LoginContent() {
+	return (
+		<PongPaddle />
+	)
   const [isLoading, setIsLoading] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
