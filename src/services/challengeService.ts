@@ -1,4 +1,3 @@
-import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 import { PaginatedResponse } from "./userService";
 

@@ -1,7 +1,8 @@
 import useSWR from 'swr';
-import { challengeService, Challenge } from '@/services';
+import { Challenge } from '@/services';
 import { PaginatedResponse } from '@/services/userService';
 import { useState } from 'react';
+import useSupabase from '../useSupabase';
 
 export default function useChallenges(options?: {
   page?: number;
@@ -9,6 +10,9 @@ export default function useChallenges(options?: {
   sortBy?: keyof Challenge;
   sortOrder?: 'asc' | 'desc';
 }) {
+  const { services } = useSupabase();
+  const { challengeService } = services;
+
   const [pagination, setPagination] = useState({
     page: options?.page || 1,
     pageSize: options?.pageSize || 10,
@@ -18,7 +22,15 @@ export default function useChallenges(options?: {
 
   const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Challenge>>(
     [`/api/challenges`, pagination],
-    () => challengeService.getAllChallenges(pagination)
+    () => challengeService ?
+		challengeService.getAllChallenges(pagination) :
+		{
+			data: [],
+			count: 0,
+			page: pagination.page,
+			pageSize: pagination.pageSize,
+			hasMore: false
+		}
   );
 
   const goToPage = (page: number) => {

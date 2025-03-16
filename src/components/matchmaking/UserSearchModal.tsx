@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { UserService } from '@/services/userService';
-import { createClient } from '@/libs/supabase/client';
 import { Database } from '@/types/database.types';
 import { FaSearch, FaTimes, FaClock, FaUserFriends, FaSpinner } from 'react-icons/fa';
 import { InvitationService } from '@/services/invitationService';

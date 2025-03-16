@@ -5,12 +5,11 @@ import { KeyedMutator } from 'swr';
 import fetcher from '@/libs/fetcher';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import useMatchmaking from './useMatchmaking';
-import { Match, matchService, User } from '@/services';
+import { Match, User } from '@/services';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import useUser from '../users/useUser';
-import { createClient } from '@/libs/supabase/client';
-import { Database } from '@/types/database.types';
+import useSupabase from '@/hooks/useSupabase';
 import useMatch from '../matches/useMatch';
 
 export type MatchData = {
@@ -36,8 +35,9 @@ export type MatchData = {
 const useCurrentMatch = (match_id: string): MatchData => {
 	const currentUserData = useCurrentUser();
 	const { data: currentUser } = currentUserData;
-	const supabase = createClient();
-	
+	const { supabase, isLoading: isSupabaseLoading, error: supabaseError, services } = useSupabase();
+	const { matchService } = services;
+
 	const { match, isLoading: isMatchLoading, error: matchError, mutate: matchMutate} = useMatch(match_id);
 
 	// Get the opponent's ID
@@ -55,7 +55,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 	// Set up real-time subscription to match updates
 	useEffect(() => {
 		// Only subscribe if we have a valid match ID and haven't set up yet
-		if (!match_id || hasSetupRealtimeRef.current) {
+		if (!match_id || hasSetupRealtimeRef.current || !supabase || isSupabaseLoading || supabaseError) {
 			return;
 		}
 		
@@ -74,7 +74,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 				event: '*',  // Listen for all events
 				schema: 'public',
 				table: 'Matches',
-				filter: `id=eq.${match_id}`  // Only for this specific match
+				filter: `id.eq.${match_id}`  // Only for this specific match
 			}, handler)
 			.subscribe();
 		
@@ -93,7 +93,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 	}, [match_id, matchMutate, supabase]);
 
 	const forfeitMatch = useCallback(async () => {
-		if (!match?.id || isForfeiting || !currentUser) {
+		if (!match?.id || isForfeiting || !currentUser || !matchService) {
 			return;
 		}
 
@@ -109,7 +109,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 	}, [match?.id, matchMutate, isForfeiting, currentUser]);
 
 	const incrementScore = useCallback(async () => {
-		if (!match?.id || !currentUser?.id) {
+		if (!match?.id || !currentUser?.id || !matchService) {
 			return;
 		}
 

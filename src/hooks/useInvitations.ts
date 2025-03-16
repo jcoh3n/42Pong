@@ -1,10 +1,11 @@
 'use client';
 
 import useSWR from 'swr';
-import { useEffect } from 'react';
-import { invitationService } from '@/services';
+import { useEffect, useRef } from 'react';
+import { InvitationService } from '@/services';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { subscribeToTableEvents } from '@/utils/supabaseRealtime';
+import useSupabase from '@/hooks/useSupabase';
 
 /**
  * Hook for fetching and managing user invitations
@@ -13,6 +14,9 @@ import { subscribeToTableEvents } from '@/utils/supabaseRealtime';
 export default function useInvitations() {
   const { data: currentUser } = useCurrentUser();
   const userId = currentUser?.id;
+  const { supabase, isLoading: isSupabaseLoading, error: supabaseError, services } = useSupabase();
+  const { invitationService } = services;
+  const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
   
   // Fetch invitations using SWR
   const { 
@@ -23,7 +27,7 @@ export default function useInvitations() {
   } = useSWR(
     userId ? ['invitations', userId] : null,
     async () => {
-      if (!userId) {
+      if (!userId || !invitationService) {
         return [];
       }
       return await invitationService.getFriendlyInvitations(userId);
@@ -37,11 +41,11 @@ export default function useInvitations() {
 
   // Set up real-time subscription to get updates when invitations change
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !supabase || isSupabaseLoading || supabaseError) return;
     
     // Subscribe to the friendly_invitation table for this user's invitations
     // We need both sent and received, so we'll use subscribeToTableEvents
-    const unsubscribe = subscribeToTableEvents(
+    unsubscribeRef.current = subscribeToTableEvents(
       `invitations_${userId}`, // channelName - unique identifier for this subscription
       'friendly_invitation', // table name
       {
@@ -49,18 +53,21 @@ export default function useInvitations() {
         INSERT: () => mutate(),
         UPDATE: () => mutate(),
         DELETE: () => mutate(),
-        '*': () => mutate(), // Catch-all for any event type
       },
+      // Filter for invitations where this user is sender or receiver
       {
-        // Filter for invitations where the user is either the sender or receiver
-        filter: `or(sender_id.eq.${userId},receiver_id.eq.${userId})`
-      }
+        filter: `or(sender_id.eq.${userId},receiver_id.eq.${userId})`,
+      },
+      supabase
     );
     
+    // Cleanup on unmount
     return () => {
-      unsubscribe();
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
     };
-  }, [userId, mutate]);
+  }, [userId, mutate, supabase, isSupabaseLoading, supabaseError]);
 
   // Get only pending invitations
   const pendingInvitations = invitations?.filter(

@@ -144,7 +144,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Matches_winner_fkey"
+            foreignKeyName: "Matches_winner_id_fkey"
             columns: ["winner_id"]
             isOneToOne: false
             referencedRelation: "Users"
@@ -237,6 +237,7 @@ export type Database = {
           avatar_url: string
           created_at: string
           elo_score: number
+          email: string | null
           id: string
           language: string
           login: string
@@ -247,6 +248,7 @@ export type Database = {
           avatar_url: string
           created_at?: string
           elo_score?: number
+          email?: string | null
           id?: string
           language?: string
           login: string
@@ -257,6 +259,7 @@ export type Database = {
           avatar_url?: string
           created_at?: string
           elo_score?: number
+          email?: string | null
           id?: string
           language?: string
           login?: string

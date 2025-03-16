@@ -29,6 +29,9 @@ import {
   FindOpponentButton 
 } from "@/components/home";
 import Loading from '@/components/Loading';
+import { GetServerSidePropsContext } from 'next';
+import { generatePassword } from '@/libs/utils/auth';
+import { FetchedUser } from '@/services/userService';
 
 export default function HomePage() {
   const router = useRouter();
@@ -173,7 +176,7 @@ export default function HomePage() {
             <Grid columns={{ initial: "1", md: "2" }} gap="6">
               {/* Colonne gauche: Classement */}
               <RankingList 
-                topPlayers={topPlayers}
+                topPlayers={topPlayers as FetchedUser[]}
                 currentUser={currentUser}
                 currentUserRank={currentUserRank}
                 onViewAll={handleViewLeaderboard}
@@ -183,7 +186,7 @@ export default function HomePage() {
               <MatchHistory 
                 matches={matches}
                 currentUser={currentUser}
-                topPlayers={topPlayers}
+                topPlayers={topPlayers as FetchedUser[]}
                 onViewHistory={handleViewHistory}
               />
             </Grid>

@@ -1,6 +1,5 @@
-import { createClient } from '@/libs/supabase/client';
 import { Database } from '@/types/database.types';
-import { REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, RealtimeChannel, RealtimePostgresChangesFilter } from '@supabase/supabase-js';
+import { createClient, REALTIME_POSTGRES_CHANGES_LISTEN_EVENT, RealtimeChannel, RealtimePostgresChangesFilter, SupabaseClient } from '@supabase/supabase-js';
 
 type Table = keyof Database['public']['Tables'];
 type TableEvent = 'INSERT' | 'UPDATE' | 'DELETE' | '*';
@@ -16,7 +15,7 @@ interface SubscriptionOptions {
 	filter?: string;
 }
 function getInsertChannel<T extends { [key: string]: any }>(
-	supabase: ReturnType<typeof createClient>, 
+	supabase: SupabaseClient<Database>, 
 	channel: RealtimeChannel,
 	table: Table, 
 	schema: string, 
@@ -40,7 +39,7 @@ function getInsertChannel<T extends { [key: string]: any }>(
 }
 
 function getUpdateChannel<T extends { [key: string]: any }>(
-	supabase: ReturnType<typeof createClient>, 
+	supabase: SupabaseClient<Database>, 
 	channel: RealtimeChannel,
 	table: Table, 
 	schema: string, 
@@ -64,7 +63,7 @@ function getUpdateChannel<T extends { [key: string]: any }>(
 }
 
 function getDeleteChannel<T extends { [key: string]: any }>(
-	supabase: ReturnType<typeof createClient>, 
+	supabase: SupabaseClient<Database>, 
 	channel: RealtimeChannel,
 	table: Table, 
 	schema: string, 
@@ -88,7 +87,7 @@ function getDeleteChannel<T extends { [key: string]: any }>(
 }
 
 function getAllChannel<T extends { [key: string]: any }>(
-	supabase: ReturnType<typeof createClient>, 
+	supabase: SupabaseClient<Database>, 
 	channel: RealtimeChannel,
 	table: Table, 
 	schema: string, 
@@ -119,6 +118,7 @@ function getAllChannel<T extends { [key: string]: any }>(
  * @param event The database event to listen for (INSERT, UPDATE, DELETE, or *)
  * @param handler The function to call when an event occurs
  * @param options Additional options like schema and filter
+ * @param supabaseClient The Supabase client to use
  * @returns A function to unsubscribe from the channel
  */
 export function subscribeToTable<T extends { [key: string]: any }>(
@@ -126,9 +126,13 @@ export function subscribeToTable<T extends { [key: string]: any }>(
 	table: Table,
 	event: TableEvent,
 	handler: SupabaseRealtimeHandler<T>,
-	options: SubscriptionOptions = {}
+	options: SubscriptionOptions = {},
+	supabase: SupabaseClient<Database>
 ): () => void {
-	const supabase = createClient();
+	if (!supabase) {
+		console.error('No Supabase client available');
+		return () => {}; // Return empty unsubscribe function
+	}
 
 	const { schema = 'public', filter } = options;
 
@@ -162,15 +166,21 @@ export function subscribeToTable<T extends { [key: string]: any }>(
  * @param table The database table to subscribe to
  * @param handlers Object with handlers for different events
  * @param options Additional options like schema and filter
+ * @param supabaseClient The Supabase client to use
  * @returns A function to unsubscribe from the channel
  */
 export function subscribeToTableEvents<T extends Record<string, any>>(
 	channelName: string,
 	table: Table,
 	handlers: Partial<Record<TableEvent, SupabaseRealtimeHandler<T>>>,
-	options: SubscriptionOptions = {}
+	options: SubscriptionOptions = {},
+	supabase: SupabaseClient<Database>
 ): () => void {
-	const supabase = createClient();
+	if (!supabase) {
+		console.error('No Supabase client available');
+		return () => {}; // Return empty unsubscribe function
+	}
+	
 	const { schema = 'public', filter } = options;
 	
 	// Create a single channel for all events
@@ -210,6 +220,7 @@ export function subscribeToTableEvents<T extends Record<string, any>>(
  * @param userId The user ID to filter by
  * @param userIdColumn The column name that contains the user ID
  * @param handlers Object with handlers for different events
+ * @param supabaseClient The Supabase client to use
  * @returns A function to unsubscribe from the channel
  */
 export function subscribeToUserTable<T extends Record<string, any>>(
@@ -217,14 +228,16 @@ export function subscribeToUserTable<T extends Record<string, any>>(
 	table: Table,
 	userId: string,
 	userIdColumn: string = 'user_id',
-	handlers: Partial<Record<TableEvent, SupabaseRealtimeHandler<T>>>
+	handlers: Partial<Record<TableEvent, SupabaseRealtimeHandler<T>>>,
+	supabase: SupabaseClient<Database>
 ): () => void {
 	return subscribeToTableEvents(
 		channelName,
 		table,
 		handlers,
 		{
-			filter: `${userIdColumn}=eq.${userId}`
-		}
+			filter: `${userIdColumn}.eq.${userId}`
+		},
+		supabase
 	);
 } 

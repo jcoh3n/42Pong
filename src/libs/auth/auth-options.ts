@@ -1,10 +1,12 @@
 import type { NextAuthOptions } from "next-auth";
 import { FortyTwoProvider } from "./42-provider";
-import { userService } from "@/services";
+import { User } from "@/services";
 import { v4 as uuidv4 } from "uuid";
 import { cookies } from "next/headers";
-import { sign } from "jsonwebtoken";
-import { createClient } from "../supabase/server";
+import { generatePassword } from "../utils/auth";
+import { Database } from "@/types/database.types";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
 
 // Type definitions for NextAuth
 declare module "next-auth" {
@@ -47,19 +49,54 @@ interface FortyTwoUser {
 	dbId?: string;
 }
 
-async function createSupabaseUser(school_id: string, email: string) {
-	const supabase = await createClient();
-
+async function createSupabaseUser(supabase: SupabaseClient<Database>, login: string, email: string) {
 	const { data, error } = await supabase.auth.signUp({
 		email: email,
-		password: school_id + email + "42",
+		password: await generatePassword(login, email),
 	});
 
-	if (error) {
-		console.error("[Auth] User creation/update error:", error);
-	}
+	// const cookieStore = await cookies();
+	
+	// cookieStore.set("supabase_access_token", data.session?.access_token || "", {
+	// 	httpOnly: true,
+	// 	secure: process.env.NODE_ENV === "production",
+	// 	maxAge: 60 * 60 * 24 * 30,
+	// });
+
+	// cookieStore.set("supabase_refresh_token", data.session?.refresh_token || "", {
+	// 	httpOnly: true,
+	// 	secure: process.env.NODE_ENV === "production",
+	// });
+
+	return { data, error };
 }
 
+async function modifyUserDetails(supabase: SupabaseClient<Database>, existingUser: User, user: FortyTwoUser) {
+	
+	if (existingUser.avatar_url !== user.image) {
+		await supabase.from('Users').update(
+			{
+				avatar_url: user.image || "",
+			}
+		).eq('id', existingUser.id);
+	}
+
+	if (existingUser.email !== user.email) {
+		await supabase.from('Users').update(
+			{
+				email: user.email || "",
+			}
+		).eq('id', existingUser.id);
+	}
+
+	if (existingUser.id !== user.id) {
+		await supabase.from('Users').update(
+			{
+				id: user.id,
+			}
+		).eq('id', existingUser.id);
+	}
+}
 
 export const authOptions: NextAuthOptions = {
 	providers: [FortyTwoProvider()],
@@ -71,44 +108,66 @@ export const authOptions: NextAuthOptions = {
 	callbacks: {
 		async signIn({ user }) {
 			if (!user?.login || !user?.id || !user?.email) {
-				console.error("[Auth] Missing required user data:", user);
 				return false;
 			}
 
 			try {
+				const supabase = await createAdminSupabaseConnection();
 
+				const result = await supabase.auth.admin.createUser({
+					email: user.email,
+					password: await generatePassword(user.login, user.email),
+				});
 
-				const existingUser = await userService.getUserByLogin(user.login);
+				if (result.error) {
+					console.error("--->> [Auth] Supabase create user error:", result.error);
+				}
+
+				const { data: existingUser, error } = await supabase
+					.from('Users')
+					.select('*')
+					.eq('login', user.login)
+					.single();
 
 				if (existingUser) {
-					// Update avatar if changed
-					if (existingUser.avatar_url !== user.image) {
-						await userService.updateUser(existingUser.id, {
-							avatar_url: user.image || "",
-						});
-					}
-					(user as FortyTwoUser).dbId = existingUser.id;
+					await modifyUserDetails(supabase, existingUser, user);
+					await supabase.auth.signOut( {
+						scope: 'local'
+					});
 					return true;
 				}
 
-				await createSupabaseUser(user.id, user.email);
 				// Create new user with generated UUID
-				const dbId = uuidv4();
-				await userService.createUser({
-					id: dbId,
-					login: user.login,
-					avatar_url: user.image || "",
-					elo_score: 1000,
-					created_at: new Date().toISOString(),
-					theme: "dark",
-					language: "fr",
-					notifications: true
-				});
+				const dbId = result.data?.user?.id;
+				const { data: newUser, error: createUserError } = await supabase
+					.from('Users')
+					.insert({
+						id: dbId,
+						login: user.login,
+						avatar_url: user.image || "",
+						elo_score: 1000,
+						created_at: new Date().toISOString(),
+						theme: "dark",
+						language: "fr",
+						notifications: true,
+						email: user.email || "",
+					})
+					.single();
+
+				if (createUserError) {
+					console.error("--->> [Auth] Error creating user:", createUserError);
+					await supabase.auth.signOut( {
+						scope: 'local'
+					} );
+					return false;	
+				}
 
 				(user as FortyTwoUser).dbId = dbId;
+				await supabase.auth.signOut( {
+					scope: 'local'
+				} );
 				return true;
-			} catch (error) {
-				console.error("[Auth] User creation/update error:", error);
+			} catch {
 				return false;
 			}
 		},
@@ -146,4 +205,19 @@ export const authOptions: NextAuthOptions = {
 			return session;
 		},
 	},
-}; 
+};
+
+async function createAdminSupabaseConnection() {
+	const supabase = createClient<Database>(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.SUPABASE_ADMIN_KEY!,
+		{
+			auth: {
+				persistSession: false,
+				autoRefreshToken: false,
+				detectSessionInUrl: false,
+			},
+		}
+	);
+	return supabase;
+}

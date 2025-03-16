@@ -1,14 +1,22 @@
 import { useState } from 'react';
-import { matchService, Match, MatchInsert } from '@/services';
+import { Match, MatchInsert } from '@/services';
 import useMatches from './useMatches';
 import useUserMatches from './useUserMatches';
+import useSupabase from '../useSupabase';
 
 export default function useCreateMatch() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const { mutate: mutateMatches } = useMatches();
-  
-  const createMatch = async (matchData: MatchInsert): Promise<Match> => {
+  const { services } = useSupabase();
+  const { matchService } = services;
+
+  const createMatch = async (matchData: MatchInsert): Promise<Match | null> => {
+    if (!matchService) {
+      console.error('Match service not available');
+      return null;
+    }
+
     setIsLoading(true);
     setError(null);
     

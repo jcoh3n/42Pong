@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { 
-  challengeService, 
   Challenge,
   ChallengeInsert
 } from '@/services';
 import useChallenges from './useChallenges';
-
+import useSupabase from '../useSupabase';
 export default function useCreateChallenge() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -16,6 +15,12 @@ export default function useCreateChallenge() {
     setError(null);
     
     try {
+      const { services } = useSupabase();
+      const { challengeService } = services;
+	  if (!challengeService) {
+		throw new Error('Challenge service not initialized');
+	  }
+
       const newChallenge = await challengeService.createChallenge(challengeData);
       // Invalidate the challenges cache
       mutateChallenges();

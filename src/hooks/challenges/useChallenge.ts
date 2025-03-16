@@ -1,10 +1,14 @@
 import useSWR from 'swr';
-import { challengeService, Challenge } from '@/services';
+import { Challenge } from '@/services';
+import useSupabase from '../useSupabase';
 
 export default function useChallenge(challengeId: string | undefined) {
+  const { services } = useSupabase();
+  const { challengeService } = services;
+
   const { data, error, isLoading, mutate } = useSWR<Challenge | null>(
     challengeId ? `/api/challenges/${challengeId}` : null,
-    () => challengeId ? challengeService.getChallengeById(challengeId) : null
+    () => challengeId && challengeService ? challengeService.getChallengeById(challengeId) : null
   );
 
   return {

@@ -8,7 +8,7 @@ import { MatchType } from '@/services/types';
 import { toast } from 'react-hot-toast';
 import { MatchmakingResponse } from '@/app/api/matchmaking/route';
 import useCurrentUser from '@/hooks/useCurrentUser';
-import { createClient } from '@/libs/supabase/client';
+import useSupabase from '@/hooks/useSupabase';
 
 const useMatchmaking = (): {
 	data: MatchmakingResponse | undefined;
@@ -23,7 +23,7 @@ const useMatchmaking = (): {
 	const userId = currentUser?.id;
 	const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
 	const hasSetupRealtimeRef = useRef(false);
-	const supabase = createClient();
+	const { supabase, isLoading: isSupabaseLoading, error: supabaseError } = useSupabase();
 
 	const { data, error, isLoading, mutate } = useSWR('/api/matchmaking', fetcher);
 
@@ -35,7 +35,7 @@ const useMatchmaking = (): {
 
 	// Setup Supabase Realtime subscription
 	useEffect(() => {
-		if (!userId || hasSetupRealtimeRef.current) {
+		if (!userId || hasSetupRealtimeRef.current || !supabase || isSupabaseLoading || supabaseError) {
 			return;
 		}
 		
@@ -47,7 +47,7 @@ const useMatchmaking = (): {
 				event: 'INSERT',
 				schema: 'public',
 				table: 'matchmaking_queue',
-				filter: `user_id=eq.${userId}`
+				filter: `user_id.eq.${userId}`
 			}, (payload) => {
 				console.log('Matchmaking queue updated (INSERT):', payload);
 				// Force refresh data from API to get complete state
@@ -57,7 +57,7 @@ const useMatchmaking = (): {
 				event: 'UPDATE',
 				schema: 'public',
 				table: 'matchmaking_queue',
-				filter: `user_id=eq.${userId}`
+				filter: `user_id.eq.${userId}`
 			}, (payload) => {
 				console.log('Matchmaking queue updated (UPDATE):', payload);
 				// Force refresh data from API to get complete state
@@ -67,7 +67,7 @@ const useMatchmaking = (): {
 				event: 'DELETE',
 				schema: 'public',
 				table: 'matchmaking_queue',
-				filter: `user_id=eq.${userId}`
+				filter: `user_id.eq.${userId}`
 			}, (payload) => {
 				console.log('Matchmaking queue updated (DELETE):', payload);
 				// Reset local state and refresh data

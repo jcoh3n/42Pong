@@ -1,9 +1,10 @@
 'use client';
 
 import useSWR from 'swr';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { invitationService } from '@/services';
 import { subscribeToTable } from '@/utils/supabaseRealtime';
+import useSupabase from '@/hooks/useSupabase';
 
 /**
  * Hook for fetching and managing a single invitation by ID
@@ -12,6 +13,8 @@ import { subscribeToTable } from '@/utils/supabaseRealtime';
  * @param invitationId The ID of the invitation to fetch
  */
 export default function useInvitation(invitationId: string | null | undefined) {
+  const { supabase, isLoading: isSupabaseLoading, error: supabaseError } = useSupabase();
+  const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
   // Don't fetch if no ID is provided
   const shouldFetch = !!invitationId;
   
@@ -38,10 +41,10 @@ export default function useInvitation(invitationId: string | null | undefined) {
 
   // Set up real-time subscription to get updates when the invitation changes
   useEffect(() => {
-    if (!invitationId) return;
+    if (!invitationId || !supabase || isSupabaseLoading || supabaseError) return;
     
     // Subscribe to the friendly_invitation table for changes to this invitation
-    const unsubscribe = subscribeToTable(
+    unsubscribeRef.current = subscribeToTable(
       `invitation_${invitationId}`, // channelName - unique identifier for this subscription
       'friendly_invitation', // table name
       '*', // listen to all events
@@ -49,16 +52,20 @@ export default function useInvitation(invitationId: string | null | undefined) {
         // Handle all changes with mutate
         mutate();
       },
+      // Filter for this specific invitation
       {
-        // Filter to only get events for this specific invitation
-        filter: `id=eq.${invitationId}`
-      }
+        filter: `id.eq.${invitationId}`,
+      },
+      supabase
     );
     
+    // Cleanup on unmount
     return () => {
-      unsubscribe();
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
     };
-  }, [invitationId, mutate]);
+  }, [invitationId, mutate, supabase, isSupabaseLoading, supabaseError]);
 
   // Helper functions to check invitation status
   const isPending = invitation?.status === 'pending';

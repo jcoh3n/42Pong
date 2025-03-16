@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { challengeService } from '@/services';
+import { Challenge } from '@/services';
 import useChallenges from './useChallenges';
+import useSupabase from '../useSupabase';
 
 export default function useDeleteChallenge() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +13,12 @@ export default function useDeleteChallenge() {
     setError(null);
     
     try {
+      const { services } = useSupabase();
+      const { challengeService } = services;
+	  if (!challengeService) {
+		throw new Error('Challenge service not initialized');
+	  }
+
       const result = await challengeService.deleteChallenge(challengeId);
       // Invalidate the challenges cache
       mutateChallenges();

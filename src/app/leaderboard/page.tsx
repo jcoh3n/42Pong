@@ -18,6 +18,7 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { GiPingPongBat, GiTrophyCup } from "react-icons/gi";
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
 import Loading from "@/components/Loading";
+import { LeaderboardData } from "@/types/leaderboard";
 
 export default function LeaderboardPage() {
   const { data: session, status } = useSession();
@@ -39,7 +40,7 @@ export default function LeaderboardPage() {
     user,
     positionChange: 0,
     changeClass: "neutral"
-  }));
+  } as LeaderboardData));
 
   // Trouver la position de l'utilisateur connecté
   const currentUserPosition = users.findIndex(user => user.login === session?.user?.email) + 1;

@@ -2,11 +2,12 @@
 
 import useSWR from 'swr';
 import { useCallback, useState, useEffect, useRef } from 'react';
-import { notificationService, invitationService, Notification } from '@/services';
+import { Notification } from '@/services';
 import { PaginatedResponse } from '@/services/types';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { subscribeToUserTable } from '@/utils/supabaseRealtime';
 import useInvitationNotifications from './useInvitationNotifications';
+import useSupabase from '@/hooks/useSupabase';
 
 type NotificationOptions = {
   page?: number;
@@ -20,6 +21,8 @@ type NotificationOptions = {
 export default function useNotifications(options: NotificationOptions = {}) {
   const { data: currentUser } = useCurrentUser();
   const userId = currentUser?.id;
+  const { supabase, isLoading: isSupabaseLoading, error: supabaseError, services } = useSupabase();
+  const { notificationService } = services;
   const unsubscribeRef = useRef<(() => void) | undefined>(undefined);
   const hasSetupRealtimeRef = useRef(false);
 
@@ -36,8 +39,8 @@ export default function useNotifications(options: NotificationOptions = {}) {
   const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Notification>>(
     userId ? ['notifications', userId, defaultOptions] : null,
     async () => {
-      if (!userId) {
-        console.warn('No user ID found. Returning empty notifications.');
+      if (!userId || !notificationService) {
+        console.warn('No user ID or notification service found. Returning empty notifications.');
         return { data: [], count: 0, page: 1, pageSize: 10, hasMore: false };
       }
       
@@ -53,8 +56,8 @@ export default function useNotifications(options: NotificationOptions = {}) {
   const { data: unseenData, mutate: mutateUnseen } = useSWR(
     userId ? ['unseenNotifications', userId] : null,
     async () => {
-      if (!userId) {
-        console.warn('No user ID found. Returning unseen count as 0.');
+      if (!userId || !notificationService) {
+        console.warn('No user ID or notification service found. Returning unseen count as 0.');
         return { count: 0 };
       }
       
@@ -71,7 +74,7 @@ export default function useNotifications(options: NotificationOptions = {}) {
 
   // Setup Supabase Realtime subscription
   useEffect(() => {
-    if (!userId || !defaultOptions.enableRealtime || hasSetupRealtimeRef.current) {
+    if (!userId || !defaultOptions.enableRealtime || hasSetupRealtimeRef.current || !supabase || isSupabaseLoading || supabaseError) {
       console.warn('Realtime subscription not set up. User ID:', userId, 'Enable Realtime:', defaultOptions.enableRealtime);
       return;
     }
@@ -159,28 +162,28 @@ export default function useNotifications(options: NotificationOptions = {}) {
       }
     };
     
-    // Subscribe to changes for this user's notifications
-    const unsubscribe = subscribeToUserTable(
-      `notifications-${userId}`,
-      'Notifications',
-      userId,
-      'user_id',
-      handlers
-    );
+    // Subscribe to notifications for this user
+    console.log('Setting up realtime subscription for notifications:', userId);
+    unsubscribeRef.current = subscribeToUserTable(
+		`notifications-${userId}`,
+		'Notifications',
+		userId,
+		'user_id',
+		handlers,
+		supabase
+	);
     
-    // Store unsubscribe function for cleanup
-    unsubscribeRef.current = unsubscribe;
     hasSetupRealtimeRef.current = true;
     
-    // Clean up on unmount
+    // Clean up subscription when component unmounts
     return () => {
+      console.log('Cleaning up notifications subscription');
       if (unsubscribeRef.current) {
-        console.log('Cleaning up realtime subscription for user:', userId);
         unsubscribeRef.current();
         hasSetupRealtimeRef.current = false;
       }
     };
-  }, [userId, defaultOptions.enableRealtime, mutate, mutateUnseen]);
+  }, [userId, defaultOptions.enableRealtime, supabase, isSupabaseLoading, supabaseError]);
 
   const formatRelativeTime = useCallback((timestamp: string): string => {
     const now = new Date();
@@ -210,7 +213,7 @@ export default function useNotifications(options: NotificationOptions = {}) {
 
   // Helper function to mark a notification as seen
   const markAsSeen = useCallback(async (notificationId: string) => {
-    if (!userId) return;
+    if (!userId || !notificationService) return;
     
     try {
       console.log('Marking notification as seen:', notificationId);
@@ -245,7 +248,7 @@ export default function useNotifications(options: NotificationOptions = {}) {
 
   // Helper function to mark all notifications as seen
   const markAllAsSeen = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || !notificationService) return;
     
     try {
       console.log('Marking all notifications as seen for user:', userId);

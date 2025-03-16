@@ -1,16 +1,7 @@
-import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 
 // Define user-specific types
-export type User = {
-  id: string;
-  login: string;
-  avatar_url: string;
-  elo_score: number;
-  created_at: string;
-  theme: string;
-  language: string;
-  notifications: boolean;
+export type User = Database['public']['Tables']['Users']['Row'] & {
   wins: number;
   total_games: number;
 };
@@ -119,7 +110,7 @@ export class UserService {
       .single();
 
     if (error) {
-      console.error(`Error fetching user with login ${login}:`, error);
+      console.error(`Error fetching user with login ${login}: code: ${error.code} message: ${error.message}`);
       if (error.code === 'PGRST116') {
         return null;
       }
