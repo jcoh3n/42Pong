@@ -9,6 +9,7 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import RankCard from "@/components/profile/RankCard";
 import StatsCard from "@/components/profile/StatsCard";
 import useCurrentUser from '@/hooks/useCurrentUser';
+import PongPaddle from '@/components/PongPaddle/PongPaddle';
 
 interface Match {
   winner_id: string | null;
@@ -41,7 +42,7 @@ export default function Profile() {
 
   // Affichage du chargement
   if (isLoadingUser || isLoadingMatches) {
-    return <LoadingSpinner />;
+    return <PongPaddle />;
   }
 
   const stats = calculateStats(matches, currentUser?.id);

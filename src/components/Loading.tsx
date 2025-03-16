@@ -1,9 +1,25 @@
-import { Box, Flex } from "@radix-ui/themes";
+import React from 'react';
+import LoadingState from './home/LoadingState';
 
-export default function Loading() {
+interface LoadingProps {
+  title?: string;
+  message?: string;
+  fullScreen?: boolean;
+  showPaddle?: boolean;
+}
+
+export default function Loading({ 
+  title,
+  message,
+  fullScreen = false,
+  showPaddle = false
+}: LoadingProps) {
   return (
-    <Flex align="center" justify="center" style={{ height: "100%", width: "100%" }}>
-      <Box className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
-    </Flex>
+    <LoadingState
+      title={title}
+      message={message}
+      fullScreen={fullScreen}
+      showPaddle={showPaddle}
+    />
   );
 }
