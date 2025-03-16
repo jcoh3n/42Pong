@@ -6,7 +6,7 @@ import useCurrentUser from '@/hooks/useCurrentUser';
 import { Box } from '@radix-ui/themes';
 import Loading from './Loading';
 import WinPopup from './match/WinPopup';
-import LoginContent from '@/app/login/page';
+import LoginContent from '@/app/(login)/login/page';
 
 interface ProtectedProps {
   children: ReactNode;
@@ -26,7 +26,6 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(to bottom, #1a1a1a, #2d2d2d)'
       }}>
         <Loading />
       </Box>
@@ -35,7 +34,7 @@ const Protected: React.FC<ProtectedProps> = ({ children }) => {
 
   // Si l'utilisateur n'est pas authentifié, ne rien afficher (la redirection est gérée par useEffect)
   if (!currentUser) {
-    return <LoginContent />;
+    router.push('/login');
   }
 
   // Afficher le contenu protégé

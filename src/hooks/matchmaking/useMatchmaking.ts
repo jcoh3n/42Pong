@@ -6,7 +6,7 @@ import fetcher from '@/libs/fetcher';
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { MatchType } from '@/services/types';
 import { toast } from 'react-hot-toast';
-import { MatchmakingResponse } from '@/app/api/matchmaking/route';
+import { MatchmakingResponse } from '@/app/(pages)/api/matchmaking/route';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { createClient } from '@/libs/supabase/client';
 
