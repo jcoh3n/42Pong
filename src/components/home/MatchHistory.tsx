@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, Flex, Heading, Button, Text, Separator, Badge, Box } from "@radix-ui/themes";
 import { CaretRightIcon } from "@radix-ui/react-icons";
 import { FaHistory, FaTrophy, FaRegSadTear } from 'react-icons/fa';
@@ -10,14 +10,99 @@ interface MatchHistoryProps {
   currentUser: any;
   topPlayers: FetchedUser[];
   onViewHistory: () => void;
+  maxDisplayCount?: number;
+  isScrollable?: boolean;
+  loadMoreMatches?: () => Promise<boolean>;
 }
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ 
   matches = [], 
   currentUser, 
   topPlayers = [],
-  onViewHistory 
+  onViewHistory,
+  maxDisplayCount = 5,
+  isScrollable = false,
+  loadMoreMatches
 }) => {
+  // State to track displayed matches and loading state
+  const [displayedMatches, setDisplayedMatches] = useState<Match[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  
+  // Refs for infinite scroll
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize displayed matches based on maxDisplayCount
+  useEffect(() => {
+    if (matches && matches.length > 0) {
+      // If not scrollable, just limit the matches to maxDisplayCount
+      if (!isScrollable) {
+        setDisplayedMatches(matches.slice(0, maxDisplayCount));
+      } else {
+        // For scrollable view, initialize with the first set of matches
+        setDisplayedMatches(matches.slice(0, maxDisplayCount));
+        setHasMore(matches.length > maxDisplayCount);
+      }
+    } else {
+      setDisplayedMatches([]);
+    }
+  }, [matches, maxDisplayCount, isScrollable]);
+  
+  // Set up the intersection observer for infinite scroll
+  const loadMoreItemsCallback = useCallback(async () => {
+    if (isLoading || !hasMore || !isScrollable) return;
+
+    setIsLoading(true);
+    
+    // If a custom loadMoreMatches function is provided, use it
+    if (loadMoreMatches) {
+      const hasMoreItems = await loadMoreMatches();
+      setHasMore(hasMoreItems);
+    } else {
+      // Otherwise, just load more from the existing matches array
+      const nextItems = matches.slice(displayedMatches.length, displayedMatches.length + maxDisplayCount);
+      
+      if (nextItems.length > 0) {
+        setDisplayedMatches(prev => [...prev, ...nextItems]);
+        setHasMore(displayedMatches.length + nextItems.length < matches.length);
+      } else {
+        setHasMore(false);
+      }
+    }
+    
+    setIsLoading(false);
+  }, [isLoading, hasMore, displayedMatches, matches, maxDisplayCount, loadMoreMatches, isScrollable]);
+  
+  // Set up intersection observer
+  useEffect(() => {
+    if (!isScrollable) return;
+    
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        loadMoreItemsCallback();
+      }
+    }, options);
+    
+    if (loadMoreTriggerRef.current) {
+      observer.observe(loadMoreTriggerRef.current);
+    }
+    
+    observerRef.current = observer;
+    
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [loadMoreItemsCallback, isScrollable]);
+
   // Calculer le résultat des matchs pour l'affichage
   const getMatchResult = (match: Match) => {
     if (!match || !currentUser) return { 
@@ -82,7 +167,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
   };
 
   // Vérifier si les données sont disponibles
-  const hasMatches = Array.isArray(matches) && matches.length > 0 && currentUser;
+  const hasMatches = Array.isArray(displayedMatches) && displayedMatches.length > 0 && currentUser;
 
   return (
     <Card style={{ 
@@ -105,11 +190,24 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       
       <Separator size="4" style={{ background: 'rgba(255, 255, 255, 0.1)' }} />
       
-      <Flex direction="column" gap="3" p="4">
+      <Flex 
+        direction="column" 
+        gap="3" 
+        p="4"
+        style={{
+          maxHeight: isScrollable ? '400px' : 'auto',
+          overflowY: isScrollable ? 'auto' : 'visible',
+          scrollBehavior: 'smooth',
+          /* Styles pour la scrollbar */
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(30, 41, 59, 0.8)',
+        }}
+        className={isScrollable ? 'custom-scrollbar' : ''}
+      >
         {/* Liste des dernières parties */}
         <Flex direction="column" gap="3">
           {hasMatches ? (
-            matches.map((match: Match) => {
+            displayedMatches.map((match: Match) => {
               if (!match || !match.id) return null;
               
               const matchResult = getMatchResult(match);
@@ -198,8 +296,46 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
               </Text>
             </Flex>
           )}
+          
+          {/* Loading indicator and load more trigger */}
+          {isScrollable && hasMore && (
+            <div ref={loadMoreTriggerRef}>
+              <Flex 
+                align="center" 
+                justify="center" 
+                p="3"
+                style={{
+                  opacity: isLoading ? 1 : 0,
+                  transition: 'opacity 0.3s',
+                  height: '40px'
+                }}
+              >
+                <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                  {isLoading ? "Chargement..." : ""}
+                </Text>
+              </Flex>
+            </div>
+          )}
         </Flex>
       </Flex>
+      
+      {/* Optional: Add button to manually load more when near the end */}
+      {isScrollable && hasMore && displayedMatches.length >= maxDisplayCount && !isLoading && (
+        <Flex justify="center" p="3">
+          <Button 
+            variant="ghost" 
+            style={{ 
+              color: 'white', 
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              marginTop: '8px'
+            }} 
+            onClick={() => loadMoreItemsCallback()}
+          >
+            Voir plus de parties
+          </Button>
+        </Flex>
+      )}
     </Card>
   );
 };

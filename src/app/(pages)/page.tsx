@@ -180,6 +180,7 @@ export default function HomePage() {
                 currentUser={currentUser}
                 topPlayers={topPlayers}
                 onViewHistory={handleViewHistory}
+                isScrollable={true}
               />
             </Grid>
           </Box>
