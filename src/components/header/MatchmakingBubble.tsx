@@ -4,6 +4,7 @@ import useMatchmaking from "@/hooks/matchmaking/useMatchmaking";
 import { Box, Flex, Text, Tooltip } from "@radix-ui/themes";
 import { ClockIcon, CrossCircledIcon } from "@radix-ui/react-icons";
 import Loading from "../Loading";
+import { useRouter } from "next/navigation";
 
 // Game mode colors from MatchmakingMenu.tsx
 const MODE_COLORS = {
@@ -27,7 +28,7 @@ const MODE_COLORS = {
 
 export function MatchmakingBubble() {
   const { data, isLoading, timeInQueue, stopMatchmaking } = useMatchmaking();
-  
+  const router = useRouter();
   // If not in matchmaking or match, don't show anything
   if (!data?.data?.inQueue && !data?.data?.inMatch || isLoading) {
     return null;
@@ -35,7 +36,7 @@ export function MatchmakingBubble() {
 
   const isInQueue = data?.data?.inQueue;
   const isInMatch = data?.data?.inMatch;
-  const matchType = data?.data?.queueData?.matche_type || "normal";
+  const matchType = data?.data?.queueData?.matche_type || data?.data?.matchData?.type || "normal";
   
   // Get the appropriate colors based on match type or match status
   const colors = MODE_COLORS[matchType] || MODE_COLORS.normal;
@@ -57,7 +58,7 @@ export function MatchmakingBubble() {
           backgroundImage: colors.gradient,
           boxShadow: `0 0 8px ${colors.glow}`
         }}
-        onClick={isInQueue ? () => stopMatchmaking() : undefined}
+        onClick={() => router.push('/games')}
       >
         {isInQueue ? (
           <Flex align="center" justify="between" width="100%">
