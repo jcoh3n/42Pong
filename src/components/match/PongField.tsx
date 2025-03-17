@@ -31,7 +31,7 @@ const PongField: React.FC<PongFieldProps> = ({
   setScores, 
   onAddSet, 
   onCancel,
-  maxSets = 3 // Par défaut, on affiche 3 sets
+  maxSets = 5 // Par défaut, on utilise 5 sets comme dans MatchPage
 }) => {
   return (
     <Box 
