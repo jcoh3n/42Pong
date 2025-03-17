@@ -36,7 +36,7 @@ export function MatchmakingBubble() {
 
   const isInQueue = data?.data?.inQueue;
   const isInMatch = data?.data?.inMatch;
-  const matchType = data?.data?.queueData?.matche_type || data?.data?.matchData?.type || "normal";
+  const matchType = data?.data?.queueData?.matche_type || data?.data?.matchData?.type || "normal"; 
   
   // Get the appropriate colors based on match type or match status
   const colors = MODE_COLORS[matchType] || MODE_COLORS.normal;
