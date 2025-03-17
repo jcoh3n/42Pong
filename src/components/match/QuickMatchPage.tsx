@@ -21,8 +21,12 @@ type MatchSettings = {
     maxSets: number;
 };
 
+interface QuickMatchPageProps {
+    onSetsSelected?: (sets: number) => void;
+}
+
 // Composant principal QuickMatch
-const QuickMatchPage: React.FC = () => {
+const QuickMatchPage: React.FC<QuickMatchPageProps> = ({ onSetsSelected }) => {
     // États pour les joueurs (à remplacer par des données réelles)
     const [player1, setPlayer1] = useState<Player>({
         id: 'player1',
@@ -62,6 +66,11 @@ const QuickMatchPage: React.FC = () => {
         setMatchSettings({ setsToWin, maxSets });
         setMatchStarted(true);
         setSetScores([]);
+        
+        // Notifier le composant parent du nombre de sets choisi
+        if (onSetsSelected) {
+            onSetsSelected(maxSets);
+        }
     };
 
     // Fonctions pour incrémenter/décrémenter les scores
@@ -107,13 +116,13 @@ const QuickMatchPage: React.FC = () => {
         setSetScores([]);
     };
 
-    // Rendu du sélecteur de format de match - Design simplifié
+    // Rendu du sélecteur de format de match - Design amélioré
     const renderFormatSelector = () => (
         <Box 
             style={{
                 width: '100vw',
                 height: '100vh',
-                backgroundColor: '#308cf4', // Nouveau bleu demandé
+                backgroundColor: '#308cf4', // Bleu de fond
                 position: 'fixed',
                 top: 0,
                 left: 0,
@@ -140,37 +149,77 @@ const QuickMatchPage: React.FC = () => {
                     Nombre de sets pour gagner
                 </Text>
                 <Flex direction="column" gap="4">
-                    {[1, 2, 3].map((setsToWin) => (
-                        <Button 
-                            key={setsToWin}
-                            size="3"
-                            style={{
-                                height: '70px',
-                                fontSize: '18px',
-                                fontWeight: 'bold',
-                                backgroundColor: setsToWin === 1 ? '#1a56db' : 'rgba(255, 255, 255, 0.1)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '12px',
-                                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                gap: '4px',
-                            }}
-                            onClick={() => startMatch(setsToWin)}
-                        >
-                            <span style={{ fontSize: '20px' }}>
-                                {setsToWin === 1 ? 'Match simple' : `Best of ${setsToWin * 2 - 1}`}
-                            </span>
-                            <span style={{ fontSize: '14px', opacity: 0.8 }}>
-                                {setsToWin} {setsToWin === 1 ? 'set' : 'sets'} pour gagner
-                            </span>
-                        </Button>
-                    ))}
+                    {[1, 2, 3].map((setsToWin) => {
+                        const maxSets = setsToWin * 2 - 1;
+                        return (
+                            <Button 
+                                key={setsToWin}
+                                size="3"
+                                style={{
+                                    height: '80px',
+                                    fontSize: '18px',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                                    color: 'white',
+                                    border: '2px solid rgba(255, 255, 255, 0.2)',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                }}
+                                onClick={() => startMatch(setsToWin)}
+                            >
+                                {/* Indicateur visuel du nombre de sets */}
+                                <div style={{
+                                    position: 'absolute',
+                                    top: '10px',
+                                    right: '10px',
+                                    display: 'flex',
+                                    gap: '4px'
+                                }}>
+                                    {Array.from({ length: maxSets }).map((_, i) => (
+                                        <div key={i} style={{
+                                            width: '8px',
+                                            height: '8px',
+                                            borderRadius: '50%',
+                                            backgroundColor: i < setsToWin ? '#4CAF50' : '#f44336',
+                                            opacity: 0.8
+                                        }} />
+                                    ))}
+                                </div>
+                                
+                                <span style={{ fontSize: '20px' }}>
+                                    {setsToWin === 1 ? 'Match simple' : `Best of ${maxSets}`}
+                                </span>
+                                <span style={{ fontSize: '14px', opacity: 0.8 }}>
+                                    {setsToWin} {setsToWin === 1 ? 'set' : 'sets'} pour gagner
+                                </span>
+                                
+                                {/* Visualisation des colonnes */}
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '4px',
+                                    marginTop: '8px'
+                                }}>
+                                    {Array.from({ length: maxSets }).map((_, i) => (
+                                        <div key={i} style={{
+                                            width: '12px',
+                                            height: '20px',
+                                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                            borderRadius: '2px'
+                                        }} />
+                                    ))}
+                                </div>
+                            </Button>
+                        );
+                    })}
                 </Flex>
             </Box>
         </Box>

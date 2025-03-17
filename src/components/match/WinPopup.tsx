@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Card, Container, Dialog, Flex, Heading, Text } from "@radix-ui/themes";
+import { Box, Button, Dialog, Flex, Heading, Text } from "@radix-ui/themes";
 import { motion } from "framer-motion";
 
 interface WinPopupProps {

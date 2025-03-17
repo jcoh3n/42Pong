@@ -5,30 +5,59 @@ Ce dossier contient les composants liés à la page de match du jeu Pong.
 ## Structure des fichiers
 
 - `MatchPage.tsx` : Composant principal de la page de match (production)
-- `MatchPageDev.tsx` : Version de développement de la page de match
-- `MatchInfo.tsx` : Affiche les informations du match (scores, joueurs)
-- `PlayerScore.tsx` : Affiche le score d'un joueur
-- `ScoreButtons.tsx` : Boutons pour incrémenter les scores
+- `QuickMatchPage.tsx` : Version simplifiée pour des matchs rapides avec sélection du nombre de sets
+- `PongField.tsx` : Composant principal du terrain de jeu Pong
+- `SetScoreDisplay.tsx` : Affichage du tableau des scores des sets
+- `AddSetButton.tsx` : Bouton pour ajouter un set
+- `PlayerDisplay.tsx` : Affichage d'un joueur avec son avatar
 - `WinPopup.tsx` : Popup affiché en cas de victoire
 - `LosePopup.tsx` : Popup affiché en cas de défaite
 
-## Processus de développement
+## Modes de jeu
 
-1. **Mode développement** :
-   - Activez `DEV_MODE = true` dans `src/app/games/page.tsx`
-   - Travaillez dans le composant `MatchPageDev.tsx`
-   - Testez toutes les fonctionnalités dans cet environnement isolé
+1. **Quick Match** :
+   - Permet de choisir le nombre de sets (1, 2 ou 3 sets gagnants)
+   - Utilise le composant `QuickMatchPage.tsx` pour la sélection
+   - Redirige vers `MatchPage.tsx` avec le nombre de sets choisi
 
-2. **Développement** :
-   - Modifiez l'interface et ajoutez des fonctionnalités dans `MatchPageDev.tsx`
-   - Testez différents scénarios (victoire, défaite, forfait)
-   - Les données de test sont déjà configurées (mockMatch, mockCurrentUser, mockOpponent)
+2. **Ranked Match** :
+   - Nombre de sets fixé à 5 (3 sets gagnants)
+   - Redirige directement vers `MatchPage.tsx`
+   - Mode compétitif avec impact sur le classement
 
-3. **Mise en production** :
-   - Une fois le développement terminé, copiez les modifications vers `MatchPage.tsx`
-   - Désactivez le mode développement (`DEV_MODE = false` dans `src/app/games/page.tsx`)
-   - Testez en conditions réelles
+3. **Challenge Friend** :
+   - Permet d'inviter un ami pour un match
+   - Utilise le système d'invitation
+   - Redirige vers `MatchPage.tsx` après acceptation de l'invitation
 
-## Zone de développement
+## Composants
 
-Une zone dédiée au développement est disponible dans `MatchPageDev.tsx` pour ajouter facilement de nouvelles fonctionnalités. Utilisez cette zone pour implémenter et tester vos nouvelles fonctionnalités avant de les transférer vers le composant de production. 
+- **MatchPage** : Composant principal qui gère le déroulement d'un match
+  - Prend en paramètre `matchId`, `onLeave` et `maxSets`
+  - Affiche le terrain de jeu et gère la logique du match
+
+- **QuickMatchPage** : Composant pour les matchs rapides
+  - Permet de sélectionner le nombre de sets
+  - Prend en paramètre `onSetsSelected` pour notifier le nombre de sets choisi
+
+- **PongField** : Affiche le terrain de jeu avec les scores et les avatars des joueurs
+  - Interface commune pour tous les modes de jeu
+  - Gère l'affichage des scores et des sets
+
+- **SetScoreDisplay** : Affiche le tableau des scores des sets
+  - Adapte le nombre de colonnes en fonction du nombre de sets
+  - Affiche les sets gagnés en vert
+
+- **AddSetButton** : Bouton pour ajouter un set
+  - Peut être affiché en position flottante ou en bas de l'écran
+  - Affiche un texte explicite pour améliorer l'expérience utilisateur
+
+- **PlayerDisplay** : Affiche un joueur avec son avatar
+  - Gère l'affichage du trophée pour le joueur en tête
+  - Positionne le joueur en haut ou en bas de l'écran
+
+- **WinPopup** : Affiche une popup animée en cas de victoire
+  - Redirige vers la page d'accueil après fermeture
+
+- **LosePopup** : Affiche une popup animée en cas de défaite
+  - Redirige vers la page d'accueil après fermeture
