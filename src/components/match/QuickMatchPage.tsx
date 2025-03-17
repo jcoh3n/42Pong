@@ -60,9 +60,10 @@ const QuickMatchPage: React.FC<QuickMatchPageProps> = ({ onSetsSelected }) => {
     const isMatchFinished = matchSettings && 
         (player1SetsWon >= matchSettings.setsToWin || player2SetsWon >= matchSettings.setsToWin);
 
-    // Fonction pour démarrer un match
-    const startMatch = (setsToWin: number) => {
-        const maxSets = setsToWin * 2 - 1; // Nombre maximum de sets possible
+    // Fonction pour démarrer un match - Forcé à 1 set pour QuickMatch
+    const startMatch = () => {
+        const setsToWin = 1; // Force à 1 set pour QuickMatch
+        const maxSets = 1; // Force à 1 set maximum
         setMatchSettings({ setsToWin, maxSets });
         setMatchStarted(true);
         setSetScores([]);
@@ -116,13 +117,13 @@ const QuickMatchPage: React.FC<QuickMatchPageProps> = ({ onSetsSelected }) => {
         setSetScores([]);
     };
 
-    // Rendu du sélecteur de format de match - Design amélioré
+    // Rendu du sélecteur de format de match - Simplifié pour QuickMatch
     const renderFormatSelector = () => (
         <Box 
             style={{
                 width: '100vw',
                 height: '100vh',
-                backgroundColor: '#308cf4', // Bleu de fond
+                backgroundColor: '#308cf4',
                 position: 'fixed',
                 top: 0,
                 left: 0,
@@ -134,8 +135,8 @@ const QuickMatchPage: React.FC<QuickMatchPageProps> = ({ onSetsSelected }) => {
             }}
         >
             <Box style={{
-                width: '90%',
-                maxWidth: '400px',
+                width: '50%', // Largeur fixée à 50%
+                maxWidth: '200px', // Maximum de 200px
                 backgroundColor: 'rgba(30, 30, 30, 0.85)',
                 borderRadius: '16px',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
@@ -143,83 +144,35 @@ const QuickMatchPage: React.FC<QuickMatchPageProps> = ({ onSetsSelected }) => {
                 padding: '30px 20px',
             }}>
                 <Heading size="5" align="center" mb="6" style={{ color: 'white', fontSize: '24px' }}>
-                    Format du match
+                    Quick Match
                 </Heading>
-                <Text size="2" align="center" mb="6" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '16px' }}>
-                    Nombre de sets pour gagner
+                <Text size="2" align="center" mb="6" style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '24px' }}>
+                    Match simple - 1 set
                 </Text>
                 <Flex direction="column" gap="4">
-                    {[1, 2, 3].map((setsToWin) => {
-                        const maxSets = setsToWin * 2 - 1;
-                        return (
-                            <Button 
-                                key={setsToWin}
-                                size="3"
-                                style={{
-                                    height: '80px',
-                                    fontSize: '18px',
-                                    fontWeight: 'bold',
-                                    backgroundColor: 'rgba(30, 30, 30, 0.9)',
-                                    color: 'white',
-                                    border: '2px solid rgba(255, 255, 255, 0.2)',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    gap: '4px',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                }}
-                                onClick={() => startMatch(setsToWin)}
-                            >
-                                {/* Indicateur visuel du nombre de sets */}
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '10px',
-                                    right: '10px',
-                                    display: 'flex',
-                                    gap: '4px'
-                                }}>
-                                    {Array.from({ length: maxSets }).map((_, i) => (
-                                        <div key={i} style={{
-                                            width: '8px',
-                                            height: '8px',
-                                            borderRadius: '50%',
-                                            backgroundColor: i < setsToWin ? '#4CAF50' : '#f44336',
-                                            opacity: 0.8
-                                        }} />
-                                    ))}
-                                </div>
-                                
-                                <span style={{ fontSize: '20px' }}>
-                                    {setsToWin === 1 ? 'Match simple' : `Best of ${maxSets}`}
-                                </span>
-                                <span style={{ fontSize: '14px', opacity: 0.8 }}>
-                                    {setsToWin} {setsToWin === 1 ? 'set' : 'sets'} pour gagner
-                                </span>
-                                
-                                {/* Visualisation des colonnes */}
-                                <div style={{
-                                    display: 'flex',
-                                    gap: '4px',
-                                    marginTop: '8px'
-                                }}>
-                                    {Array.from({ length: maxSets }).map((_, i) => (
-                                        <div key={i} style={{
-                                            width: '12px',
-                                            height: '20px',
-                                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                                            borderRadius: '2px'
-                                        }} />
-                                    ))}
-                                </div>
-                            </Button>
-                        );
-                    })}
+                    <Button 
+                        size="3"
+                        style={{
+                            height: '80px',
+                            fontSize: '24px', // Police augmentée à 24px
+                            fontWeight: 'bold',
+                            backgroundColor: 'rgba(30, 30, 30, 0.9)',
+                            color: 'white',
+                            border: '2px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '4px',
+                        }}
+                        onClick={() => startMatch()}
+                    >
+                        Commencer
+                    </Button>
                 </Flex>
             </Box>
         </Box>

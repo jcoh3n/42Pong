@@ -307,6 +307,41 @@ const MatchPage: React.FC<MatchPageProps> = ({
         </Dialog.Root>
     );
 
+    // Styles pour le conteneur des scores
+    const scoreContainerStyle = {
+        width: '90%',
+        maxWidth: '450px',
+        fontSize: '14px', // Police réduite pour s'adapter aux 5 colonnes
+    };
+
+    // Rendu du conteneur de scores
+    const renderScoreContainer = () => (
+        <Box style={scoreContainerStyle}>
+            <Flex direction="row" gap="2" justify="between">
+                {Array.from({ length: maxSets }).map((_, index) => (
+                    <Box key={index} style={{
+                        flex: 1,
+                        minWidth: 0,
+                        textAlign: 'center',
+                        padding: '8px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        borderRadius: '8px',
+                    }}>
+                        {index < setScores.length ? (
+                            <Text style={{ fontSize: '14px' }}>
+                                {setScores[index].player1Score} - {setScores[index].player2Score}
+                            </Text>
+                        ) : (
+                            <Text style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '14px' }}>
+                                -
+                            </Text>
+                        )}
+                    </Box>
+                ))}
+            </Flex>
+        </Box>
+    );
+
 	if (isLoading) {
 		return <Loading />;
 	}
