@@ -18,6 +18,7 @@ import { signOut } from "next-auth/react";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import Link from "next/link";
 import { GamepadIcon } from "lucide-react";
+import { GiPingPongBat } from "react-icons/gi";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -153,7 +154,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 onItemClick={() => handleNavigation('/profile')}
               />
               <SidebarNavItem
-                icon={<GamepadIcon width="20" height="20" />} 
+                icon={<GiPingPongBat  width="20" height="20" />} 
                 label="Games" 
                 href="/games"
                 isActive={activeItem === '/games'}

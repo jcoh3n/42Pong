@@ -60,7 +60,7 @@ export const authOptions: NextAuthOptions = {
 
       try {
         const existingUser = await userService.getUserByLogin(user.login);
-        
+
         if (existingUser) {
           // Update avatar if changed
           if (existingUser.avatar_url !== user.image) {

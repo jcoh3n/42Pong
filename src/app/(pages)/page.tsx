@@ -71,15 +71,10 @@ export default function HomePage() {
   }, [currentUser, isLoadingUser, router]);
   
   // Afficher un écran de chargement pendant le chargement des données
-  if (isLoadingUser || isLoadingUsers || isLoadingMatches) {
+  if (isLoadingUser || !currentUser || isLoadingUsers || isLoadingMatches) {
     return <LoadingState />;
   }
   
-  // Si l'utilisateur n'est pas connecté, ne rien afficher (la redirection est gérée par useEffect)
-  if (!currentUser) {
-    return <Loading />;
-  }
-
   return (
     <Box className="min-h-screen">
       <Container size="3" py="6">

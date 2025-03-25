@@ -3,8 +3,9 @@
 import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Box, Button, Text, Card, Flex } from "@radix-ui/themes";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import PongPaddle from "@/components/PongPaddle/PongPaddle";
 
 function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
