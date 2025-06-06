@@ -11,13 +11,13 @@ Access the application at: **https://42-pong.vercel.app/**
 ### Dashboard & Matchmaking
 Real-time matchmaking and player statistics:
 
-![Dashboard](https://github.com/jcoh3n/42Pong/public/screenshots/dashboard.png)
+![Dashboard](public/screenshots/dashboard.png)
 *Player dashboard with live matchmaking, leaderboard preview, and match history*
 
 ### Game Modes
 Choose from three different ways to play:
 
-![Game Modes](https://github.com/jcoh3n/42Pong/public/screenshots/game-modes.png)
+![Game Modes](public/screenshots/game-modes.png)
 *Quick Match, Ranked Match, and Challenge Friend options*
 
 
@@ -25,13 +25,13 @@ Choose from three different ways to play:
 ### Leaderboard
 Global ranking system with ELO ratings:
 
-![Leaderboard](https://github.com/jcoh3n/42Pong/public/screenshots/leaderboard.png)
+![Leaderboard](public/screenshots/leaderboard.png)
 *Complete leaderboard with player rankings, match counts, and win rates*
 
 ### Player Profile
 Detailed statistics and performance tracking:
 
-![Player Profile](https://github.com/jcoh3n/42Pong/public/screenshots/profile.png)
+![Player Profile](public/screenshots/profile.png)
 *Individual player profile showing ELO rating and match statistics*
 
 ## Features
