@@ -1,95 +1,58 @@
-# Ping Pong Match Tracker
+# 42Pong
 
-A modern, real-time application built with Next.js and Supabase for tracking real-life ping pong matches. This platform helps players organize games, record scores, manage matchmaking, and track statistics for physical ping pong matches played in real life.
+A real-time ping pong match tracker for 42 students.
+
+## Live Platform
+
+Access the application at: **https://42-pong.vercel.app/**
 
 ## Features
 
-### Multiple Game Modes
-- **Quick Match**: Quickly record casual games with automatic opponent matching
-- **Ranked Match**: Track competitive play that affects your ELO rating
-- **Challenge Friend**: Send direct invitations to friends for arranged matches
-
-### Robust Matchmaking System
-- Smart queue system to find available opponents for real-life games
-- Real-time matchmaking notifications when potential opponents are found
-- Players can cancel matchmaking requests if desired
-- Matchmaking respects player skill levels (in ranked mode)
-
-### Real-Time Score Tracking
-- Easy-to-use interface for recording points during physical matches
-- Live score updates visible to both players and spectators
-- Customizable match settings (points to win: 5, 7, or 11)
-- Complete match history and statistics
-
-### Friend System
-- Send and receive game invitations to/from friends
-- Invitation management (accept, refuse, or cancel)
-- Track your gameplay history with friends
-
-### User Profiles
-- Personal profiles with customizable avatars
-- ELO rating system for competitive players
-- Match history and statistics tracking
-
-### Backend Intelligence
-- All game winners, matchmaking, and invitation management handled by PostgreSQL Triggers in Supabase
-- Efficient database design for real-time operations and data consistency
-- Secure authentication and authorization
+- **Multiple Game Modes**: Quick matches, ranked games, and friend challenges
+- **Real-Time Matchmaking**: Smart queue system to find opponents
+- **Live Score Tracking**: Record and track scores during physical matches
+- **ELO Rating System**: Competitive ranking for players
+- **Friend System**: Send invitations and challenge friends
+- **Match History**: Complete statistics and gameplay history
 
 ## Technology Stack
 
-- **Frontend**: Next.js, React, TypeScript
+- **Frontend**: Next.js, React, TypeScript, Tailwind CSS
 - **Backend**: Supabase (PostgreSQL)
-- **Real-time Communication**: Supabase Realtime
-- **Authentication**: Supabase Auth
-- **Styling**: [Your styling solution - likely CSS modules, styled-components, or Tailwind based on code]
+- **Authentication**: 42 School OAuth + NextAuth
+- **Real-time**: Supabase Realtime subscriptions
+- **Deployment**: Vercel
 
-## Installation
+## Local Development
 
-1. Clone the repository:
+1. Clone and install:
 ```bash
-git clone https://github.com/yourusername/ping-pong-tracker.git
-cd ping-pong-tracker
-```
-
-2. Install dependencies:
-```bash
+git clone https://github.com/yourusername/42Pong.git
+cd 42Pong
 npm install
 ```
 
-3. Set up your environment variables:
-```
+2. Configure environment variables:
+```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+NEXT_PUBLIC_42_CLIENT_ID=your_42_client_id
+FORTYTWO_CLIENT_SECRET=your_42_secret
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_secret_key
 ```
 
-4. Run the development server:
+3. Run development server:
 ```bash
 npm run dev
 ```
 
-## Database Setup
-
-The application relies on a properly configured Supabase instance with the following main tables:
-- `matchmaking_queue`: Tracks players looking for real-life opponents
-- `matches`: Records ongoing and completed physical matches
-- `game_moves`: Stores score updates during gameplay
-- `friendly_invitation`: Manages friend challenge invitations
-- `users`: Player profiles and authentication
-
-Several PostgreSQL triggers automate:
-- Match winner determination
-- ELO rating updates
-- Matchmaking pairing
-- Invitation processing
-
 ## Usage
 
-1. Create an account or sign in
-2. Choose your preferred game mode:
-   - Click "Quick Match" to find an available opponent
-   - Select "Ranked Match" to play competitive games
-   - Use "Challenge Friend" to invite specific players
+1. Sign in with your 42 School account
+2. Choose a game mode (Quick Match, Ranked, or Challenge Friend)
 3. Play your physical ping pong match
-4. Record the scores in real-time through the application
-5. Review your statistics and improve your skills!
+4. Record scores in real-time
+5. Track your progress and statistics
+
+For detailed information about the project, see [ABOUT.md](./ABOUT.md).
