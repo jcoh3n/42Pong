@@ -6,6 +6,34 @@ A real-time ping pong match tracker for 42 students.
 
 Access the application at: **https://42-pong.vercel.app/**
 
+## Screenshots
+
+### Dashboard & Matchmaking
+Real-time matchmaking and player statistics:
+
+![Dashboard](https://github.com/jcoh3n/42Pong/public/screenshots/dashboard.png)
+*Player dashboard with live matchmaking, leaderboard preview, and match history*
+
+### Game Modes
+Choose from three different ways to play:
+
+![Game Modes](https://github.com/jcoh3n/42Pong/public/screenshots/game-modes.png)
+*Quick Match, Ranked Match, and Challenge Friend options*
+
+
+
+### Leaderboard
+Global ranking system with ELO ratings:
+
+![Leaderboard](https://github.com/jcoh3n/42Pong/public/screenshots/leaderboard.png)
+*Complete leaderboard with player rankings, match counts, and win rates*
+
+### Player Profile
+Detailed statistics and performance tracking:
+
+![Player Profile](https://github.com/jcoh3n/42Pong/public/screenshots/profile.png)
+*Individual player profile showing ELO rating and match statistics*
+
 ## Features
 
 - **Multiple Game Modes**: Quick matches, ranked games, and friend challenges
@@ -27,7 +55,7 @@ Access the application at: **https://42-pong.vercel.app/**
 
 1. Clone and install:
 ```bash
-git clone https://github.com/yourusername/42Pong.git
+git clone https://github.com/jcoh3n/42Pong.git
 cd 42Pong
 npm install
 ```
@@ -54,5 +82,3 @@ npm run dev
 3. Play your physical ping pong match
 4. Record scores in real-time
 5. Track your progress and statistics
-
-For detailed information about the project, see [ABOUT.md](./ABOUT.md).
