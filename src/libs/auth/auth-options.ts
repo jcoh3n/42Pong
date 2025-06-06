@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
-    error: "/auth/error",
+    error: "/error",
   },
   callbacks: {
     async signIn({ user }) {
