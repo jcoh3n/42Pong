@@ -19,6 +19,7 @@ import useCurrentUser from "@/hooks/useCurrentUser";
 import Link from "next/link";
 import { GamepadIcon } from "lucide-react";
 import { GiPingPongBat } from "react-icons/gi";
+import { FaTrophy } from "react-icons/fa";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -137,7 +138,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           )}
           
           {/* Main Navigation */}
-          <Box className="flex-1 overflow-y-auto py-4 px-2 min-h-0">
+          <Box className="flex-1 px-4 py-2">
             <Flex direction="column" gap="2">
               <SidebarNavItem 
                 icon={<HomeIcon width="20" height="20" />} 
@@ -154,18 +155,25 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 onItemClick={() => handleNavigation('/profile')}
               />
               <SidebarNavItem
-                icon={<GiPingPongBat  width="20" height="20" />} 
+                icon={<GiPingPongBat width="20" height="20" />} 
                 label="Games" 
                 href="/games"
                 isActive={activeItem === '/games'}
                 onItemClick={() => handleNavigation('/games')}
               />
               <SidebarNavItem 
-                icon={<ListBulletIcon width="20" height="20" />} 
+                icon={<FaTrophy width="20" height="20" />} 
                 label="Leaderboard" 
                 href="/leaderboard"
                 isActive={activeItem === '/leaderboard'}
                 onItemClick={() => handleNavigation('/leaderboard')}
+              />
+              <SidebarNavItem 
+                icon={<ListBulletIcon width="20" height="20" />} 
+                label="History" 
+                href="/history"
+                isActive={activeItem === '/history'}
+                onItemClick={() => handleNavigation('/history')}
               />
               <SidebarNavItem 
                 icon={<GearIcon width="20" height="20" />} 
