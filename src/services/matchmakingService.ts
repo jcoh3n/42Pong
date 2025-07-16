@@ -23,19 +23,22 @@ export type MatchmakingQueueStatus = Database['public']['Enums']['matchmaking_st
  */
 export const addToQueue = async (playerId: string, mode?: MatchType) => {
   // Check if player is already in queue
-  	const { data, error } = await supabase.rpc('add_player_to_queue', {
-   		player_id: playerId,
-		type: mode
-	});
+  console.log(`Adding player ${playerId} to queue with mode: ${mode}`);
+  
+  const { data, error } = await supabase.rpc('add_player_to_queue', {
+    player_id: playerId,
+    type: mode
+  });
 
+  console.log(`Queue operation result for player ${playerId}:`, { data, error });
 
-	return data as {
-		data?: MatchmakingQueue;
-		error?: {
-		  message: string;
-		  code: string;
-		};
-	};
+  return data as {
+    data?: MatchmakingQueue;
+    error?: {
+      message: string;
+      code: string;
+    };
+  };
 };
 
 /**
@@ -72,7 +75,7 @@ export const removeFromQueue = async (playerId: string): Promise<{
 export const getWaitingPlayers = async () => {
   const { data, error } = await supabase
     .from('matchmaking_queue')
-    .select('*, player:player_id(id, login, avatar_url, elo_score)')
+    .select('*, matche_type, player:player_id(id, login, avatar_url, elo_score)')
     .eq('status', 'waiting')
     .order('joined_at', { ascending: true });
 
@@ -119,10 +122,16 @@ export const processMatchmakingQueue = async () => {
     const player1 = waitingPlayers[i];
     const player2 = waitingPlayers[i + 1];
 
-    // Create a match between these two players
+    // Get the match type from the queue (prefer player1's type, fallback to player2's, then normal)
+    const matchType = (player1.matche_type || player2.matche_type || 'normal') as MatchType;
+
+    console.log(`Creating match with type: ${matchType} for players ${player1.player_id} and ${player2.player_id}`);
+
+    // Create a match between these two players with the correct type
     const { data: match, error: matchError } = await createMatch(
       player1.player_id,
-      player2.player_id
+      player2.player_id,
+      matchType
     );
 
     if (matchError) {
@@ -163,7 +172,9 @@ export const createMatch = async (
 	mode: MatchType = 'normal',
 	points_to_win: 5 | 7 | 11 = 7,
 ) => {
-  	const { data, error } = await supabase.rpc('create_matche', {
+	console.log(`Creating match between ${player1_id} and ${player2_id} with type: ${mode}`);
+
+	const { data, error } = await supabase.rpc('create_matche', {
 		player1_id,
 		player2_id,
 		matche_type: mode,
@@ -171,16 +182,18 @@ export const createMatch = async (
 	});
 
 	if (!data) {
+		console.error(`Failed to create match: ${error?.message}`);
 		return { data: null, error };
 	}
 
+	console.log(`Match created successfully:`, data);
 	return data as {
-			data: Match;
-			error: {
-			  message: string;
-			  code: string;
-			};
+		data: Match;
+		error: {
+			message: string;
+			code: string;
 		};
+	};
 };
 
 /**

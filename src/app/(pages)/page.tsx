@@ -165,24 +165,26 @@ export default function HomePage() {
               <FindOpponentButton onClick={handleFindOpponent} />
             </Box>
             
-            {/* Grille principale */}
-            <Grid columns={{ initial: "1", md: "2" }} gap="6">
-              {/* Colonne gauche: Classement */}
-              <RankingList 
-                topPlayers={topPlayers}
-                currentUser={currentUser}
-                currentUserRank={currentUserRank}
-                onViewAll={handleViewLeaderboard}
-              />
-              
-              {/* Colonne droite: Dernières parties */}
-              <MatchHistory 
-                matches={matches}
-                currentUser={currentUser}
-                topPlayers={topPlayers}
-                limit={5}
-              />
-            </Grid>
+            <Box style={{ position: 'relative', zIndex: 1 }}>
+              <Grid columns={{ initial: "1", md: "2" }} gap="6">
+                <Box>
+                  {/* RankingList */}
+                  <RankingList 
+                    topPlayers={topPlayers}
+                    currentUser={currentUser}
+                    currentUserRank={currentUserRank}
+                    onViewAll={handleViewLeaderboard}
+                  />
+                  {/* MatchHistory */}
+                  <MatchHistory 
+                    matches={matches}
+                    currentUser={currentUser}
+                    topPlayers={topPlayers}
+                    limit={5}
+                  />
+                </Box>
+              </Grid>
+            </Box>
           </Box>
         </Flex>
       </Container>

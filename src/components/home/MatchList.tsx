@@ -30,9 +30,10 @@ const MatchList: React.FC<MatchListProps> = ({
       icon: null
     };
 
-    // Pour les matchs non-ranked, pas de changement d'ELO
-    let eloChange = "Non affecté";
-    if (match.match_type === 'ranked') {
+    // Pour les matchs non-ranked, utiliser un symbole discret
+    let eloChange = "—"; // Tiret cadratin pour indiquer neutralité
+    const isRankedMatch = getMatchType(match) === 'ranked';
+    if (isRankedMatch) {
       eloChange = getFormattedEloChange(match.id);
     }
 
@@ -88,12 +89,12 @@ const MatchList: React.FC<MatchListProps> = ({
   const getMatchTypeColor = (matchType: string) => {
     switch (matchType) {
       case 'ranked':
-        return '#8B5CF6'; // Violet pour ranked
+        return 'linear-gradient(135deg, #007BFF, #0056B3)'; // Bleu pour ranked
       case 'friendly':
-        return '#10B981'; // Vert pour friendly
+        return 'linear-gradient(135deg, #FF9800, #F57C00)'; // Orange pour friendly
       case 'normal':
       default:
-        return '#6B7280'; // Gris pour normal
+        return 'linear-gradient(135deg, #4CAF50, #388E3C)'; // Vert pour normal/quick
     }
   };
 
@@ -101,13 +102,20 @@ const MatchList: React.FC<MatchListProps> = ({
   const getMatchTypeLabel = (matchType: string) => {
     switch (matchType) {
       case 'ranked':
-        return 'Classé';
+        return 'Ranked';
       case 'friendly':
-        return 'Amical';
+        return 'Friend';
       case 'normal':
       default:
-        return 'Normal';
+        return 'Quick';
     }
+  };
+
+  // Obtenir le type de match réel (vérifier les deux champs possibles)
+  const getMatchType = (match: Match) => {
+    const matchType = match.match_type || match.type || 'normal';
+    console.log(`Match ${match.id} - match_type: ${match.match_type}, type: ${match.type}, final: ${matchType}`);
+    return matchType;
   };
 
   const displayedMatches = limit ? matches.slice(0, limit) : matches;
@@ -140,7 +148,7 @@ const MatchList: React.FC<MatchListProps> = ({
         const opponent = getOpponent(match);
         const userScore = getUserScore(match);
         const opponentScore = getOpponentScore(match);
-        const isRanked = match.match_type === 'ranked';
+        const isRanked = getMatchType(match) === 'ranked';
         
         return (
           <Card 
@@ -156,7 +164,7 @@ const MatchList: React.FC<MatchListProps> = ({
             className="hover:bg-[rgba(255,255,255,0.05)] hover:border-[rgba(255,255,255,0.2)]"
           >
             <Flex justify="between" align="center">
-              {/* Informations du match */}
+              {/* Informations du match - Gauche */}
               <Flex align="center" gap="3" style={{ flex: 1 }}>
                 {/* Avatar et nom de l'adversaire */}
                 <Avatar
@@ -179,25 +187,47 @@ const MatchList: React.FC<MatchListProps> = ({
                 </Box>
               </Flex>
 
-              {/* Score */}
-              <Flex align="center" gap="2">
+              {/* Score et ELO - Milieu */}
+              <Flex direction="column" align="center" gap="1" style={{ flex: 1 }}>
                 <Text size="3" weight="bold" style={{ color: 'white' }}>
                   {userScore} - {opponentScore}
                 </Text>
+                {/* Affichage ELO centré */}
+                <Text 
+                  size="1" 
+                  weight="medium" 
+                  style={{ 
+                    color: isRanked ? (
+                      result.eloChange.startsWith('+') ? '#4ade80' : 
+                      result.eloChange.startsWith('-') ? '#f87171' : 
+                      'rgba(255, 255, 255, 0.7)'
+                    ) : 'rgba(255, 255, 255, 0.3)',
+                    fontFamily: 'monospace'
+                  }}
+                >
+                  {isRanked ? (
+                    isLoading ? '...' : `${result.eloChange} ELO`
+                  ) : (
+                    result.eloChange
+                  )}
+                </Text>
               </Flex>
 
-              {/* Résultat et changement ELO */}
-              <Flex align="center" gap="3" style={{ minWidth: '120px', justifyContent: 'flex-end' }}>
+              {/* Badge et résultat - Droite */}
+              <Flex direction="column" align="center" gap="2" style={{ flex: 1 }}>
                 {/* Badge du type de match */}
                 <Badge 
                   variant="solid" 
                   style={{ 
-                    backgroundColor: getMatchTypeColor(match.match_type || 'normal'),
-                    fontSize: '0.75rem',
-                    padding: '0.125rem 0.375rem'
+                    background: getMatchTypeColor(getMatchType(match)),
+                    fontSize: '0.7rem',
+                    padding: '0.2rem 0.5rem',
+                    borderRadius: '12px',
+                    color: 'white',
+                    fontWeight: '600'
                   }}
                 >
-                  {getMatchTypeLabel(match.match_type || 'normal')}
+                  {getMatchTypeLabel(getMatchType(match))}
                 </Badge>
 
                 {/* Résultat */}
@@ -207,28 +237,6 @@ const MatchList: React.FC<MatchListProps> = ({
                     {result.result}
                   </Text>
                 </Flex>
-
-                {/* Changement ELO */}
-                <Box style={{ textAlign: 'right' }}>
-                  <Text 
-                    size="1" 
-                    weight="medium" 
-                    style={{ 
-                      color: isRanked ? (
-                        result.eloChange.startsWith('+') ? '#4ade80' : 
-                        result.eloChange.startsWith('-') ? '#f87171' : 
-                        'rgba(255, 255, 255, 0.7)'
-                      ) : 'rgba(255, 255, 255, 0.5)',
-                      fontFamily: 'monospace'
-                    }}
-                  >
-                    {isRanked ? (
-                      isLoading ? '...' : `${result.eloChange} ELO`
-                    ) : (
-                      result.eloChange
-                    )}
-                  </Text>
-                </Box>
               </Flex>
             </Flex>
           </Card>

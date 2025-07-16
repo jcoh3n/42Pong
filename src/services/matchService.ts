@@ -230,7 +230,7 @@ export class MatchService {
 		// Check if the match was just completed and has a winner
 		const wasCompleted = currentMatch?.status !== 'completed' && data.status === 'completed';
 		const hasWinner = data.winner_id && data.winner_id.trim() !== '';
-		const isRanked = data.match_type === 'ranked';
+		const isRanked = data.match_type === 'ranked' || data.type === 'ranked';
 
 		// Trigger ELO update only for ranked matches
 		if (wasCompleted && hasWinner && isRanked) {
@@ -305,7 +305,8 @@ export class MatchService {
 		const user1Score = isUser1 ? newScore : match.user_1_score;
 		const user2Score = isUser1 ? match.user_2_score : newScore;
 		
-		let shouldUpdateElos = false;
+		// Check if this is a ranked match for ELO updates
+		const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
 		let winnerId: string | null = null;
 
 		if (user1Score >= match.score_to_win || user2Score >= match.score_to_win) {
@@ -313,35 +314,29 @@ export class MatchService {
 			winnerId = user1Score >= match.score_to_win ? match.user_1_id : match.user_2_id;
 			
 			// Update match with winner and status
-			await this.updateMatch(matchId, {
+			const completedMatch = await this.updateMatch(matchId, {
 				winner_id: winnerId,
 				status: 'completed',
 				finished_at: new Date().toISOString()
 			});
 
-			// Only update elos for ranked matches
-			if (match.match_type === 'ranked' || match.type === 'ranked') {
-				shouldUpdateElos = true;
+			// Update ELO ratings only for ranked matches
+			if (isRankedMatch) {
+				console.log(`Ranked match ${matchId} completed via score increment, updating ELO ratings...`);
+				
+				// Update ELO ratings asynchronously
+				eloService.updateEloAfterMatch(completedMatch)
+					.then(result => {
+						if (result.success) {
+							console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
+						} else {
+							console.error(`Failed to update ELO ratings for ranked match ${matchId}:`, result.error);
+						}
+					})
+					.catch(error => {
+						console.error(`Error updating ELO ratings for ranked match ${matchId}:`, error);
+					});
 			}
-		}
-
-		// Check if the match was completed by this score increment
-		const completedMatch = await this.getMatchById(matchId);
-		if (completedMatch?.status === 'completed' && completedMatch.winner_id && completedMatch.match_type === 'ranked') {
-			console.log(`Ranked match ${matchId} completed via score increment, updating ELO ratings...`);
-			
-			// Update ELO ratings asynchronously
-			eloService.updateEloAfterMatch(completedMatch)
-				.then(result => {
-					if (result.success) {
-						console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
-					} else {
-						console.error(`Failed to update ELO ratings for ranked match ${matchId}:`, result.error);
-					}
-				})
-				.catch(error => {
-					console.error(`Error updating ELO ratings for ranked match ${matchId}:`, error);
-				});
 		}
 
 		return {

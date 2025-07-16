@@ -386,7 +386,11 @@ export default function HistoryPage() {
               ) : (
                 <MatchList 
                   matches={filteredMatches}
-                  currentUser={currentUser}
+                  currentUser={currentUser ? {
+                    ...currentUser,
+                    wins: 0, // We can calculate this if needed
+                    total_games: 0 // We can calculate this if needed
+                  } : null}
                   topPlayers={allUsers}
                 />
               )}

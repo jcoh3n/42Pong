@@ -24,8 +24,9 @@ export class EloService {
         };
       }
 
-      // Only apply ELO to ranked matches
-      if (match.match_type !== 'ranked') {
+      // Only apply ELO to ranked matches (check both possible properties)
+      const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
+      if (!isRankedMatch) {
         return {
           success: true,
           eloChange: {
@@ -109,8 +110,9 @@ export class EloService {
         return null;
       }
 
-      // Only calculate for ranked matches
-      if (match.match_type !== 'ranked') {
+      // Only calculate for ranked matches (check both possible properties)
+      const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
+      if (!isRankedMatch) {
         return 0;
       }
 
