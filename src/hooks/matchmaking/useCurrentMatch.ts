@@ -12,6 +12,7 @@ import useUser from '../users/useUser';
 import { createClient } from '@/libs/supabase/client';
 import { Database } from '@/types/database.types';
 import useMatch from '../matches/useMatch';
+import { useRouter } from 'next/navigation';
 
 export type MatchData = {
 	match: Match | null;
@@ -34,6 +35,7 @@ export type MatchData = {
 };
 
 const useCurrentMatch = (match_id: string): MatchData => {
+	const router = useRouter();
 	const currentUserData = useCurrentUser();
 	const { data: currentUser } = currentUserData;
 	const supabase = createClient();
@@ -90,7 +92,10 @@ const useCurrentMatch = (match_id: string): MatchData => {
 				hasSetupRealtimeRef.current = false;
 			}
 		};
-	}, [match_id, matchMutate, supabase]);
+
+		router.push('/games');
+
+	}, [match_id, matchMutate, supabase, router]);
 
 	const forfeitMatch = useCallback(async () => {
 		if (!match?.id || isForfeiting || !currentUser) {

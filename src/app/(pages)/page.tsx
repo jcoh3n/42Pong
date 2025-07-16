@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 import { 
   Box, 
@@ -70,7 +70,7 @@ export default function HomePage() {
       router.push('/login');
     }
   }, [currentUser, isLoadingUser, router]);
-  
+
   // Afficher un écran de chargement pendant le chargement des données
   if (isLoadingUser || !currentUser || isLoadingUsers || isLoadingMatches || isLoadingStats) {
     return <LoadingState />;

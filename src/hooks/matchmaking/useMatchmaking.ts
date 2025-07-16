@@ -38,7 +38,7 @@ const useMatchmaking = (): {
 		if (!userId || hasSetupRealtimeRef.current) {
 			return;
 		}
-		
+
 		console.log('Setting up real-time subscription for matchmaking queue:', userId);
 		
 		// Create channel for all event types
