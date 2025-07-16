@@ -243,23 +243,84 @@ export class MatchService {
 			message: string,
 		}
 	}> {
-		const { data, error } = await this.getClient().rpc('increase_user_score', {
-			match_id: matchId,
-			user_id: userId,
-		});
-
-		if (error) {
-			console.error('Error incrementing user score:', error);
-			throw error;
+		// First, get the match to check its type
+		const match = await this.getMatchById(matchId);
+		
+		if (!match) {
+			return {
+				error: {
+					code: 'MATCH_NOT_FOUND',
+					message: 'Match not found'
+				}
+			};
 		}
 
-		return data as {
-			data?: {
-				updated_score: number
-			},
-			error?: {
-				code: string,
-				message: string,
+		// Check if user is participant in the match
+		if (match.user_1_id !== userId && match.user_2_id !== userId) {
+			return {
+				error: {
+					code: 'USER_NOT_IN_MATCH',
+					message: 'User is not a participant in this match'
+				}
+			};
+		}
+
+		// Determine which user's score to increment
+		const isUser1 = match.user_1_id === userId;
+		const currentScore = isUser1 ? match.user_1_score : match.user_2_score;
+		const newScore = currentScore + 1;
+
+		// Update the match score
+		const updatedMatch = await this.updateMatch(matchId, {
+			[isUser1 ? 'user_1_score' : 'user_2_score']: newScore
+		});
+
+		// Check if someone won (reached score_to_win)
+		const user1Score = isUser1 ? newScore : match.user_1_score;
+		const user2Score = isUser1 ? match.user_2_score : newScore;
+		
+		let shouldUpdateElos = false;
+		let winnerId: string | null = null;
+
+		if (user1Score >= match.score_to_win || user2Score >= match.score_to_win) {
+			// Determine winner
+			winnerId = user1Score >= match.score_to_win ? match.user_1_id : match.user_2_id;
+			
+			// Update match with winner and status
+			await this.updateMatch(matchId, {
+				winner_id: winnerId,
+				status: 'completed',
+				finished_at: new Date().toISOString()
+			});
+
+			// Only update elos for ranked matches
+			if (match.match_type === 'ranked' || match.type === 'ranked') {
+				shouldUpdateElos = true;
+			}
+		}
+
+		// Update elos only if it's a ranked match and the match is completed
+		if (shouldUpdateElos && winnerId) {
+			try {
+				// Call the original database function only for ranked matches
+				const { data, error } = await this.getClient().rpc('increase_user_score', {
+					match_id: matchId,
+					user_id: userId,
+				});
+
+				if (error) {
+					console.error('Error updating elos:', error);
+					// Don't throw error here, just log it since the score was already updated
+				}
+			} catch (error) {
+				console.error('Error calling increase_user_score:', error);
+				// Don't throw error here, just log it since the score was already updated
+			}
+		}
+
+		return {
+			data: {
+				updated_score: newScore
 			}
 		};
 	}
@@ -288,10 +349,28 @@ export class MatchService {
 		}
 
 		// Update the match with the forfeit information
-		return this.updateMatch(id, {
+		const updatedMatch = await this.updateMatch(id, {
 			winner_id: winnerId,
-			forfeited_by: forfeitingUserId
+			forfeited_by: forfeitingUserId,
+			status: 'completed',
+			finished_at: new Date().toISOString()
 		});
+
+		// Only update elos if this is a ranked match
+		if (match.match_type === 'ranked' || match.type === 'ranked') {
+			try {
+				// Call the original database function only for ranked matches
+				await this.getClient().rpc('increase_user_score', {
+					match_id: id,
+					user_id: winnerId, // The winner gets the elo benefit
+				});
+			} catch (error) {
+				console.error('Error updating elos for forfeited match:', error);
+				// Don't throw error here, just log it since the match was already updated
+			}
+		}
+
+		return updatedMatch;
 	}
 
 	async deleteMatch(id: string): Promise<boolean> {
