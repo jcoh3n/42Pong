@@ -15,8 +15,9 @@ export type { Notification, NotificationInsert, NotificationUpdate };
 export type { MatchmakingStatus, Matchmaking };
 
 // Export service instances
-export const userService = new UserService();
-export const matchService = new MatchService();
+export { matchService } from './matchService';
+export { eloService } from './eloService';
+export { userService } from './userService';
 export const challengeService = new ChallengeService();
 export const notificationService = new NotificationService();
 export const invitationService = new InvitationService();

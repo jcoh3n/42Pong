@@ -164,7 +164,7 @@ export default function useNotifications(options: NotificationOptions = {}) {
       `notifications-${userId}`,
       'Notifications',
       userId,
-      'user_id',
+      undefined,
       handlers
     );
     
