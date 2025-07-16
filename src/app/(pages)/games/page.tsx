@@ -9,15 +9,7 @@ import useCurrentMatch from "@/hooks/matchmaking/useCurrentMatch";
 
 export default function GamePage() {
 	const matchmakingData = useMatchmaking();
-	const [currentMatchId, setCurrentMatchId] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (matchmakingData.data?.data?.inMatch) {
-			setCurrentMatchId(matchmakingData.data?.data?.matchData?.id || null);
-		}
-
-	}, [matchmakingData.data?.data?.inMatch, matchmakingData.data?.data?.matchData?.id]);
-
+	const currentMatch = useCurrentMatch();
 	const onCurrentMatchLeave = () => {
 		setCurrentMatchId(null);
 	}

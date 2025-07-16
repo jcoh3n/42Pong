@@ -81,7 +81,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 				filter: `id=eq.${match_id}`  // Only for this specific match
 			}, handler)
 			.subscribe();
-		
+
 		// Store unsubscribe function for cleanup
 		unsubscribeRef.current = () => supabase.removeChannel(channel);
 		hasSetupRealtimeRef.current = true;
