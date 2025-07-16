@@ -47,7 +47,7 @@ const useMatchmaking = (): {
 				event: 'INSERT',
 				schema: 'public',
 				table: 'matchmaking_queue',
-				filter: `user_id=eq.${userId}`
+				filter: `player_id=eq.${userId}`
 			}, (payload) => {
 				console.log('Matchmaking queue updated (INSERT):', payload);
 				// Force refresh data from API to get complete state
@@ -57,7 +57,7 @@ const useMatchmaking = (): {
 				event: 'UPDATE',
 				schema: 'public',
 				table: 'matchmaking_queue',
-				filter: `user_id=eq.${userId}`
+				filter: `player_id=eq.${userId}`
 			}, (payload) => {
 				console.log('Matchmaking queue updated (UPDATE):', payload);
 				// Force refresh data from API to get complete state
@@ -67,7 +67,7 @@ const useMatchmaking = (): {
 				event: 'DELETE',
 				schema: 'public',
 				table: 'matchmaking_queue',
-				filter: `user_id=eq.${userId}`
+				filter: `player_id=eq.${userId}`
 			}, (payload) => {
 				console.log('Matchmaking queue updated (DELETE):', payload);
 				// Reset local state and refresh data
