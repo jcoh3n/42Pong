@@ -10,6 +10,8 @@ import { MatchmakingResponse } from '@/app/(pages)/api/matchmaking/route';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { createClient } from '@/libs/supabase/client';
 
+const supabase = createClient();
+
 const useMatchmaking = (): {
 	data: MatchmakingResponse | undefined;
 	error: Error | undefined;
@@ -38,7 +40,7 @@ const useMatchmaking = (): {
 		if (!userId || hasSetupRealtimeRef.current) {
 			return;
 		}
-
+		
 		console.log('Setting up real-time subscription for matchmaking queue:', userId);
 		
 		// Create channel for all event types
@@ -166,7 +168,7 @@ const useMatchmaking = (): {
 	}, [timeInQueue]);
 
 	return {
-		data: data as MatchmakingResponse,
+		data: matchmakingData as MatchmakingResponse,
 		error,
 		isLoading: isLoading || isStarting || isStopping,
 		mutate,
