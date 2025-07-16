@@ -76,6 +76,26 @@ const useMatchmaking = (): {
 				setTimeInQueue(null);
 				mutate();
 			})
+			.on('postgres_changes', {
+				event: 'INSERT',
+				schema: 'public',
+				table: 'Matches',
+				filter: `user_1_id=eq.${userId}`
+			}, (payload) => {
+				console.log('Matchmaking queue updated (INSERT):', payload);
+				// Force refresh data from API to get complete state
+				mutate();
+			})
+			.on('postgres_changes', {
+				event: 'INSERT',
+				schema: 'public',
+				table: 'Matches',
+				filter: `user_2_id=eq.${userId}`
+			}, (payload) => {
+				console.log('Matchmaking queue updated (INSERT):', payload);
+				// Force refresh data from API to get complete state
+				mutate();
+			})
 			.subscribe();
 		
 		// Store unsubscribe function for cleanup
@@ -150,7 +170,7 @@ const useMatchmaking = (): {
 		return () => clearInterval(interval);
 	}, [matchmakingData?.data?.inQueue, matchmakingData?.data?.queueData?.joined_at]);
 
-	const formatedTimeInQueue = useMemo(() => {
+	const getFormatedTimeInQueue = () => {
 		if (!timeInQueue) return null;
 		
 		if (timeInQueue < 60) {
@@ -165,7 +185,9 @@ const useMatchmaking = (): {
 			const seconds = timeInQueue % 60;
 			return `${hours}h`;
 		}
-	}, [timeInQueue]);
+	};
+
+	const formatedTimeInQueue = getFormatedTimeInQueue();
 
 	return {
 		data: matchmakingData as MatchmakingResponse,
