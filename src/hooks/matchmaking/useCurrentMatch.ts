@@ -84,6 +84,8 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		unsubscribeRef.current = () => supabase.removeChannel(channel);
 		hasSetupRealtimeRef.current = true;
 		
+		router.push('/games');
+
 		// Clean up on unmount or when match_id changes
 		return () => {
 			if (unsubscribeRef.current) {
@@ -92,8 +94,6 @@ const useCurrentMatch = (match_id: string): MatchData => {
 				hasSetupRealtimeRef.current = false;
 			}
 		};
-
-		router.push('/games');
 
 	}, [match_id, matchMutate, supabase, router]);
 
