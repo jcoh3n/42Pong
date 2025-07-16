@@ -22,6 +22,7 @@ import { FaTrophy, FaChartLine } from 'react-icons/fa';
 import useCurrentUser from "@/hooks/useCurrentUser";
 import useUsers from "@/hooks/users/useUsers";
 import useUserMatches from "@/hooks/matches/useUserMatches";
+import useUserStats from "@/hooks/users/useUserStats";
 import { 
   LoadingState, 
   RankingList, 
@@ -46,16 +47,16 @@ export default function HomePage() {
     { pageSize: 5 } // Récupérer les 5 derniers matchs
   );
   
+  // Récupérer les statistiques de l'utilisateur avec realtime
+  const { stats, isLoading: isLoadingStats } = useUserStats(currentUser?.id);
+  
   // Trouver la position de l'utilisateur actuel dans le classement
   const currentUserRank = topPlayers.findIndex((player: any) => player?.id === currentUser?.id) + 1;
   
-  // Calculer les statistiques
-  const totalMatches = matches.length;
-  const wins = matches.filter((match: any) => 
-    (match.player1_id === currentUser?.id && match.player1_score > match.player2_score) ||
-    (match.player2_id === currentUser?.id && match.player2_score > match.player1_score)
-  ).length;
-  const winRate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+  // Utiliser les statistiques du hook ou des valeurs par défaut
+  const totalMatches = stats?.totalMatches || 0;
+  const wins = stats?.wins || 0;
+  const winRate = stats?.winRate || 0;
   
   // Gestionnaires d'événements
   const handleViewLeaderboard = () => router.push('/leaderboard');
@@ -71,7 +72,7 @@ export default function HomePage() {
   }, [currentUser, isLoadingUser, router]);
   
   // Afficher un écran de chargement pendant le chargement des données
-  if (isLoadingUser || !currentUser || isLoadingUsers || isLoadingMatches) {
+  if (isLoadingUser || !currentUser || isLoadingUsers || isLoadingMatches || isLoadingStats) {
     return <LoadingState />;
   }
   
@@ -179,7 +180,7 @@ export default function HomePage() {
                 matches={matches}
                 currentUser={currentUser}
                 topPlayers={topPlayers}
-                onViewHistory={handleViewHistory}
+                limit={5}
               />
             </Grid>
           </Box>

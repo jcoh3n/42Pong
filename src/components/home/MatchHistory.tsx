@@ -2,22 +2,26 @@ import React from 'react';
 import { Card, Flex, Heading, Button, Text, Separator, Badge, Box } from "@radix-ui/themes";
 import { CaretRightIcon } from "@radix-ui/react-icons";
 import { FaHistory, FaTrophy, FaRegSadTear } from 'react-icons/fa';
+import { GiPingPongBat } from 'react-icons/gi';
 import { Match } from "@/services/types";
 import { FetchedUser } from "@/services/userService";
+import { useRouter } from 'next/navigation';
 
 interface MatchHistoryProps {
   matches: Match[];
   currentUser: any;
   topPlayers: FetchedUser[];
-  onViewHistory: () => void;
+  limit?: number;
 }
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ 
   matches = [], 
   currentUser, 
   topPlayers = [],
-  onViewHistory 
+  limit
 }) => {
+  const router = useRouter();
+  
   // Calculer le résultat des matchs pour l'affichage
   const getMatchResult = (match: Match) => {
     if (!match || !currentUser) return { 
@@ -41,6 +45,46 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
         eloChange: "-18", // Valeur fictive, à remplacer par la vraie logique
         icon: <FaRegSadTear size={14} color="#f87171" />
       };
+    }
+  };
+
+  // Obtenir le badge du type de match
+  const getMatchTypeBadge = (match: Match) => {
+    const matchType = match.match_type || match.type;
+    
+    switch (matchType) {
+      case 'normal':
+        return {
+          label: "Quick",
+          color: "#4ade80", // Vert
+          background: "rgba(74, 222, 128, 0.2)",
+          border: "1px solid rgba(74, 222, 128, 0.4)",
+          icon: <GiPingPongBat size={12} color="#4ade80" />
+        };
+      case 'ranked':
+        return {
+          label: "Ranked",
+          color: "#3b82f6", // Bleu
+          background: "rgba(59, 130, 246, 0.2)",
+          border: "1px solid rgba(59, 130, 246, 0.4)",
+          icon: <FaTrophy size={12} color="#3b82f6" />
+        };
+      case 'friendly':
+        return {
+          label: "Friend",
+          color: "#f59e0b", // Orange
+          background: "rgba(245, 158, 11, 0.2)",
+          border: "1px solid rgba(245, 158, 11, 0.4)",
+          icon: <FaHistory size={12} color="#f59e0b" />
+        };
+      default:
+        return {
+          label: "Match",
+          color: "rgba(255, 255, 255, 0.7)",
+          background: "rgba(255, 255, 255, 0.1)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+          icon: null
+        };
     }
   };
   
@@ -97,10 +141,22 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
           <FaHistory color="white" size={18} />
           <Heading size="4" style={{ color: 'white' }}>Dernières parties</Heading>
         </Flex>
-        <Button variant="ghost" style={{ color: 'white', background: 'rgba(255, 255, 255, 0.1)' }} onClick={onViewHistory}>
-          <Text size="2" style={{ color: 'white' }}>Historique</Text>
-          <CaretRightIcon color="white" />
-        </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => router.push('/history')}
+            style={{ 
+              color: 'rgba(255, 255, 255, 0.8)',
+              fontSize: '14px',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              transition: 'all 0.2s ease',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              background: 'rgba(255, 255, 255, 0.05)'
+            }}
+            className="hover:bg-white/10 hover:border-white/30"
+          >
+            View all
+          </Button>
       </Flex>
       
       <Separator size="4" style={{ background: 'rgba(255, 255, 255, 0.1)' }} />
@@ -108,11 +164,12 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
       <Flex direction="column" gap="3" p="4">
         {/* Liste des dernières parties */}
         <Flex direction="column" gap="3">
-          {hasMatches ? (
-            matches.map((match: Match) => {
+          {hasMatches && matches.length > 0 ? (
+            (limit ? matches.slice(0, limit) : matches).map((match: Match) => {
               if (!match || !match.id) return null;
               
               const matchResult = getMatchResult(match);
+              const matchTypeBadge = getMatchTypeBadge(match);
               const score = getMatchScore(match);
               const opponentName = getOpponentName(match);
               const date = formatDate(match.finished_at || match.created_at);
@@ -128,13 +185,14 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
                 className="hover:shadow-md hover:scale-[1.02]"
                 >
                   <Flex direction="column" gap="3" p="3">
+                    {/* Ligne du haut : Badges de résultat et type + ELO change */}
                     <Flex justify="between" align="center">
                       <Flex align="center" gap="2">
                         <Badge 
                           variant="solid" 
                           radius="full"
                           style={{ 
-                            padding: '2px 10px',
+                            padding: '3px 10px',
                             background: matchResult.result === "Victoire" ? 
                               'rgba(74, 222, 128, 0.2)' : 
                               'rgba(248, 113, 113, 0.2)',
@@ -148,29 +206,51 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
                             </Text>
                           </Flex>
                         </Badge>
-                        <Text size="2" weight="medium" style={{ color: 'white' }}>vs {opponentName}</Text>
+                        {/* Badge du type de match */}
+                        <Badge 
+                          variant="solid" 
+                          radius="full"
+                          style={{ 
+                            padding: '3px 10px',
+                            background: matchTypeBadge.background,
+                            border: matchTypeBadge.border
+                          }}
+                        >
+                          <Flex align="center" gap="1">
+                            {matchTypeBadge.icon}
+                            <Text size="1" weight="medium" style={{ color: matchTypeBadge.color }}>
+                              {matchTypeBadge.label}
+                            </Text>
+                          </Flex>
+                        </Badge>
                       </Flex>
                       <Text size="2" weight="bold" style={{ color: matchResult.color }}>
                         {matchResult.eloChange}
                       </Text>
                     </Flex>
                     
+                    {/* Ligne du bas : Score + Adversaire + Date */}
                     <Flex justify="between" align="center">
                       <Flex align="center" gap="2">
                         <Box style={{ 
                           background: 'rgba(255, 255, 255, 0.1)', 
-                          padding: '4px 12px', 
-                          borderRadius: '8px',
+                          padding: '6px 14px', 
+                          borderRadius: '10px',
                           border: '1px solid rgba(255, 255, 255, 0.2)'
                         }}>
                           <Text size="3" weight="bold" style={{ fontFamily: 'monospace', color: 'white' }}>
                             {score}
                           </Text>
                         </Box>
+                        <Text size="2" weight="medium" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                          vs <Text as="span" weight="bold" style={{ color: 'white' }}>{opponentName}</Text>
+                        </Text>
                       </Flex>
-                      <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                        {date}
-                      </Text>
+                      <Flex align="center" gap="3">
+                        <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                          {date}
+                        </Text>
+                      </Flex>
                     </Flex>
                   </Flex>
                 </Card>
