@@ -60,6 +60,8 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		if (!match_id || hasSetupRealtimeRef.current) {
 			return;
 		}
+
+		matchMutate();
 		
 		console.log('Setting up real-time subscription for match:', match_id);
 		
@@ -83,7 +85,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		// Store unsubscribe function for cleanup
 		unsubscribeRef.current = () => supabase.removeChannel(channel);
 		hasSetupRealtimeRef.current = true;
-		
+
 		router.push('/games');
 
 		// Clean up on unmount or when match_id changes
