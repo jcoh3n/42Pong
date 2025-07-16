@@ -1,13 +1,13 @@
 import React from 'react';
-import { Card, Flex, Text, Badge, Box, Avatar } from "@radix-ui/themes";
-import { FaHistory, FaTrophy, FaRegSadTear } from 'react-icons/fa';
-import { GiPingPongBat } from 'react-icons/gi';
-import { Match } from "@/services/types";
-import { FetchedUser } from "@/services/userService";
+import { Box, Card, Flex, Text, Badge, Avatar, Separator } from '@radix-ui/themes';
+import { FaTrophy, FaRegSadTear, FaClock, FaGamepad } from 'react-icons/fa';
+import { Match } from '@/services/matchService';
+import { FetchedUser } from '@/services/userService';
+import { useMultipleEloChanges } from '@/hooks/useElo';
 
 interface MatchListProps {
   matches: Match[];
-  currentUser: any;
+  currentUser: FetchedUser | null;
   topPlayers: FetchedUser[];
   limit?: number;
 }
@@ -18,6 +18,9 @@ const MatchList: React.FC<MatchListProps> = ({
   topPlayers = [],
   limit
 }) => {
+  // Get ELO changes for all matches
+  const { eloChanges, getFormattedEloChange, isLoading } = useMultipleEloChanges(matches, currentUser?.id);
+
   // Calculer le résultat des matchs pour l'affichage
   const getMatchResult = (match: Match) => {
     if (!match || !currentUser) return { 
@@ -27,247 +30,211 @@ const MatchList: React.FC<MatchListProps> = ({
       icon: null
     };
 
+    // Pour les matchs non-ranked, pas de changement d'ELO
+    let eloChange = "Non affecté";
+    if (match.match_type === 'ranked') {
+      eloChange = getFormattedEloChange(match.id);
+    }
+
     if (match.winner_id === currentUser.id) {
       return {
         result: "Victoire",
         color: "#4ade80", // Vert clair
-        eloChange: "+25", // Valeur fictive, à remplacer par la vraie logique
+        eloChange: eloChange,
         icon: <FaTrophy size={14} color="#4ade80" />
       };
     } else {
       return {
         result: "Défaite",
         color: "#f87171", // Rouge clair
-        eloChange: "-18", // Valeur fictive, à remplacer par la vraie logique
+        eloChange: eloChange,
         icon: <FaRegSadTear size={14} color="#f87171" />
       };
     }
   };
 
-  // Obtenir le badge du type de match
-  const getMatchTypeBadge = (match: Match) => {
-    const matchType = match.match_type || match.type;
-    
-    switch (matchType) {
-      case 'normal':
-        return {
-          label: "Quick",
-          color: "#4ade80", // Vert
-          background: "rgba(74, 222, 128, 0.2)",
-          border: "1px solid rgba(74, 222, 128, 0.4)",
-          icon: <GiPingPongBat size={12} color="#4ade80" />
-        };
-      case 'ranked':
-        return {
-          label: "Ranked",
-          color: "#3b82f6", // Bleu
-          background: "rgba(59, 130, 246, 0.2)",
-          border: "1px solid rgba(59, 130, 246, 0.4)",
-          icon: <FaTrophy size={12} color="#3b82f6" />
-        };
-      case 'friendly':
-        return {
-          label: "Friend",
-          color: "#f59e0b", // Orange
-          background: "rgba(245, 158, 11, 0.2)",
-          border: "1px solid rgba(245, 158, 11, 0.4)",
-          icon: <FaHistory size={12} color="#f59e0b" />
-        };
-      default:
-        return {
-          label: "Match",
-          color: "rgba(255, 255, 255, 0.7)",
-          background: "rgba(255, 255, 255, 0.1)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
-          icon: null
-        };
-    }
-  };
-  
-  // Obtenir l'adversaire complet
+  // Récupérer les informations de l'adversaire
   const getOpponent = (match: Match) => {
-    if (!match || !currentUser) return null;
+    if (!currentUser) return null;
     
     const opponentId = match.user_1_id === currentUser.id ? match.user_2_id : match.user_1_id;
-    const opponent = topPlayers.find((player: FetchedUser) => player?.id === opponentId);
-    return opponent || null;
-  };
-  
-  // Obtenir le nom de l'adversaire
-  const getOpponentName = (match: Match) => {
-    if (!match || !currentUser) return "Inconnu";
-    
-    const opponentId = match.user_1_id === currentUser.id ? match.user_2_id : match.user_1_id;
-    const opponent = topPlayers.find((player: FetchedUser) => player?.id === opponentId);
-    return opponent?.login || "Inconnu";
-  };
-  
-  // Obtenir le score du match
-  const getMatchScore = (match: Match) => {
-    if (!match || !currentUser) return "? - ?";
-    
-    if (match.user_1_id === currentUser.id) {
-      return `${match.user_1_score || 0} - ${match.user_2_score || 0}`;
-    } else {
-      return `${match.user_2_score || 0} - ${match.user_1_score || 0}`;
-    }
+    return topPlayers.find(player => player.id === opponentId) || null;
   };
 
-  // Formater la date
+  // Obtenir le score de l'utilisateur actuel
+  const getUserScore = (match: Match) => {
+    if (!currentUser) return 0;
+    return match.user_1_id === currentUser.id ? match.user_1_score : match.user_2_score;
+  };
+
+  // Obtenir le score de l'adversaire
+  const getOpponentScore = (match: Match) => {
+    if (!currentUser) return 0;
+    return match.user_1_id === currentUser.id ? match.user_2_score : match.user_1_score;
+  };
+
+  // Formater la date du match
   const formatDate = (dateString: string) => {
-    if (!dateString) return "";
-    
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (error) {
-      return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-FR', { 
+      day: '2-digit', 
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Obtenir la couleur du badge selon le type de match
+  const getMatchTypeColor = (matchType: string) => {
+    switch (matchType) {
+      case 'ranked':
+        return '#8B5CF6'; // Violet pour ranked
+      case 'friendly':
+        return '#10B981'; // Vert pour friendly
+      case 'normal':
+      default:
+        return '#6B7280'; // Gris pour normal
     }
   };
 
-  // Vérifier si les données sont disponibles
-  const hasMatches = Array.isArray(matches) && matches.length > 0 && currentUser;
+  // Obtenir le label du type de match
+  const getMatchTypeLabel = (matchType: string) => {
+    switch (matchType) {
+      case 'ranked':
+        return 'Classé';
+      case 'friendly':
+        return 'Amical';
+      case 'normal':
+      default:
+        return 'Normal';
+    }
+  };
+
+  const displayedMatches = limit ? matches.slice(0, limit) : matches;
+
+  if (displayedMatches.length === 0) {
+    return (
+      <Card style={{ 
+        padding: '2rem', 
+        textAlign: 'center', 
+        background: 'rgba(255, 255, 255, 0.02)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <Box style={{ marginBottom: '1rem' }}>
+          <FaGamepad size={48} color="rgba(255, 255, 255, 0.3)" />
+        </Box>
+        <Text size="3" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+          Aucun match récent
+        </Text>
+        <Text size="2" style={{ color: 'rgba(255, 255, 255, 0.5)', marginTop: '0.5rem' }}>
+          Lancez un match pour commencer !
+        </Text>
+      </Card>
+    );
+  }
 
   return (
-    <Flex direction="column" gap="3">
-      {/* Liste des matchs */}
-      <Flex direction="column" gap="3">
-        {hasMatches && matches.length > 0 ? (
-          (limit ? matches.slice(0, limit) : matches).map((match: Match) => {
-            if (!match || !match.id) return null;
-            
-            const matchResult = getMatchResult(match);
-            const matchTypeBadge = getMatchTypeBadge(match);
-            const score = getMatchScore(match);
-            const opponent = getOpponent(match);
-            const opponentName = getOpponentName(match);
-            const date = formatDate(match.finished_at || match.created_at);
-            
-            return (
-              <Card key={match.id} style={{ 
-                borderRadius: '12px',
-                border: `1px solid ${matchResult.color}40`,
-                background: `${matchResult.color}10`,
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-              }}
-              className="hover:shadow-md hover:scale-[1.02]"
-              >
-                <Flex direction="column" gap="3" p="3">
-                  {/* Ligne du haut : Badges de résultat et type + ELO change */}
-                  <Flex justify="between" align="center">
-                    <Flex align="center" gap="2">
-                      <Badge 
-                        variant="solid" 
-                        radius="full"
-                        style={{ 
-                          padding: '3px 10px',
-                          background: matchResult.result === "Victoire" ? 
-                            'rgba(74, 222, 128, 0.2)' : 
-                            'rgba(248, 113, 113, 0.2)',
-                          border: `1px solid ${matchResult.color}40`
-                        }}
-                      >
-                        <Flex align="center" gap="1">
-                          {matchResult.icon}
-                          <Text size="1" weight="medium" style={{ color: matchResult.color }}>
-                            {matchResult.result}
-                          </Text>
-                        </Flex>
-                      </Badge>
-                      {/* Badge du type de match */}
-                      <Badge 
-                        variant="solid" 
-                        radius="full"
-                        style={{ 
-                          padding: '3px 10px',
-                          background: matchTypeBadge.background,
-                          border: matchTypeBadge.border
-                        }}
-                      >
-                        <Flex align="center" gap="1">
-                          {matchTypeBadge.icon}
-                          <Text size="1" weight="medium" style={{ color: matchTypeBadge.color }}>
-                            {matchTypeBadge.label}
-                          </Text>
-                        </Flex>
-                      </Badge>
-                    </Flex>
-                    <Text size="2" weight="bold" style={{ color: matchResult.color }}>
-                      {matchResult.eloChange}
+    <Box style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {displayedMatches.map((match) => {
+        const result = getMatchResult(match);
+        const opponent = getOpponent(match);
+        const userScore = getUserScore(match);
+        const opponentScore = getOpponentScore(match);
+        const isRanked = match.match_type === 'ranked';
+        
+        return (
+          <Card 
+            key={match.id} 
+            style={{
+              padding: '1rem',
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '8px',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer'
+            }}
+            className="hover:bg-[rgba(255,255,255,0.05)] hover:border-[rgba(255,255,255,0.2)]"
+          >
+            <Flex justify="between" align="center">
+              {/* Informations du match */}
+              <Flex align="center" gap="3" style={{ flex: 1 }}>
+                {/* Avatar et nom de l'adversaire */}
+                <Avatar
+                  size="2"
+                  src={opponent?.avatar_url || "https://via.placeholder.com/32"}
+                  fallback={opponent?.login?.substring(0, 2).toUpperCase() || "??"}
+                  radius="full"
+                />
+                
+                <Box>
+                  <Text size="2" weight="medium" style={{ color: 'white' }}>
+                    vs {opponent?.login || "Inconnu"}
+                  </Text>
+                  <Flex align="center" gap="2" style={{ marginTop: '0.25rem' }}>
+                    <FaClock size={10} color="rgba(255, 255, 255, 0.5)" />
+                    <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                      {formatDate(match.created_at)}
                     </Text>
                   </Flex>
-                  
-                  {/* Ligne du bas : Score + Adversaire + Date */}
-                  <Flex justify="between" align="center">
-                    <Flex align="center" gap="2">
-                      <Box style={{ 
-                        background: 'rgba(255, 255, 255, 0.1)', 
-                        padding: '6px 14px', 
-                        borderRadius: '10px',
-                        border: '1px solid rgba(255, 255, 255, 0.2)'
-                      }}>
-                        <Text size="3" weight="bold" style={{ fontFamily: 'monospace', color: 'white' }}>
-                          {score}
-                        </Text>
-                      </Box>
-                      <Flex align="center" gap="2">
-                        <Text size="2" weight="medium" style={{ color: 'rgba(255, 255, 255, 0.8)' }}>
-                          vs
-                        </Text>
-                        <Avatar
-                          size="2"
-                          src={opponent?.avatar_url || undefined}
-                          fallback={opponent?.login?.charAt(0)?.toUpperCase() || "?"}
-                          radius="full"
-                          style={{
-                            border: '2px solid rgba(255, 255, 255, 0.2)',
-                          }}
-                        />
-                        <Text as="span" weight="bold" style={{ color: 'white' }}>
-                          {opponentName}
-                        </Text>
-                      </Flex>
-                    </Flex>
-                    <Flex align="center" gap="3">
-                      <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                        {date}
-                      </Text>
-                    </Flex>
-                  </Flex>
+                </Box>
+              </Flex>
+
+              {/* Score */}
+              <Flex align="center" gap="2">
+                <Text size="3" weight="bold" style={{ color: 'white' }}>
+                  {userScore} - {opponentScore}
+                </Text>
+              </Flex>
+
+              {/* Résultat et changement ELO */}
+              <Flex align="center" gap="3" style={{ minWidth: '120px', justifyContent: 'flex-end' }}>
+                {/* Badge du type de match */}
+                <Badge 
+                  variant="solid" 
+                  style={{ 
+                    backgroundColor: getMatchTypeColor(match.match_type || 'normal'),
+                    fontSize: '0.75rem',
+                    padding: '0.125rem 0.375rem'
+                  }}
+                >
+                  {getMatchTypeLabel(match.match_type || 'normal')}
+                </Badge>
+
+                {/* Résultat */}
+                <Flex align="center" gap="1">
+                  {result.icon}
+                  <Text size="2" weight="medium" style={{ color: result.color }}>
+                    {result.result}
+                  </Text>
                 </Flex>
-              </Card>
-            );
-          })
-        ) : (
-          <Flex 
-            align="center" 
-            justify="center" 
-            direction="column"
-            gap="2"
-            p="6"
-            style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderRadius: '12px',
-              border: '1px dashed rgba(255, 255, 255, 0.2)'
-            }}
-          >
-            <FaHistory size={24} color="rgba(255, 255, 255, 0.3)" />
-            <Text size="2" style={{ color: 'rgba(255, 255, 255, 0.7)' }} align="center">
-              Aucune partie récente
-            </Text>
-            <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.5)' }} align="center">
-              Jouez votre première partie pour voir votre historique ici
-            </Text>
-          </Flex>
-        )}
-      </Flex>
-    </Flex>
+
+                {/* Changement ELO */}
+                <Box style={{ textAlign: 'right' }}>
+                  <Text 
+                    size="1" 
+                    weight="medium" 
+                    style={{ 
+                      color: isRanked ? (
+                        result.eloChange.startsWith('+') ? '#4ade80' : 
+                        result.eloChange.startsWith('-') ? '#f87171' : 
+                        'rgba(255, 255, 255, 0.7)'
+                      ) : 'rgba(255, 255, 255, 0.5)',
+                      fontFamily: 'monospace'
+                    }}
+                  >
+                    {isRanked ? (
+                      isLoading ? '...' : `${result.eloChange} ELO`
+                    ) : (
+                      result.eloChange
+                    )}
+                  </Text>
+                </Box>
+              </Flex>
+            </Flex>
+          </Card>
+        );
+      })}
+    </Box>
   );
 };
 

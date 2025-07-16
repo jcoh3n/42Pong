@@ -1,6 +1,7 @@
 import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 import { PaginatedResponse } from "./userService";
+import { eloService } from './eloService';
 
 // Define match-specific types
 export type Match = Database['public']['Tables']['Matches']['Row'];
@@ -38,7 +39,7 @@ export class MatchService {
 
 		// Add filters and ordering
 		if (onlyCompleted) {
-			query = query.not('finished_at', 'is', null);
+			query = query.eq('status', 'completed');
 		}
 
 		query = query
@@ -211,6 +212,9 @@ export class MatchService {
 	}
 
 	async updateMatch(id: string, updates: MatchUpdate): Promise<Match> {
+		// Get the current match state before updating
+		const currentMatch = await this.getMatchById(id);
+		
 		const { data, error } = await this.getClient()
 			.from('Matches')
 			.update(updates)
@@ -223,6 +227,29 @@ export class MatchService {
 			throw error;
 		}
 
+		// Check if the match was just completed and has a winner
+		const wasCompleted = currentMatch?.status !== 'completed' && data.status === 'completed';
+		const hasWinner = data.winner_id && data.winner_id.trim() !== '';
+		const isRanked = data.match_type === 'ranked';
+
+		// Trigger ELO update only for ranked matches
+		if (wasCompleted && hasWinner && isRanked) {
+			console.log(`Ranked match ${id} completed with winner ${data.winner_id}, updating ELO ratings...`);
+			
+			// Update ELO ratings asynchronously (don't wait for it to complete)
+			eloService.updateEloAfterMatch(data)
+				.then(result => {
+					if (result.success) {
+						console.log(`ELO ratings updated successfully for ranked match ${id}:`, result.eloChange);
+					} else {
+						console.error(`Failed to update ELO ratings for ranked match ${id}:`, result.error);
+					}
+				})
+				.catch(error => {
+					console.error(`Error updating ELO ratings for ranked match ${id}:`, error);
+				});
+		}
+
 		return data;
 	}
 
@@ -232,7 +259,6 @@ export class MatchService {
 			user_2_score: user2Score
 		});
 	}
-
 
 	async incrementUserScore(matchId: string, userId: string): Promise<{
 		data?: {
@@ -299,6 +325,7 @@ export class MatchService {
 			}
 		}
 
+<<<<<<< Updated upstream
 		// Update elos only if it's a ranked match and the match is completed
 		if (shouldUpdateElos && winnerId) {
 			try {
@@ -321,6 +348,34 @@ export class MatchService {
 		return {
 			data: {
 				updated_score: newScore
+=======
+		// Check if the match was completed by this score increment
+		const match = await this.getMatchById(matchId);
+		if (match?.status === 'completed' && match.winner_id && match.match_type === 'ranked') {
+			console.log(`Ranked match ${matchId} completed via score increment, updating ELO ratings...`);
+			
+			// Update ELO ratings asynchronously
+			eloService.updateEloAfterMatch(match)
+				.then(result => {
+					if (result.success) {
+						console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
+					} else {
+						console.error(`Failed to update ELO ratings for ranked match ${matchId}:`, result.error);
+					}
+				})
+				.catch(error => {
+					console.error(`Error updating ELO ratings for ranked match ${matchId}:`, error);
+				});
+		}
+
+		return data as {
+			data?: {
+				updated_score: number
+			},
+			error?: {
+				code: string,
+				message: string,
+>>>>>>> Stashed changes
 			}
 		};
 	}
@@ -349,7 +404,12 @@ export class MatchService {
 		}
 
 		// Update the match with the forfeit information
+<<<<<<< Updated upstream
 		const updatedMatch = await this.updateMatch(id, {
+=======
+		// This will automatically trigger ELO updates via updateMatch
+		return this.updateMatch(id, {
+>>>>>>> Stashed changes
 			winner_id: winnerId,
 			forfeited_by: forfeitingUserId,
 			status: 'completed',
@@ -372,19 +432,6 @@ export class MatchService {
 
 		return updatedMatch;
 	}
+}
 
-	async deleteMatch(id: string): Promise<boolean> {
-		const { error } = await this.getClient()
-			.from('Matches')
-			.delete()
-			.eq('id', id);
-
-		if (error) {
-			console.error(`Error deleting match with id ${id}:`, error);
-			throw error;
-		}
-
-		return true;
-	}
-
-} 
+export const matchService = new MatchService(); 

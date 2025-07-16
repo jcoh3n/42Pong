@@ -243,4 +243,6 @@ export class UserService {
 
     return true;
   }
-} 
+}
+
+export const userService = new UserService(); 
