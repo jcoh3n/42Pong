@@ -325,37 +325,13 @@ export class MatchService {
 			}
 		}
 
-<<<<<<< Updated upstream
-		// Update elos only if it's a ranked match and the match is completed
-		if (shouldUpdateElos && winnerId) {
-			try {
-				// Call the original database function only for ranked matches
-				const { data, error } = await this.getClient().rpc('increase_user_score', {
-					match_id: matchId,
-					user_id: userId,
-				});
-
-				if (error) {
-					console.error('Error updating elos:', error);
-					// Don't throw error here, just log it since the score was already updated
-				}
-			} catch (error) {
-				console.error('Error calling increase_user_score:', error);
-				// Don't throw error here, just log it since the score was already updated
-			}
-		}
-
-		return {
-			data: {
-				updated_score: newScore
-=======
 		// Check if the match was completed by this score increment
-		const match = await this.getMatchById(matchId);
-		if (match?.status === 'completed' && match.winner_id && match.match_type === 'ranked') {
+		const completedMatch = await this.getMatchById(matchId);
+		if (completedMatch?.status === 'completed' && completedMatch.winner_id && completedMatch.match_type === 'ranked') {
 			console.log(`Ranked match ${matchId} completed via score increment, updating ELO ratings...`);
 			
 			// Update ELO ratings asynchronously
-			eloService.updateEloAfterMatch(match)
+			eloService.updateEloAfterMatch(completedMatch)
 				.then(result => {
 					if (result.success) {
 						console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
@@ -368,14 +344,9 @@ export class MatchService {
 				});
 		}
 
-		return data as {
-			data?: {
-				updated_score: number
-			},
-			error?: {
-				code: string,
-				message: string,
->>>>>>> Stashed changes
+		return {
+			data: {
+				updated_score: newScore
 			}
 		};
 	}
@@ -404,33 +375,13 @@ export class MatchService {
 		}
 
 		// Update the match with the forfeit information
-<<<<<<< Updated upstream
-		const updatedMatch = await this.updateMatch(id, {
-=======
 		// This will automatically trigger ELO updates via updateMatch
 		return this.updateMatch(id, {
->>>>>>> Stashed changes
 			winner_id: winnerId,
 			forfeited_by: forfeitingUserId,
 			status: 'completed',
 			finished_at: new Date().toISOString()
 		});
-
-		// Only update elos if this is a ranked match
-		if (match.match_type === 'ranked' || match.type === 'ranked') {
-			try {
-				// Call the original database function only for ranked matches
-				await this.getClient().rpc('increase_user_score', {
-					match_id: id,
-					user_id: winnerId, // The winner gets the elo benefit
-				});
-			} catch (error) {
-				console.error('Error updating elos for forfeited match:', error);
-				// Don't throw error here, just log it since the match was already updated
-			}
-		}
-
-		return updatedMatch;
 	}
 }
 
