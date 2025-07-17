@@ -2,11 +2,12 @@ import React from 'react';
 import { Box, Flex, Text, Avatar, Badge, Card } from '@radix-ui/themes';
 import { motion } from 'framer-motion';
 
-interface WelcomeCardProps {
+interface ProfileWelcomeCardProps {
   user: {
     login: string;
     avatar_url?: string;
     elo_score: number;
+    created_at: string;
   };
   rank: number;
   stats: {
@@ -14,100 +15,100 @@ interface WelcomeCardProps {
     totalMatches: number;
     winRate: number;
   };
-  onViewProfile: () => void;
 }
 
-const WelcomeCard: React.FC<WelcomeCardProps> = ({ 
+const ProfileWelcomeCard: React.FC<ProfileWelcomeCardProps> = ({ 
   user, 
   rank, 
-  stats,
-  onViewProfile 
+  stats
 }) => {
+  const joinDate = new Date(user.created_at).toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="w-full max-w-2xl"
+      className="w-full max-w-3xl"
     >
       <Box
-        onClick={onViewProfile}
-        className="cursor-pointer relative group"
+        className="relative group"
         style={{
-          borderRadius: '20px',
+          borderRadius: '24px',
           overflow: 'hidden',
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           border: '1px solid rgba(255, 255, 255, 0.2)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-          transition: 'all 0.3s ease',
         }}
       >
-        {/* Effet de hover */}
-        <Box
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{
-            background: 'linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-          }}
-        />
-
         <Flex 
           direction="column" 
-          p={{ initial: "4", sm: "5", md: "6" }}
-          gap={{ initial: "3", sm: "4" }}
+          p={{ initial: "5", sm: "6", md: "7" }}
+          gap={{ initial: "4", sm: "5" }}
           className="relative z-10"
         >
-          {/* Informations principales utilisateur */}
+          {/* Section principale avec avatar et informations */}
           <Flex 
             align="center" 
-            gap={{ initial: "3", sm: "4" }}
+            gap={{ initial: "4", sm: "5" }}
             className="relative"
-            direction={{ initial: "column", sm: "row" }}
+            direction={{ initial: "column", md: "row" }}
           >
+            {/* Avatar large */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               <Avatar
-                size={{ initial: "5", sm: "6" }}
-                src={user.avatar_url || "https://via.placeholder.com/120"}
+                size={{ initial: "7", sm: "8", md: "9" }}
+                src={user.avatar_url || "https://via.placeholder.com/200"}
                 fallback={user.login?.substring(0, 2).toUpperCase() || "??"}
                 radius="full"
                 style={{
-                  border: '3px solid rgba(255, 255, 255, 0.3)',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                  border: '4px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 6px 24px rgba(0, 0, 0, 0.4)',
                 }}
               />
             </motion.div>
 
+            {/* Informations utilisateur */}
             <Flex 
               direction="column" 
-              gap="2" 
+              gap="3" 
               className="flex-1"
-              align={{ initial: "center", sm: "start" }}
+              align={{ initial: "center", md: "start" }}
             >
+              {/* Nom utilisateur */}
               <Text
-                size={{ initial: "6", sm: "7" }}
+                size={{ initial: "7", sm: "8", md: "9" }}
                 weight="bold"
-                className="text-white mix-blend-exclusion text-center sm:text-left"
+                className="text-white mix-blend-exclusion text-center md:text-left"
                 style={{ 
                   letterSpacing: '-0.02em',
-                  fontSize: 'clamp(1.5rem, 4vw, 2rem)'
+                  fontSize: 'clamp(2rem, 5vw, 3rem)',
+                  lineHeight: '1.1'
                 }}
               >
                 {user.login}
               </Text>
               
+              {/* Badges et informations */}
               <Flex 
                 align="center" 
                 gap="3" 
                 wrap="wrap"
-                justify={{ initial: "center", sm: "start" }}
+                justify={{ initial: "center", md: "start" }}
                 direction={{ initial: "column", sm: "row" }}
               >
+                {/* Rang */}
                 <Text 
-                  size={{ initial: "2", sm: "3" }}
+                  size={{ initial: "3", sm: "4" }}
                   className="text-white mix-blend-exclusion opacity-80"
                   style={{ fontWeight: '500' }}
                 >
@@ -124,9 +125,7 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                     borderRadius: '14px',
                     padding: '8px 16px',
                     boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
-                    transition: 'all 0.2s ease',
                   }}
-                  className="hover:bg-white/20 hover:border-white/35"
                 >
                   <Flex align="center" gap="2">
                     <Text 
@@ -157,18 +156,26 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                     </Text>
                   </Flex>
                 </Box>
-                
               </Flex>
+
+              {/* Date d'inscription */}
+              <Text 
+                size={{ initial: "2", sm: "3" }}
+                className="text-white/60 text-center md:text-left"
+                style={{ fontStyle: 'italic' }}
+              >
+                Membre depuis le {joinDate}
+              </Text>
             </Flex>
           </Flex>
 
-          {/* Statistiques en grille */}
+          {/* Résumé rapide des statistiques */}
           <Flex 
-            gap={{ initial: "2", sm: "3" }}
-            className="mt-2"
+            gap={{ initial: "3", sm: "4" }}
+            className="mt-4"
             direction={{ initial: "column", xs: "row" }}
           >
-            {/* Victoires - Accent doré */}
+            {/* Victoires */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               className="flex-1"
@@ -178,12 +185,10 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                   background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.08) 0%, rgba(255, 255, 255, 0.06) 100%)',
                   border: '1px solid rgba(255, 215, 0, 0.2)',
                   borderRadius: '12px',
-                  padding: '14px 12px',
+                  padding: '12px',
                   backdropFilter: 'blur(8px)',
-                  transition: 'all 0.2s ease',
                   textAlign: 'center',
                 }}
-                className="hover:bg-gradient-to-br hover:from-yellow-500/10 hover:to-white/10"
               >
                 <Flex direction="column" align="center" gap="1">
                   <Text 
@@ -195,12 +200,11 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                     Victoires
                   </Text>
                   <Text 
-                    size={{ initial: "5", sm: "6" }}
+                    size={{ initial: "4", sm: "5" }}
                     weight="bold" 
                     className="text-white mix-blend-exclusion"
                     style={{ 
-                      fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-                      lineHeight: '1.1',
+                      fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
                       textShadow: '0 0 8px rgba(255, 215, 0, 0.3)'
                     }}
                   >
@@ -210,7 +214,7 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
               </Card>
             </motion.div>
 
-            {/* Parties totales - Accent bleu */}
+            {/* Parties totales */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               className="flex-1"
@@ -220,12 +224,10 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                   background: 'linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(255, 255, 255, 0.06) 100%)',
                   border: '1px solid rgba(96, 165, 250, 0.2)',
                   borderRadius: '12px',
-                  padding: '14px 12px',
+                  padding: '12px',
                   backdropFilter: 'blur(8px)',
-                  transition: 'all 0.2s ease',
                   textAlign: 'center',
                 }}
-                className="hover:bg-gradient-to-br hover:from-blue-500/10 hover:to-white/10"
               >
                 <Flex direction="column" align="center" gap="1">
                   <Text 
@@ -237,12 +239,11 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                     Parties
                   </Text>
                   <Text 
-                    size={{ initial: "5", sm: "6" }}
+                    size={{ initial: "4", sm: "5" }}
                     weight="bold" 
                     className="text-white mix-blend-exclusion"
                     style={{ 
-                      fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-                      lineHeight: '1.1',
+                      fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
                       textShadow: '0 0 8px rgba(96, 165, 250, 0.3)'
                     }}
                   >
@@ -252,7 +253,7 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
               </Card>
             </motion.div>
 
-            {/* Win Rate - Accent vert */}
+            {/* Win Rate */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               className="flex-1"
@@ -262,12 +263,10 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                   background: 'linear-gradient(135deg, rgba(52, 211, 153, 0.08) 0%, rgba(255, 255, 255, 0.06) 100%)',
                   border: '1px solid rgba(52, 211, 153, 0.2)',
                   borderRadius: '12px',
-                  padding: '14px 12px',
+                  padding: '12px',
                   backdropFilter: 'blur(8px)',
-                  transition: 'all 0.2s ease',
                   textAlign: 'center',
                 }}
-                className="hover:bg-gradient-to-br hover:from-emerald-500/10 hover:to-white/10"
               >
                 <Flex direction="column" align="center" gap="1">
                   <Text 
@@ -280,12 +279,11 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
                   </Text>
                   <Flex align="baseline" justify="center" gap="1">
                     <Text 
-                      size={{ initial: "5", sm: "6" }}
+                      size={{ initial: "4", sm: "5" }}
                       weight="bold" 
                       className="text-white mix-blend-exclusion"
                       style={{ 
-                        fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-                        lineHeight: '1.1',
+                        fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
                         textShadow: '0 0 8px rgba(52, 211, 153, 0.3)'
                       }}
                     >
@@ -307,30 +305,17 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
               </Card>
             </motion.div>
           </Flex>
-
-          {/* Indicateur de clic */}
-          <Text 
-            size="1" 
-            className="text-white mix-blend-exclusion opacity-50 text-center mt-1"
-            style={{ 
-              fontStyle: 'italic',
-              display: 'block',
-              fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)'
-            }}
-          >
-            Cliquez pour voir votre profil
-          </Text>
         </Flex>
 
         {/* Effet de particules en arrière-plan */}
         <Box className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(3)].map((_, i) => (
+          {[...Array(4)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-1 h-1 bg-white rounded-full opacity-20"
               style={{
-                top: `${30 + i * 20}%`,
-                left: `${15 + i * 30}%`,
+                top: `${25 + i * 18}%`,
+                left: `${15 + i * 20}%`,
               }}
               animate={{
                 y: [0, -15, 0],
@@ -349,4 +334,4 @@ const WelcomeCard: React.FC<WelcomeCardProps> = ({
   );
 };
 
-export default WelcomeCard; 
+export default ProfileWelcomeCard; 
