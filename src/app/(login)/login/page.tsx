@@ -2,10 +2,9 @@
 
 import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Box, Button, Text, Card, Flex } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import PongPaddle from "@/components/PongPaddle/PongPaddle";
+import { LavaLamp } from "@/components/ui/fluid-blob";
 
 function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -48,50 +47,54 @@ function LoginContent() {
       console.error("Erreur de connexion:", error);
       toast.error("Une erreur s'est produite lors de la connexion. Veuillez réessayer.");
     } finally {
-		setIsLoading(false);
-	}
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Box className="min-h-screen">
-      <Flex align="center" justify="center" style={{ minHeight: "100vh" }}>
-        <Card size="3" style={{ 
-          width: "100%",
-          maxWidth: "400px",
-          background: "rgba(255, 255, 255, 0.1)",
-        }}>
-          <Flex direction="column" gap="4" align="center" p="6">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/8/8d/42_Logo.svg"
-              alt="42 Logo"
-              className="w-16 h-16 mb-4"
-            />
-            
-            <Text size="5" weight="bold" align="center" style={{ color: "white" }}>
-              Bienvenue sur 42Pong
-            </Text>
-            
-            <Text size="2" align="center" style={{ color: "rgba(255, 255, 255, 0.7)" }}>
-              Connectez-vous avec votre compte 42
-            </Text>
+    <div className="h-screen w-screen flex flex-col justify-center items-center relative">
+      {/* Arrière-plan fluid-blob */}
+      <LavaLamp />
+      
+      {/* Contenu principal */}
+      <div className="relative z-10 flex flex-col items-center space-y-8">
+        {/* Logo 42 */}
+        <div className="mix-blend-exclusion">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/8/8d/42_Logo.svg"
+            alt="42 Logo"
+            className="w-32 h-32 filter brightness-0 invert"
+          />
+        </div>
 
-            <Button
-              onClick={handleLogin}
-              disabled={isLoading}
-              size="3"
-              style={{ 
-                width: "100%",
-                background: "white",
-                color: "black",
-                opacity: isLoading ? 0.7 : 1
-              }}
-            >
-              {isLoading ? "Connexion en cours..." : "Se connecter avec 42"}
-            </Button>
-          </Flex>
-        </Card>
-      </Flex>
-    </Box>
+        {/* Titre */}
+        <h1 className="text-4xl md:text-6xl font-bold tracking-tight mix-blend-exclusion text-white whitespace-nowrap">
+          42Pong
+        </h1>
+
+        {/* Phrase d'accroche */}
+        <p className="text-base md:text-lg text-center text-white mix-blend-exclusion max-w-md leading-relaxed opacity-80 font-light italic -mt-4">
+          parce que coder, c'est trop mainstream.
+        </p>
+
+        {/* Bouton de connexion design */}
+        <button
+          onClick={handleLogin}
+          disabled={isLoading}
+          className={`
+            relative px-8 py-3 bg-white text-black font-medium rounded-full
+            mix-blend-exclusion hover:bg-gray-100 transition-all duration-300
+            transform hover:scale-105 active:scale-95
+            ${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}
+            shadow-lg hover:shadow-xl
+          `}
+        >
+          <span>
+            {isLoading ? "Connexion..." : "Connexion"}
+          </span>
+        </button>
+      </div>
+    </div>
   );
 }
 
