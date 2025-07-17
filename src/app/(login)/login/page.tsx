@@ -61,7 +61,7 @@ function LoginContent() {
 
         {/* Phrase d'accroche */}
         <p className="text-base md:text-lg text-center text-white mix-blend-exclusion max-w-md leading-relaxed opacity-80 font-light italic -mt-4">
-          pour ceux qui préfèrent la raquette au clavier
+          Pour ceux qui préfèrent la raquette au clavier
         </p>
 
         {/* Bouton de connexion avec logo 42 */}

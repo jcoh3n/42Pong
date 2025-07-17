@@ -166,23 +166,21 @@ export default function HomePage() {
             </Box>
             
             <Box style={{ position: 'relative', zIndex: 1 }}>
-              <Grid columns={{ initial: "1", md: "2" }} gap="6">
-                <Box>
-                  {/* RankingList */}
-                  <RankingList 
-                    topPlayers={topPlayers}
-                    currentUser={currentUser}
-                    currentUserRank={currentUserRank}
-                    onViewAll={handleViewLeaderboard}
-                  />
-                  {/* MatchHistory */}
-                  <MatchHistory 
-                    matches={matches}
-                    currentUser={currentUser}
-                    topPlayers={topPlayers}
-                    limit={5}
-                  />
-                </Box>
+              <Grid columns="1" gap="6">
+                {/* RankingList */}
+                <RankingList 
+                  topPlayers={topPlayers}
+                  currentUser={currentUser}
+                  currentUserRank={currentUserRank}
+                  onViewAll={handleViewLeaderboard}
+                />
+                {/* MatchHistory */}
+                <MatchHistory 
+                  matches={matches}
+                  currentUser={currentUser}
+                  topPlayers={topPlayers}
+                  limit={5}
+                />
               </Grid>
             </Box>
           </Box>

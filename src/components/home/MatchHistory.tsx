@@ -48,7 +48,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({
           }}
           className="hover:bg-white/10 hover:border-white/30"
         >
-          View all
+          Voir tout
         </Button>
       </Flex>
       

@@ -68,16 +68,6 @@ export default function Profile() {
     <Box style={{ minHeight: "100vh" }}>
       <Container size="3" className="shadow-sm">
         <Flex direction="column" gap="6">
-          <Button
-            variant="ghost"
-            onClick={() => router.back()}
-            style={{ alignSelf: "flex-start", marginBottom: "1rem" }}
-            className="shadow-sm rounded-4xl hover:shadow-md transition-shadow"
-          >
-            <ArrowLeftIcon width="16" height="16" />
-            Back
-          </Button>
-
           {currentUser && (
             <>
               <ProfileHeader user={currentUser} />

@@ -82,9 +82,21 @@ const RankingList: React.FC<RankingListProps> = ({
           <FaTrophy color="#FFD700" size={18} />
           <Heading size="4" style={{ color: 'white' }}>Classement</Heading>
         </Flex>
-        <Button variant="ghost" style={{ color: 'white', background: 'rgba(255, 255, 255, 0.1)' }} onClick={onViewAll}>
-          <Text size="2" style={{ color: 'white' }}>Voir tout</Text>
-          <CaretRightIcon color="white" />
+        <Button 
+          variant="ghost" 
+          onClick={onViewAll}
+          style={{ 
+            color: 'rgba(255, 255, 255, 0.8)',
+            fontSize: '14px',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            transition: 'all 0.2s ease',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            background: 'rgba(255, 255, 255, 0.05)'
+          }}
+          className="hover:bg-white/10 hover:border-white/30"
+        >
+          Voir tout
         </Button>
       </Flex>
       

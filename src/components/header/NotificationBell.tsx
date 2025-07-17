@@ -119,90 +119,160 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
     }
   }, [isOpen, notifications]);
 
+  // Format count for display
+  const formatCount = (count: number) => {
+    if (count > 99) return '99+';
+    return count.toString();
+  };
+
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger>
         <Box 
           className="
-            relative cursor-pointer p-2 rounded-full
-            hover:bg-gray-800/30 transition-all duration-200
-            active:scale-95
+            relative cursor-pointer p-2.5 rounded-xl
+            hover:bg-gray-800/40 transition-all duration-200
+            active:scale-95 group
+            border border-transparent hover:border-gray-700/50
           "
         >
           <BellIcon 
-            height={24} 
-            width={24}
+            height={20} 
+            width={20}
             className="text-gray-400 transition-colors duration-200 group-hover:text-gray-200" 
           />
           {unseenCount > 0 && (
             <Box
               className="
-                absolute -top-1 -right-1 w-5 h-5
-                bg-blue-500 rounded-full flex items-center justify-center
+                absolute -top-1 -right-1 
+                min-w-[18px] h-[18px] px-1
+                notification-badge
+                rounded-full flex items-center justify-center
                 text-[10px] font-bold text-white
-                ring-2 ring-background
+                animate-notification-pulse
               "
             >
-              {unseenCount}
+              {formatCount(unseenCount)}
             </Box>
           )}
         </Box>
       </Popover.Trigger>
       
-      <Popover.Content>
-        <Box className="w-80 rounded-xl shadow-xl">
-          <Box p="3">
-            <Flex justify="between" align="center" mb="3">
-              <Text weight="medium" size="3">Notifications</Text>
-            </Flex>
-
-            <Flex direction="column" gap="3">
-              {isLoading ? (
-                // Loading state
-                <Box className="py-8 text-center">
-                  <Text size="1" className="text-gray-400">Loading notifications...</Text>
-                </Box>
-              ) : error ? (
-                // Error state
-                <Box className="py-8 text-center">
-                  <Text size="1" className="text-gray-400">Failed to load notifications</Text>
-                </Box>
-              ) : notifications.length === 0 ? (
-                // Empty state
-                <Box className="py-8 text-center">
-                  <Text size="1" className="text-gray-400">No notifications</Text>
-                </Box>
-              ) : (
-                // Render a maximum of 3 notifications
-                <Suspense fallback={<Box className="py-8 text-center"><Loading /></Box>}>
-                  {notifications.slice(0, 3).map((notification) => (
-                    <NotificationItem 
-                      key={notification.id}
-                      notification={notification}
-                      formattedTime={formatRelativeTime(notification.created_at)}
-                      onClick={handleNotificationClick}
-                      onAccept={handleAcceptInvitation}
-                      onRefuse={handleRefuseInvitation}
-                      isAccepting={isAcceptingInvitation(notification.id)}
-                      isRefusing={isRefusingInvitation(notification.id)}
-                      getInvitationStatus={getInvitationStatus}
-                    />
-                  ))}
-                </Suspense>
+      <Popover.Content 
+        className="
+          w-[320px] sm:w-[380px] 
+          max-h-[500px] overflow-hidden
+          border border-gray-800/50
+          shadow-2xl
+        "
+        sideOffset={8}
+      >
+        <Box className="bg-gray-900/95 backdrop-blur-sm rounded-xl notification-item">
+          {/* Header */}
+          <Box 
+            p="4" 
+            className="
+              border-b border-gray-800/50
+              bg-gradient-to-r from-gray-900/50 to-gray-800/30
+            "
+          >
+            <Flex justify="between" align="center">
+              <Text weight="medium" size="3" className="text-gray-100">
+                Notifications
+              </Text>
+              {unseenCount > 0 && (
+                <Text size="1" className="text-gray-400">
+                  {unseenCount} new
+                </Text>
               )}
             </Flex>
-            
-            {notifications.length > 0 && (
-              <Box mt="3" style={{ textAlign: 'center' }}>
-                <Text 
-                  size="1" 
-                  className="text-gray-400 hover:text-gray-200 cursor-pointer transition-colors duration-200"
-                >
-                  View all notifications
-                </Text>
-              </Box>
-            )}
           </Box>
+
+          {/* Content */}
+          <Box className="max-h-[400px] overflow-y-auto">
+            <Box p="3">
+              <Flex direction="column" gap="2">
+                {isLoading ? (
+                  // Loading state
+                  <Box className="py-12 text-center">
+                    <Loading />
+                    <Text size="2" className="text-gray-400 mt-2">Loading notifications...</Text>
+                  </Box>
+                ) : error ? (
+                  // Error state
+                  <Box className="py-12 text-center">
+                    <Text size="2" className="text-gray-400">Failed to load notifications</Text>
+                  </Box>
+                ) : notifications.length === 0 ? (
+                  // Empty state
+                  <Box className="py-12 text-center">
+                    <Box className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-800/50 flex items-center justify-center">
+                      <BellIcon width={20} height={20} className="text-gray-500" />
+                    </Box>
+                    <Text size="2" className="text-gray-400">No notifications</Text>
+                    <Text size="1" className="text-gray-500 mt-1">You're all caught up!</Text>
+                  </Box>
+                ) : (
+                  // Render notifications
+                  <Suspense fallback={<Box className="py-8 text-center"><Loading /></Box>}>
+                    {notifications.slice(0, 3).map((notification) => (
+                      <NotificationItem 
+                        key={notification.id}
+                        notification={notification}
+                        formattedTime={formatRelativeTime(notification.created_at)}
+                        onClick={handleNotificationClick}
+                        onAccept={handleAcceptInvitation}
+                        onRefuse={handleRefuseInvitation}
+                        isAccepting={isAcceptingInvitation(notification.id)}
+                        isRefusing={isRefusingInvitation(notification.id)}
+                        getInvitationStatus={getInvitationStatus}
+                      />
+                    ))}
+                  </Suspense>
+                )}
+              </Flex>
+            </Box>
+          </Box>
+
+          {/* Footer */}
+          {notifications.length > 0 && (
+            <Box 
+              p="3" 
+              className="
+                border-t border-gray-800/50
+                bg-gradient-to-r from-gray-900/30 to-gray-800/20
+              "
+            >
+              <Flex justify="between" align="center">
+                <Text 
+                  size="2" 
+                  className="
+                    text-blue-400 hover:text-blue-300 
+                    cursor-pointer transition-colors duration-200
+                    font-medium
+                  "
+                  onClick={() => {
+                    // Navigate to full notifications page
+                    console.log('Navigate to notifications page');
+                  }}
+                >
+                  View all
+                </Text>
+                {unseenCount > 0 && (
+                  <Text 
+                    size="2" 
+                    className="
+                      text-gray-400 hover:text-gray-300 
+                      cursor-pointer transition-colors duration-200
+                    "
+                    onClick={handleMarkAllAsRead}
+                  >
+                    Mark all read
+                  </Text>
+                )}
+              </Flex>
+            </Box>
+          )}
         </Box>
       </Popover.Content>
     </Popover.Root>

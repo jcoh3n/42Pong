@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, Box, Flex, Text, Badge, Button } from '@radix-ui/themes';
 import { Notification } from '@/services';
-import { FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
+import { FaCheck, FaTimes } from 'react-icons/fa';
+import { Component as LumaSpin } from "@/components/ui/luma-spin";
 import { InvitationStatus, isInvitationNotification, InvitationNotification } from '@/hooks/useInvitationNotifications';
 import { 
   getNotificationIcon, 
@@ -94,77 +95,118 @@ export function NotificationItem({
   const statusMessage = getStatusMessage();
   
   return (
-    <Flex 
-      p="2" 
-      gap="3"
+    <Box 
       className={`
-		min-h-22
-        rounded-lg cursor-pointer transition-all duration-200
-        shadow-xl bg-gray-900/95
-		border-neutral-800
-		border-2
-		${notification.seen 
-          ? isHovering ? 'bg-gray-800/50' : 'hover:bg-gray-800/50' 
-          : isHovering ? 'bg-gray-800/50' : 'bg-gray-800/30 hover:bg-gray-800/50'
+        relative p-3 rounded-lg cursor-pointer 
+        transition-all duration-200 ease-out
+        border border-transparent notification-item
+        ${notification.seen 
+          ? 'bg-gray-800/30 hover:bg-gray-800/50 hover:border-gray-700/50' 
+          : 'bg-gray-800/50 hover:bg-gray-800/70 border-blue-500/20 hover:border-blue-500/40'
         }
+        ${isHovering ? 'scale-[1.02]' : 'scale-100'}
       `}
       onClick={handleClick}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      position="relative"
     >
-      <Icon className='rounded-full mt-1' />
-	<Box style={{ flex: 1, flexDirection: 'column' }}>
-        <Flex gap="1" align="center" justify="between">
-          <Flex gap="1" align="center">
+      <Flex gap="3" align="start">
+        {/* Icon */}
+        <Box className="flex-shrink-0">
+          <Box 
+            className={`
+              w-10 h-10 rounded-full flex items-center justify-center
+              ${notification.seen 
+                ? 'bg-gray-700/50 text-gray-400' 
+                : 'bg-blue-500/20 text-blue-400'
+              }
+              transition-all duration-200
+            `}
+          >
+            <Icon size={16} />
+          </Box>
+        </Box>
+
+        {/* Content */}
+        <Box className="flex-1 min-w-0">
+          <Flex direction="column" gap="1">
+            {/* Title and badge */}
+            <Flex align="center" gap="2" justify="between">
+              <Text 
+                weight={notification.seen ? "regular" : "medium"} 
+                size="2" 
+                className={`
+                  ${notification.seen ? "text-gray-300" : "text-white"}
+                  truncate
+                `}
+              >
+                {notification.title}
+              </Text>
+              {!notification.seen && (
+                <Badge 
+                  size="1" 
+                  color="blue" 
+                  variant="solid" 
+                  radius="full"
+                  className="flex-shrink-0"
+                />
+              )}
+            </Flex>
+
+            {/* Message */}
             <Text 
-              weight={notification.seen ? "regular" : "medium"} 
-              size="2" 
-              className={notification.seen ? "text-gray-300" : "text-white"}
+              size="1" 
+              className={`
+                text-gray-400 line-clamp-2
+                ${!notification.seen ? 'font-medium' : ''}
+              `}
             >
-              {notification.title}
+              {notification.content}
             </Text>
-            {!notification.seen && (
-              <Badge size="1" color="blue" variant="solid" radius="full" />
-            )}
+
+            {/* Time and status */}
+            <Flex justify="between" align="center" className="mt-1">
+              <Text size="1" className="text-gray-500">
+                {formattedTime}
+              </Text>
+              {statusMessage && (
+                <Text size="1" className="text-gray-500 italic">
+                  {statusMessage}
+                </Text>
+              )}
+            </Flex>
           </Flex>
-        </Flex>
-        <Text 
-          size="1" 
-          className={`text-gray-400 ${notification.seen ? '' : 'font-medium'}`}
-        >
-          {notification.content}
-        </Text>
-        
-        <Flex justify="between" align="center" className=''>
-          <Text size="1" className="text-gray-500 mt-1">{formattedTime}</Text>
-        </Flex>
-      </Box>
+        </Box>
+      </Flex>
 
       {/* Action buttons for pending invitation notifications */}
       {isInvitation && invitationStatus === 'pending' && (
         <Flex 
-          position="absolute" 
-          bottom="2" 
-          right="2"
-          gap="2"
-          className="animate-fadeIn"
+          gap="2" 
+          className="mt-3 pt-3 border-t border-gray-700/30"
         >
           <Button 
             size="1" 
             color="green" 
             variant="soft" 
             onClick={handleAccept}
-            className={`transition-all ${isAccepting || isRefusing ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110'}`}
+            className={`
+              flex-1 transition-all duration-200
+              ${isAccepting || isRefusing ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110'}
+            `}
             disabled={isAccepting || isRefusing}
           >
-            <Flex gap="1" align="center">
+            <Flex gap="1" align="center" justify="center">
               {isAccepting ? (
-                <FaSpinner size={12} className="animate-spin" />
+                <Box style={{ transform: 'scale(0.4)' }}>
+                  <LumaSpin />
+                </Box>
               ) : (
-                <FaCheck size={12} />
+                <FaCheck size={10} />
               )}
-              <span>{isAccepting ? 'Accepting...' : 'Accept'}</span>
+              <span className="text-xs">
+                {isAccepting ? 'Accepting...' : 'Accept'}
+              </span>
             </Flex>
           </Button>
           <Button 
@@ -172,29 +214,27 @@ export function NotificationItem({
             color="red" 
             variant="soft" 
             onClick={handleRefuse}
-            className={`transition-all ${isAccepting || isRefusing ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110'}`}
+            className={`
+              flex-1 transition-all duration-200
+              ${isAccepting || isRefusing ? 'opacity-70 cursor-not-allowed' : 'hover:brightness-110'}
+            `}
             disabled={isAccepting || isRefusing}
           >
-            <Flex gap="1" align="center">
+            <Flex gap="1" align="center" justify="center">
               {isRefusing ? (
-                <FaSpinner size={12} className="animate-spin" />
+                <Box style={{ transform: 'scale(0.4)' }}>
+                  <LumaSpin />
+                </Box>
               ) : (
-                <FaTimes size={12} />
+                <FaTimes size={10} />
               )}
-              <span>{isRefusing ? 'Refusing...' : 'Refuse'}</span>
+              <span className="text-xs">
+                {isRefusing ? 'Refusing...' : 'Refuse'}
+              </span>
             </Flex>
           </Button>
         </Flex>
       )}
-
-	  {isInvitation && invitationStatus !== 'pending' && (
-		<Text 
-		  size="1" 
-		  className="text-gray-500 italic mt-2"
-		>
-		  {invitationStatus}
-		</Text>
-	  )}
-    </Flex>
+    </Box>
   );
 } 
