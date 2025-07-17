@@ -197,14 +197,18 @@ export const createMatch = async (
 			winnerId: user1.id,
 			loserId: user2.id,
 			winnerCurrentElo: user1.elo_score,
-			loserCurrentElo: user2.elo_score
+			loserCurrentElo: user2.elo_score,
+			winnerGamesPlayed: user1.total_games,
+			loserGamesPlayed: user2.total_games
 		});
 
 		const loserEloChanges = calculateEloChanges({
 			winnerId: user2.id,
 			loserId: user1.id,
 			winnerCurrentElo: user2.elo_score,
-			loserCurrentElo: user1.elo_score
+			loserCurrentElo: user1.elo_score,
+			winnerGamesPlayed: user2.total_games,
+			loserGamesPlayed: user1.total_games
 		});
 
 		// Store both possible outcomes (we'll apply the correct one when match ends)

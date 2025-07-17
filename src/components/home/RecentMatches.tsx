@@ -101,7 +101,7 @@ const RecentMatches: React.FC<RecentMatchesProps> = ({
   };
 
   const getMatchType = (match: Match) => {
-    return match.match_type || match.type || 'normal';
+    return match.type || 'normal';
   };
 
   return (

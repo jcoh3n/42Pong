@@ -88,7 +88,7 @@ async updateMatch(id: string, updates: MatchUpdate): Promise<Match> {
   const updatedMatch = await this.updateMatchInDB(id, updates);
   
   // Déclenche la mise à jour ELO seulement pour les matchs classés
-  if (wasCompleted && hasWinner && updatedMatch.match_type === 'ranked') {
+  if (wasCompleted && hasWinner && updatedMatch.type === 'ranked') {
     eloService.updateEloAfterMatch(updatedMatch);
   }
   

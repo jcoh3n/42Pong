@@ -11,6 +11,7 @@ export type User = {
   theme: string;
   language: string;
   notifications: boolean;
+  email: string | null;
   wins: number;
   total_games: number;
 };

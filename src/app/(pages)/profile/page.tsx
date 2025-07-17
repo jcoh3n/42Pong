@@ -87,7 +87,7 @@ export default function Profile() {
       if (Math.abs(userScore - opponentScore) === 1) closeGames++;
 
       // Stats par type de match
-      const matchType = match.match_type || match.type || 'normal';
+      const matchType = match.type || 'normal';
       if (matchTypeStats[matchType]) {
         matchTypeStats[matchType].total++;
         if (isWin) matchTypeStats[matchType].wins++;
