@@ -12,6 +12,7 @@ import useUser from '../users/useUser';
 import { createClient } from '@/libs/supabase/client';
 import { Database } from '@/types/database.types';
 import useMatch from '../matches/useMatch';
+import { useRouter } from 'next/navigation';
 
 export type MatchData = {
 	match: Match | null;
@@ -34,6 +35,7 @@ export type MatchData = {
 };
 
 const useCurrentMatch = (match_id: string): MatchData => {
+	const router = useRouter();
 	const currentUserData = useCurrentUser();
 	const { data: currentUser } = currentUserData;
 	const supabase = createClient();
@@ -58,6 +60,8 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		if (!match_id || hasSetupRealtimeRef.current) {
 			return;
 		}
+
+		matchMutate();
 		
 		console.log('Setting up real-time subscription for match:', match_id);
 		
@@ -77,11 +81,13 @@ const useCurrentMatch = (match_id: string): MatchData => {
 				filter: `id=eq.${match_id}`  // Only for this specific match
 			}, handler)
 			.subscribe();
-		
+
 		// Store unsubscribe function for cleanup
 		unsubscribeRef.current = () => supabase.removeChannel(channel);
 		hasSetupRealtimeRef.current = true;
-		
+
+		router.push('/games');
+
 		// Clean up on unmount or when match_id changes
 		return () => {
 			if (unsubscribeRef.current) {
@@ -90,7 +96,8 @@ const useCurrentMatch = (match_id: string): MatchData => {
 				hasSetupRealtimeRef.current = false;
 			}
 		};
-	}, [match_id, matchMutate, supabase]);
+
+	}, [match_id, matchMutate, supabase, router]);
 
 	const forfeitMatch = useCallback(async () => {
 		if (!match?.id || isForfeiting || !currentUser) {

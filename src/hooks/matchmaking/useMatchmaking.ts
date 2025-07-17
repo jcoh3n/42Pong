@@ -10,6 +10,8 @@ import { MatchmakingResponse } from '@/app/(pages)/api/matchmaking/route';
 import useCurrentUser from '@/hooks/useCurrentUser';
 import { createClient } from '@/libs/supabase/client';
 
+const supabase = createClient();
+
 const useMatchmaking = (): {
 	data: MatchmakingResponse | undefined;
 	error: Error | undefined;
@@ -72,6 +74,26 @@ const useMatchmaking = (): {
 				console.log('Matchmaking queue updated (DELETE):', payload);
 				// Reset local state and refresh data
 				setTimeInQueue(null);
+				mutate();
+			})
+			.on('postgres_changes', {
+				event: 'INSERT',
+				schema: 'public',
+				table: 'Matches',
+				filter: `user_1_id=eq.${userId}`
+			}, (payload) => {
+				console.log('Matchmaking queue updated (INSERT):', payload);
+				// Force refresh data from API to get complete state
+				mutate();
+			})
+			.on('postgres_changes', {
+				event: 'INSERT',
+				schema: 'public',
+				table: 'Matches',
+				filter: `user_2_id=eq.${userId}`
+			}, (payload) => {
+				console.log('Matchmaking queue updated (INSERT):', payload);
+				// Force refresh data from API to get complete state
 				mutate();
 			})
 			.subscribe();
@@ -148,7 +170,7 @@ const useMatchmaking = (): {
 		return () => clearInterval(interval);
 	}, [matchmakingData?.data?.inQueue, matchmakingData?.data?.queueData?.joined_at]);
 
-	const formatedTimeInQueue = useMemo(() => {
+	const getFormatedTimeInQueue = () => {
 		if (!timeInQueue) return null;
 		
 		if (timeInQueue < 60) {
@@ -163,10 +185,12 @@ const useMatchmaking = (): {
 			const seconds = timeInQueue % 60;
 			return `${hours}h`;
 		}
-	}, [timeInQueue]);
+	};
+
+	const formatedTimeInQueue = getFormatedTimeInQueue();
 
 	return {
-		data: data as MatchmakingResponse,
+		data: matchmakingData as MatchmakingResponse,
 		error,
 		isLoading: isLoading || isStarting || isStopping,
 		mutate,
