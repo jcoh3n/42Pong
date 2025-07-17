@@ -48,26 +48,39 @@ export default function Profile() {
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       .slice(0, 10);
     
-    let eloChanges = 0;
+    let totalEloChanges = 0;
     let wins = 0;
     let losses = 0;
+    let lastMatchEloChange = 0;
     
-    recentMatches.forEach((match) => {
+    recentMatches.forEach((match, index) => {
       const isWin = match.winner_id === currentUser?.id;
+      
+      // Récupérer le vrai changement ELO depuis la base de données
+      const userEloChange = currentUser?.id === match.user_1_id 
+        ? match.user_1_elo_change 
+        : match.user_2_elo_change;
+      
+      // Pour la tendance, on fait la somme totale
+      totalEloChanges += userEloChange || 0;
+      
+      // Pour l'affichage, on prend le changement du dernier match seulement
+      if (index === 0) {
+        lastMatchEloChange = userEloChange || 0;
+      }
+      
       if (isWin) {
         wins++;
-        eloChanges += 15; // Approximation
       } else {
         losses++;
-        eloChanges -= 15;
       }
     });
     
-    const trend = eloChanges > 0 ? 'up' : eloChanges < 0 ? 'down' : 'stable';
+    const trend = totalEloChanges > 0 ? 'up' : totalEloChanges < 0 ? 'down' : 'stable';
     
     return {
       trend,
-      change: eloChanges,
+      change: lastMatchEloChange, // Changement du dernier match seulement
       recent: recentMatches.slice(0, 5),
       recentWins: wins,
       recentLosses: losses
