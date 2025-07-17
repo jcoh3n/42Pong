@@ -1,7 +1,6 @@
 import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 import { PaginatedResponse } from "./userService";
-import { eloService } from './eloService';
 
 // Define match-specific types
 export type Match = Database['public']['Tables']['Matches']['Row'];
@@ -11,6 +10,21 @@ export type MatchUpdate = Database['public']['Tables']['Matches']['Update'];
 export class MatchService {
 	private getClient() {
 		return createClient<Database>();
+	}
+
+	async getUserMatchesCount(userId: string): Promise<number> {
+		const { count, error } = await this.getClient()
+			.from('Matches')
+			.select('*', { count: 'exact', head: true })
+			.eq('status', 'completed')
+			.or(`user_1_id.eq.${userId},user_2_id.eq.${userId}`);
+
+		if (error) {
+			console.error(`Error counting matches for user ${userId}:`, error);
+			throw error;
+		}
+
+		return count || 0;
 	}
 
 	async getAllMatches(options?: {
@@ -212,9 +226,12 @@ export class MatchService {
 	}
 
 	async updateMatch(id: string, updates: MatchUpdate): Promise<Match> {
+		console.debug(`[updateMatch] Updating match ${id} with:`, updates);
+
 		// Get the current match state before updating
 		const currentMatch = await this.getMatchById(id);
-		
+		console.debug(`[updateMatch] Current match state:`, currentMatch);
+
 		const { data, error } = await this.getClient()
 			.from('Matches')
 			.update(updates)
@@ -225,28 +242,6 @@ export class MatchService {
 		if (error) {
 			console.error(`Error updating match with id ${id}:`, error);
 			throw error;
-		}
-
-		// Check if the match was just completed and has a winner
-		const wasCompleted = currentMatch?.status !== 'completed' && data.status === 'completed';
-		const hasWinner = data.winner_id && data.winner_id.trim() !== '';
-		const isRanked = data.match_type === 'ranked' || data.type === 'ranked';
-
-		// Trigger ELO update only for ranked matches
-		if (wasCompleted && hasWinner && isRanked) {
-			console.log(`Ranked match ${id} completed with winner ${data.winner_id}, updating ELO ratings...`);
-			
-			// Update ELO ratings synchronously to ensure data consistency
-			try {
-				const result = await eloService.updateEloAfterMatch(data);
-				if (result.success) {
-					console.log(`ELO ratings updated successfully for ranked match ${id}:`, result.eloChange);
-				} else {
-					console.error(`Failed to update ELO ratings for ranked match ${id}:`, result.error);
-				}
-			} catch (error) {
-				console.error(`Error updating ELO ratings for ranked match ${id}:`, error);
-			}
 		}
 
 		return data;
@@ -305,7 +300,7 @@ export class MatchService {
 		const user2Score = isUser1 ? match.user_2_score : newScore;
 		
 		// Check if this is a ranked match for ELO updates
-		const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
+		const isRankedMatch = match.type === 'ranked';
 		let winnerId: string | null = null;
 
 		if (user1Score >= match.score_to_win || user2Score >= match.score_to_win) {
@@ -318,23 +313,6 @@ export class MatchService {
 				status: 'completed',
 				finished_at: new Date().toISOString()
 			});
-
-			// Update ELO ratings only for ranked matches
-			if (isRankedMatch) {
-				console.log(`Ranked match ${matchId} completed via score increment, updating ELO ratings...`);
-				
-				// Update ELO ratings synchronously to ensure data consistency
-				try {
-					const result = await eloService.updateEloAfterMatch(completedMatch);
-					if (result.success) {
-						console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
-					} else {
-						console.error(`Failed to update ELO ratings for ranked match ${matchId}:`, result.error);
-					}
-				} catch (error) {
-					console.error(`Error updating ELO ratings for ranked match ${matchId}:`, error);
-				}
-			}
 		}
 
 		return {

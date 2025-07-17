@@ -297,6 +297,10 @@ export type Database = {
         }
         Returns: Json
       }
+      calculate_and_apply_elo_changes: {
+        Args: { match_uuid: string }
+        Returns: undefined
+      }
       check_match_victory: {
         Args: { match_id: string }
         Returns: Json
@@ -374,6 +378,14 @@ export type Database = {
         Args: { table_name: string; column_name: string; column_value: unknown }
         Returns: undefined
       }
+      get_completed_match_count: {
+        Args: { user_id: string }
+        Returns: number
+      }
+      get_k_factor: {
+        Args: { match_count: number; elo: number }
+        Returns: number
+      }
       increase_user_score: {
         Args: { match_id: string; user_id: string }
         Returns: Json
@@ -387,7 +399,7 @@ export type Database = {
         Returns: undefined
       }
       update_elo_after_match_if_ranked: {
-        Args: { p_match_id: number } | { p_match_id: string }
+        Args: { p_match_id: number }
         Returns: undefined
       }
       update_set_and_check_victory: {
