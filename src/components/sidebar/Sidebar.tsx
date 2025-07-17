@@ -79,28 +79,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
         {/* Content */}
         <div className="relative flex-1 flex flex-col min-h-0 z-10">
-          {/* Header with Logo and Close button */}
-          <Flex align="center" justify="between" px="5" py="4" className="relative shrink-0">
-            <div onClick={() => router.push('/')} className="cursor-pointer flex items-center gap-3">
-              <div className="relative w-10 h-10 flex items-center justify-center">
-                {/* Ping Pong Paddle */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg" />
-                <div className="absolute inset-1 bg-gradient-to-br from-gray-800 to-gray-900 rounded-full" />
-                {/* 42 Logo */}
-                <span className="relative text-blue-400 font-bold text-lg">42</span>
-              </div>
-              <Text size="5" weight="bold" className="text-gray-100">Pong</Text>
-            </div>
-            
-            {!isDesktop && (
+          {/* Header with Close button */}
+          {!isDesktop && (
+            <Flex align="center" justify="end" px="5" py="2" className="relative shrink-0">
               <Box 
                 onClick={onClose}
                 className="cursor-pointer p-2 hover:bg-white/5 rounded-full transition-all duration-200"
               >
                 <Cross2Icon width="20" height="20" className="text-gray-400" />
               </Box>
-            )}
-          </Flex>
+            </Flex>
+          )}
 
           {/* User Profile - Desktop Only */}
           {isDesktop && user && (

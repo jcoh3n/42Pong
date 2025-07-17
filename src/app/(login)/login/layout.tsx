@@ -7,6 +7,7 @@ import ThemeLayout from "@/components/ThemeLayout";
 import { Box } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import { Header } from "@/components/header/Header";
+import { Squares } from "@/components/ui/squares-background";
 
 export default function LoginLayout({
   children,
@@ -24,8 +25,21 @@ export default function LoginLayout({
         <Toaster />
         <AuthProvider>
           <ThemeLayout>
-            <Box className="min-h-screen w-full bg-gradient-to-b from-[var(--page-gradient-from)] to-[var(--page-gradient-to)]">
-              {children}
+            <Box className="min-h-screen w-full bg-[#060606] relative">
+              {/* Background squares */}
+              <div className="absolute inset-0 w-full h-full">
+                <Squares
+                  direction="diagonal"
+                  speed={0.5}
+                  squareSize={40}
+                  borderColor="#333"
+                  hoverFillColor="#222"
+                />
+              </div>
+              {/* Content */}
+              <div className="relative z-10 min-h-screen">
+                {children}
+              </div>
             </Box>
           </ThemeLayout>
         </AuthProvider>

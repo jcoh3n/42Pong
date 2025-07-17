@@ -4,7 +4,6 @@ import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Squares } from "@/components/ui/squares-background";
 
 function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,18 +51,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col justify-center items-center relative bg-[#060606]">
-      {/* Arrière-plan squares */}
-      <div className="absolute inset-0 w-full h-full">
-        <Squares
-          direction="diagonal"
-          speed={0.5}
-          squareSize={40}
-          borderColor="#333"
-          hoverFillColor="#222"
-        />
-      </div>
-      
+    <div className="h-screen w-screen flex flex-col justify-center items-center relative">
       {/* Contenu principal */}
       <div className="relative z-10 flex flex-col items-center space-y-8">
         {/* Titre */}

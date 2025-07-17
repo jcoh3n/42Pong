@@ -13,6 +13,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { Toaster } from "react-hot-toast";
+import { Squares } from "@/components/ui/squares-background";
 
 // Les métadonnées doivent être dans un fichier séparé ou dans un layout serveur
 export default function RootLayout({
@@ -67,8 +68,20 @@ export default function RootLayout({
                 display: "flex",
                 flexDirection: "column",
                 position: "relative",
+                background: "#060606",
               }}
             >
+              {/* Background squares */}
+              <div className="absolute inset-0 w-full h-full">
+                <Squares
+                  direction="diagonal"
+                  speed={0.5}
+                  squareSize={40}
+                  borderColor="#333"
+                  hoverFillColor="#222"
+                />
+              </div>
+
               <Header onMenuClick={toggleSidebar} />
 
               <Flex
@@ -77,11 +90,11 @@ export default function RootLayout({
                   position: "relative",
                   overflow: "hidden",
                   width: "100%",
+                  zIndex: 10,
                 }}
               >
                 {/* Zone de contenu principal */}
                 <main
-                  className="bg-gradient-to-b from-[var(--page-gradient-from)] to-[var(--page-gradient-to)]"
                   style={{
                     width: "100%",
                     height: "100%",
