@@ -95,5 +95,8 @@ export function calculateEloChanges(params: EloCalculationParams): EloChange {
  * @returns Formatted string with + or - prefix
  */
 export function formatEloChange(eloChange: number): string {
-  return eloChange.toString();
+  if (eloChange === 0) {
+    return "0";
+  }
+  return eloChange > 0 ? `+${eloChange}` : `${eloChange}`;
 } 

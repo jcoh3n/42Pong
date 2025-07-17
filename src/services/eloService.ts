@@ -48,16 +48,20 @@ export class EloService {
         
         // Determine winner and loser ELO changes
         const isUser1Winner = match.winner_id === match.user_1_id;
-        const winnerEloChange = isUser1Winner ? match.user_1_elo_change : match.user_2_elo_change;
-        const loserEloChange = isUser1Winner ? -match.user_2_elo_change : -match.user_1_elo_change;
+        
+        // When user1 wins: both get +/- user_1_elo_change
+        // When user2 wins: both get +/- user_2_elo_change  
+        const eloChangeAmount = isUser1Winner ? match.user_1_elo_change : match.user_2_elo_change;
+        const winnerEloChange = eloChangeAmount;
+        const loserEloChange = -eloChangeAmount;
         
         const winnerNewElo = isUser1Winner ? 
-          match.user_1_elo_before + match.user_1_elo_change : 
-          match.user_2_elo_before + match.user_2_elo_change;
+          match.user_1_elo_before + eloChangeAmount : 
+          match.user_2_elo_before + eloChangeAmount;
         
         const loserNewElo = isUser1Winner ? 
-          match.user_2_elo_before - match.user_2_elo_change : 
-          match.user_1_elo_before - match.user_1_elo_change;
+          match.user_2_elo_before - eloChangeAmount : 
+          match.user_1_elo_before - eloChangeAmount;
 
         // Apply the pre-calculated ELO changes
         await Promise.all([
@@ -171,17 +175,26 @@ export class EloService {
       // Only calculate for ranked matches (check both possible properties)
       const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
       if (!isRankedMatch) {
-        return 0;
+        return null; // Return null for non-ranked matches instead of 0
       }
 
       // Use pre-calculated ELO changes stored in the match
       if (match.user_1_elo_change !== undefined && match.user_2_elo_change !== undefined) {
-        if (userId === match.user_1_id) {
-          // Return the correct ELO change based on who won
-          return match.winner_id === match.user_1_id ? match.user_1_elo_change : -match.user_2_elo_change;
-        } else if (userId === match.user_2_id) {
-          // Return the correct ELO change based on who won
-          return match.winner_id === match.user_2_id ? match.user_2_elo_change : -match.user_1_elo_change;
+        // Determine who won and calculate the actual ELO change
+        if (match.winner_id === match.user_1_id) {
+          // User 1 won
+          if (userId === match.user_1_id) {
+            return match.user_1_elo_change; // Winner gets positive change
+          } else if (userId === match.user_2_id) {
+            return -match.user_1_elo_change; // Loser gets negative change
+          }
+        } else if (match.winner_id === match.user_2_id) {
+          // User 2 won
+          if (userId === match.user_1_id) {
+            return -match.user_2_elo_change; // Loser gets negative change
+          } else if (userId === match.user_2_id) {
+            return match.user_2_elo_change; // Winner gets positive change
+          }
         }
       }
 
