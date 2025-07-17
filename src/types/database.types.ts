@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       Challenge: {
@@ -78,59 +83,68 @@ export type Database = {
       Matches: {
         Row: {
           created_at: string
+          elo_change: number | null
           finished_at: string | null
           forfeited_by: string | null
           id: string
-          match_type: Database["public"]["Enums"]["matche_type"]
+          max_sets: number
           score_to_win: number
+          sets: Json[]
+          sets_to_win: number
           status: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["matche_type"]
+          user_1_elo_before: number | null
+          user_1_elo_change: number | null
           user_1_id: string
           user_1_score: number
-          user_1_elo_before: number
-          user_1_elo_change: number
+          user_2_elo_before: number | null
+          user_2_elo_change: number | null
           user_2_id: string
           user_2_score: number
-          user_2_elo_before: number
-          user_2_elo_change: number
           winner_id: string | null
         }
         Insert: {
           created_at?: string
+          elo_change?: number | null
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
-          match_type?: Database["public"]["Enums"]["matche_type"]
+          max_sets?: number
           score_to_win?: number
+          sets?: Json[]
+          sets_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["matche_type"]
+          user_1_elo_before?: number | null
+          user_1_elo_change?: number | null
           user_1_id: string
           user_1_score?: number
-          user_1_elo_before?: number
-          user_1_elo_change?: number
+          user_2_elo_before?: number | null
+          user_2_elo_change?: number | null
           user_2_id: string
           user_2_score?: number
-          user_2_elo_before?: number
-          user_2_elo_change?: number
           winner_id?: string | null
         }
         Update: {
           created_at?: string
+          elo_change?: number | null
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
-          match_type?: Database["public"]["Enums"]["matche_type"]
+          max_sets?: number
           score_to_win?: number
+          sets?: Json[]
+          sets_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
           type?: Database["public"]["Enums"]["matche_type"]
+          user_1_elo_before?: number | null
+          user_1_elo_change?: number | null
           user_1_id?: string
           user_1_score?: number
-          user_1_elo_before?: number
-          user_1_elo_change?: number
+          user_2_elo_before?: number | null
+          user_2_elo_change?: number | null
           user_2_id?: string
           user_2_score?: number
-          user_2_elo_before?: number
-          user_2_elo_change?: number
           winner_id?: string | null
         }
         Relationships: [
@@ -156,7 +170,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "Matches_winner_fkey"
+            foreignKeyName: "Matches_winner_id_fkey"
             columns: ["winner_id"]
             isOneToOne: false
             referencedRelation: "Users"
@@ -249,6 +263,7 @@ export type Database = {
           avatar_url: string
           created_at: string
           elo_score: number
+          email: string | null
           id: string
           language: string
           login: string
@@ -259,6 +274,7 @@ export type Database = {
           avatar_url: string
           created_at?: string
           elo_score?: number
+          email?: string | null
           id?: string
           language?: string
           login: string
@@ -269,6 +285,7 @@ export type Database = {
           avatar_url?: string
           created_at?: string
           elo_score?: number
+          email?: string | null
           id?: string
           language?: string
           login?: string
@@ -289,10 +306,46 @@ export type Database = {
         }
         Returns: Json
       }
+      check_match_victory: {
+        Args: { match_id: string }
+        Returns: Json
+      }
       check_matche_winner: {
-        Args: {
-          match_id: string
-        }
+        Args: { match_id: string }
+        Returns: Json
+      }
+      create_match_with_sets: {
+        Args:
+          | {
+              player1_id: string
+              player2_id: string
+              match_type: Database["public"]["Enums"]["matche_type"]
+              p_sets_to_win?: number
+              p_max_sets?: number
+              p_score_to_win?: number
+            }
+          | {
+              player1_id: string
+              player2_id: string
+              match_type: Database["public"]["Enums"]["matche_type"]
+              p_sets_to_win?: number
+              p_max_sets?: number
+              p_score_to_win?: number
+            }
+          | {
+              player1_id: string
+              player2_id: string
+              match_type: Database["public"]["Enums"]["matche_type"]
+              sets_to_win: number
+              max_sets: number
+            }
+          | {
+              player1_id: string
+              player2_id: string
+              match_type: string
+              sets_to_win: number
+              max_sets: number
+            }
         Returns: Json
       }
       create_matche: {
@@ -314,32 +367,44 @@ export type Database = {
         }
         Returns: undefined
       }
-      create_users_and_manage_matchmaking: {
+      create_typed_match: {
         Args: {
-          user1_name: string
-          user2_name: string
+          player1_id: string
+          player2_id: string
+          match_type: Database["public"]["Enums"]["matche_type"]
         }
+        Returns: Json
+      }
+      create_users_and_manage_matchmaking: {
+        Args: { user1_name: string; user2_name: string }
         Returns: Json
       }
       delete_row_from_table: {
-        Args: {
-          table_name: string
-          column_name: string
-          column_value: unknown
-        }
+        Args: { table_name: string; column_name: string; column_value: unknown }
         Returns: undefined
       }
       increase_user_score: {
-        Args: {
-          match_id: string
-          user_id: string
-        }
+        Args: { match_id: string; user_id: string }
         Returns: Json
       }
       remove_from_matchmaking_queue: {
-        Args: {
-          player_id: string
-        }
+        Args: { player_id: string }
+        Returns: Json
+      }
+      update_elo_after_match: {
+        Args: { p_match_id: number }
+        Returns: undefined
+      }
+      update_elo_after_match_if_ranked: {
+        Args: { p_match_id: number } | { p_match_id: string }
+        Returns: undefined
+      }
+      update_set_and_check_victory: {
+        Args: { set_id: string; p1_score: number; p2_score: number }
+        Returns: Json
+      }
+      update_set_score: {
+        Args: { set_id: string; p1_score: number; p2_score: number }
         Returns: Json
       }
     }
@@ -357,27 +422,33 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -385,20 +456,24 @@ export type Tables<
     : never
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -406,20 +481,24 @@ export type TablesInsert<
     : never
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -427,29 +506,48 @@ export type TablesUpdate<
     : never
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
-    | { schema: keyof Database },
-  EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      invitation_status: ["pending", "accepted", "cancelled", "refused"],
+      match_status: ["pending", "ongoing", "completed", "cancelled"],
+      matche_type: ["normal", "ranked", "friendly"],
+      matchmaking_status: ["waiting", "matched", "cancelled"],
+      notification_type: ["invitation", "message", "announcement"],
+      score_to_win: ["5", "7", "11"],
+    },
+  },
+} as const

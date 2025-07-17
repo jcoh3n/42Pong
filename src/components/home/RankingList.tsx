@@ -85,14 +85,15 @@ const RankingList: React.FC<RankingListProps> = ({
         <Button 
           variant="ghost" 
           onClick={onViewAll}
-          style={{ 
+          style={{
             color: 'rgba(255, 255, 255, 0.8)',
             fontSize: '14px',
             padding: '6px 12px',
             borderRadius: '8px',
             transition: 'all 0.2s ease',
             border: '1px solid rgba(255, 255, 255, 0.15)',
-            background: 'rgba(255, 255, 255, 0.05)'
+            background: 'rgba(255, 255, 255, 0.05)',
+            cursor: 'pointer'
           }}
           className="hover:bg-white/10 hover:border-white/30"
         >

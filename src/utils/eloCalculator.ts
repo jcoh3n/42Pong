@@ -18,6 +18,8 @@ export interface EloCalculationParams {
   loserId: string;
   winnerCurrentElo: number;
   loserCurrentElo: number;
+  winnerGamesPlayed: number;
+  loserGamesPlayed: number;
   kFactor?: number;
 }
 
@@ -38,12 +40,11 @@ export function calculateExpectedScore(playerElo: number, opponentElo: number): 
  * @param baseKFactor Base K-factor (default: 32)
  * @returns Adjusted K-factor
  */
-export function calculateKFactor(playerElo: number, baseKFactor: number = 32): number {
+export function calculateKFactor(playerElo: number, playerGamesPlayed: number): number {
   // Standard ELO K-factor adjustments
-  if (playerElo < 1000) return baseKFactor * 1.5; // New players climb faster
-  if (playerElo < 1200) return baseKFactor * 1.2; // Beginner boost
-  if (playerElo > 2000) return baseKFactor * 0.8; // Masters have more stable ratings
-  return baseKFactor; // Standard K-factor for intermediate players
+  if (playerGamesPlayed < 30) return 40; // New players climb faster
+  else if (playerElo < 2400) return 20; // Beginner boost
+  else return 10; // Masters have more stable ratings
 }
 
 /**
@@ -57,16 +58,23 @@ export function calculateEloChanges(params: EloCalculationParams): EloChange {
     loserId,
     winnerCurrentElo,
     loserCurrentElo,
-    kFactor = 32
+    winnerGamesPlayed,
+    loserGamesPlayed
   } = params;
+
+  console.debug(`[ELO] Winner: ${winnerId} (${winnerCurrentElo}), Loser: ${loserId} (${loserCurrentElo})`);
 
   // Calculate expected scores
   const winnerExpectedScore = calculateExpectedScore(winnerCurrentElo, loserCurrentElo);
   const loserExpectedScore = calculateExpectedScore(loserCurrentElo, winnerCurrentElo);
 
+  console.debug(`[ELO] Winner expected score: ${winnerExpectedScore.toFixed(4)}, Loser expected score: ${loserExpectedScore.toFixed(4)}`);
+
   // Calculate K-factors (adaptive based on current ELO)
-  const winnerKFactor = calculateKFactor(winnerCurrentElo, kFactor);
-  const loserKFactor = calculateKFactor(loserCurrentElo, kFactor);
+  const winnerKFactor = calculateKFactor(winnerCurrentElo, winnerGamesPlayed);
+  const loserKFactor = calculateKFactor(loserCurrentElo, loserGamesPlayed);
+
+  console.debug(`[ELO] Winner K-factor: ${winnerKFactor}, Loser K-factor: ${loserKFactor}`);
 
   // Calculate ELO changes
   // Winner gets points for winning (actual score = 1, expected score = winnerExpectedScore)
@@ -75,9 +83,13 @@ export function calculateEloChanges(params: EloCalculationParams): EloChange {
   // Loser loses points for losing (actual score = 0, expected score = loserExpectedScore)
   const loserEloChange = Math.round(loserKFactor * (0 - loserExpectedScore));
 
+  console.debug(`[ELO] Winner ELO change: ${winnerEloChange}, Loser ELO change: ${loserEloChange}`);
+
   // Calculate new ELO ratings
   const winnerNewElo = winnerCurrentElo + winnerEloChange;
   const loserNewElo = Math.max(100, loserCurrentElo + loserEloChange); // Minimum ELO of 100
+
+  console.debug(`[ELO] Winner new ELO: ${winnerNewElo}, Loser new ELO: ${loserNewElo}`);
 
   return {
     winnerId,

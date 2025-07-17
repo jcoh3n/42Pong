@@ -13,6 +13,21 @@ export class MatchService {
 		return createClient<Database>();
 	}
 
+	async getUserMatchesCount(userId: string): Promise<number> {
+		const { count, error } = await this.getClient()
+			.from('Matches')
+			.select('*', { count: 'exact', head: true })
+			.eq('status', 'completed')
+			.or(`user_1_id.eq.${userId},user_2_id.eq.${userId}`);
+
+		if (error) {
+			console.error(`Error counting matches for user ${userId}:`, error);
+			throw error;
+		}
+
+		return count || 0;
+	}
+
 	async getAllMatches(options?: {
 		page?: number;
 		pageSize?: number;
@@ -212,9 +227,12 @@ export class MatchService {
 	}
 
 	async updateMatch(id: string, updates: MatchUpdate): Promise<Match> {
+		console.debug(`[updateMatch] Updating match ${id} with:`, updates);
+
 		// Get the current match state before updating
 		const currentMatch = await this.getMatchById(id);
-		
+		console.debug(`[updateMatch] Current match state:`, currentMatch);
+
 		const { data, error } = await this.getClient()
 			.from('Matches')
 			.update(updates)
@@ -227,10 +245,14 @@ export class MatchService {
 			throw error;
 		}
 
+		console.debug(`[updateMatch] Updated match data:`, data);
+
 		// Check if the match was just completed and has a winner
 		const wasCompleted = currentMatch?.status !== 'completed' && data.status === 'completed';
 		const hasWinner = data.winner_id && data.winner_id.trim() !== '';
 		const isRanked = data.match_type === 'ranked' || data.type === 'ranked';
+
+		console.debug(`[updateMatch] wasCompleted: ${wasCompleted}, hasWinner: ${hasWinner}, isRanked: ${isRanked}`);
 
 		// Trigger ELO update only for ranked matches
 		if (wasCompleted && hasWinner && isRanked) {
@@ -318,23 +340,6 @@ export class MatchService {
 				status: 'completed',
 				finished_at: new Date().toISOString()
 			});
-
-			// Update ELO ratings only for ranked matches
-			if (isRankedMatch) {
-				console.log(`Ranked match ${matchId} completed via score increment, updating ELO ratings...`);
-				
-				// Update ELO ratings synchronously to ensure data consistency
-				try {
-					const result = await eloService.updateEloAfterMatch(completedMatch);
-					if (result.success) {
-						console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
-					} else {
-						console.error(`Failed to update ELO ratings for ranked match ${matchId}:`, result.error);
-					}
-				} catch (error) {
-					console.error(`Error updating ELO ratings for ranked match ${matchId}:`, error);
-				}
-			}
 		}
 
 		return {
