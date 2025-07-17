@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { LavaLamp } from "@/components/ui/fluid-blob";
+import { Squares } from "@/components/ui/squares-background";
 
 function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,21 +52,20 @@ function LoginContent() {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col justify-center items-center relative">
-      {/* Arrière-plan fluid-blob */}
-      <LavaLamp />
+    <div className="h-screen w-screen flex flex-col justify-center items-center relative bg-[#060606]">
+      {/* Arrière-plan squares */}
+      <div className="absolute inset-0 w-full h-full">
+        <Squares
+          direction="diagonal"
+          speed={0.5}
+          squareSize={40}
+          borderColor="#333"
+          hoverFillColor="#222"
+        />
+      </div>
       
       {/* Contenu principal */}
       <div className="relative z-10 flex flex-col items-center space-y-8">
-        {/* Logo 42 */}
-        <div className="mix-blend-exclusion">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/8/8d/42_Logo.svg"
-            alt="42 Logo"
-            className="w-32 h-32 filter brightness-0 invert"
-          />
-        </div>
-
         {/* Titre */}
         <h1 className="text-4xl md:text-6xl font-bold tracking-tight mix-blend-exclusion text-white whitespace-nowrap">
           42Pong
@@ -74,10 +73,10 @@ function LoginContent() {
 
         {/* Phrase d'accroche */}
         <p className="text-base md:text-lg text-center text-white mix-blend-exclusion max-w-md leading-relaxed opacity-80 font-light italic -mt-4">
-          parce que coder, c'est trop mainstream.
+          pour ceux qui préfèrent la raquette au clavier
         </p>
 
-        {/* Bouton de connexion design */}
+        {/* Bouton de connexion avec logo 42 */}
         <button
           onClick={handleLogin}
           disabled={isLoading}
@@ -89,9 +88,20 @@ function LoginContent() {
             shadow-lg hover:shadow-xl
           `}
         >
-          <span>
-            {isLoading ? "Connexion..." : "Connexion"}
-          </span>
+          <div className="flex items-center space-x-2">
+            {isLoading ? (
+              <span>Connexion...</span>
+            ) : (
+              <>
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/8/8d/42_Logo.svg"
+                  alt="42 Logo"
+                  className="w-6 h-6"
+                />
+                <span>Connexion</span>
+              </>
+            )}
+          </div>
         </button>
       </div>
     </div>
