@@ -63,14 +63,9 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
       const success = await acceptInvitation(notification);
       
       if (success) {
-        // Show success message
-        toast.success('Invitation accepted successfully!');
-        console.log('Invitation accepted successfully');
-        
         // Close the popover after successful acceptance (optional)
         setIsOpen(false);
       } else {
-        // Show error message
         toast.error('Failed to accept invitation');
         console.error('Failed to accept invitation');
       }
@@ -90,8 +85,6 @@ export function NotificationBell({ maxNotifications = 5 }: NotificationBellProps
       const success = await refuseInvitation(notification);
       
       if (success) {
-        // Show success message
-        toast.success('Invitation refused');
         console.log('Invitation refused successfully');
       } else {
         // Show error message

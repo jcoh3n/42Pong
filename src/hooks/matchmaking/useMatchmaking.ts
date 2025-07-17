@@ -124,7 +124,6 @@ const useMatchmaking = (): {
 				return;
 			}
 			mutate();
-			toast.success('Matchmaking started !');
 		} catch (error) {
 			toast.error('Network error. Please check your connection.');
 		} finally {

@@ -132,7 +132,6 @@ const useCurrentMatch = (match_id: string): MatchData => {
 
 			// Log the updated score for debugging
 			console.log('Score updated successfully:', response.data?.updated_score);
-			toast.success(`Score updated successfully`);
 
 			matchMutate();
 		} catch (error) {

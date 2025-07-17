@@ -82,7 +82,6 @@ const MatchmakingMenu = () => {
 
 		try {
 			await invitationService.createFriendlyInvitation(session.user.id, userId);
-			toast.success('Invitation sent successfully!');
 		} catch (error) {
 			console.error('Error sending invitation:', error);
 			toast.error('Failed to send invitation. Please try again.');
@@ -104,7 +103,6 @@ const MatchmakingMenu = () => {
 
 			if (targetInvitation) {
 				await invitationService.updateInvitationStatus(targetInvitation.id, 'cancelled');
-				toast.success('Invitation cancelled successfully!');
 			} else {
 				toast.error('Could not find the invitation to cancel.');
 			}
