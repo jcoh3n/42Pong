@@ -7,29 +7,19 @@ import {
   Container, 
   Flex, 
   Text,
-  Grid,
   Heading,
-  Card,
-  Badge,
-  Separator,
-  Avatar
 } from "@radix-ui/themes";
-import { 
-  BarChartIcon, 
-  ClockIcon
-} from "@radix-ui/react-icons";
-import { FaTrophy, FaChartLine } from 'react-icons/fa';
 import useCurrentUser from "@/hooks/useCurrentUser";
 import useUsers from "@/hooks/users/useUsers";
 import useUserMatches from "@/hooks/matches/useUserMatches";
 import useUserStats from "@/hooks/users/useUserStats";
 import { 
-  LoadingState, 
-  RankingList, 
-  MatchHistory, 
-  FindOpponentButton 
+  LoadingState,
+  WelcomeCard,
+  QuickPlayButton,
+  MiniLeaderboard,
+  RecentMatches
 } from "@/components/home";
-import Loading from '@/components/Loading';
 
 export default function HomePage() {
   const router = useRouter();
@@ -58,9 +48,16 @@ export default function HomePage() {
   const wins = stats?.wins || 0;
   const winRate = stats?.winRate || 0;
   
+  // Créer un currentUser étendu avec les statistiques pour éviter les erreurs TypeScript
+  const currentUserWithStats = currentUser ? {
+    ...currentUser,
+    wins,
+    total_games: totalMatches
+  } : null;
+  
   // Gestionnaires d'événements
   const handleViewLeaderboard = () => router.push('/leaderboard');
-  const handleViewHistory = () => router.push('/games/history');
+  const handleViewHistory = () => router.push('/history');
   const handleViewProfile = () => router.push('/profile');
   const handleFindOpponent = () => router.push('/games/');
   
@@ -77,113 +74,77 @@ export default function HomePage() {
   }
   
   return (
-    <Box className="min-h-screen">
-      <Container size="3" py="6">
-        <Flex direction="column" gap="8">
-          {/* En-tête avec salutation et carte de profil */}
-          <Card style={{
-			zIndex: 2,
-            borderRadius: '16px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            background: 'rgba(30, 41, 59, 0.7)',
-          }}>
-            <Flex p="5" direction="column" gap="4">
-              <Flex align="center" gap="4">
-                <Avatar
-                  size="5"
-                  src={currentUser.avatar_url || "https://via.placeholder.com/100"}
-                  fallback={currentUser.login?.substring(0, 2).toUpperCase() || "??"}
-                  radius="full"
-                  style={{ 
-                    border: '4px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
-                  }}
-                />
-                <Flex direction="column" gap="1">
-                  <Heading size="6" weight="bold" style={{ color: 'white' }}>
-                    {currentUser.login || "Utilisateur"}
-                  </Heading>
-                  <Flex align="center" gap="2">
-                    <Badge variant="solid" style={{ background: 'rgba(255, 255, 255, 0.15)', color: 'white' }} radius="full">
-                      <Text size="1" weight="medium">Élo {currentUser.elo_score || 0}</Text>
-                    </Badge>
-                    <Text size="2" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Rang #{currentUserRank || "?"}</Text>
-                  </Flex>
-                </Flex>
-              </Flex>
-              
-              {/* Statistiques rapides */}
-              <Grid columns="3" gap="3">
-                <Card style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                  <Flex direction="column" align="center" gap="1" p="3">
-                    <Flex align="center" gap="1">
-                      <FaTrophy style={{ color: '#FFD700' }} />
-                      <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Victoires</Text>
-                    </Flex>
-                    <Text size="5" weight="bold" style={{ color: 'white' }}>{wins}</Text>
-                  </Flex>
-                </Card>
-                
-                <Card style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                  <Flex direction="column" align="center" gap="1" p="3">
-                    <Flex align="center" gap="1">
-                      <ClockIcon color="rgba(255, 255, 255, 0.9)" />
-                      <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Parties</Text>
-                    </Flex>
-                    <Text size="5" weight="bold" style={{ color: 'white' }}>{totalMatches}</Text>
-                  </Flex>
-                </Card>
-                
-                <Card style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                  <Flex direction="column" align="center" gap="1" p="3">
-                    <Flex align="center" gap="1">
-                      <FaChartLine style={{ color: 'rgba(255, 255, 255, 0.9)' }} />
-                      <Text size="1" style={{ color: 'rgba(255, 255, 255, 0.7)' }}>Win Rate</Text>
-                    </Flex>
-                    <Text size="5" weight="bold" style={{ color: 'white' }}>{winRate}%</Text>
-                  </Flex>
-                </Card>
-              </Grid>
-            </Flex>
-          </Card>
+    <Box className="min-h-screen w-full relative">
+      {/* Container principal centré */}
+      <Container size="4" className="relative z-10">
+        <Flex 
+          direction="column" 
+          align="center" 
+          justify="center" 
+          className="min-h-screen py-4 px-4 sm:py-8"
+          gap={{ initial: "5", sm: "7", md: "8" }}
+        >
           
-          {/* Section principale avec bouton et grille */}
-          <Box style={{ 
-            marginTop: '16px', 
-            marginBottom: '32px',
-            position: 'relative'
-          }}>
-            {/* Bouton principal pour trouver un adversaire */}
-            <Box style={{ 
-              maxWidth: '800px', 
-              margin: '0 auto 48px auto',
-              position: 'relative',
-              zIndex: 2
-            }}>
-              <FindOpponentButton onClick={handleFindOpponent} />
-            </Box>
-            
-            <Box style={{ position: 'relative', zIndex: 1 }}>
-              <Grid columns="1" gap="6">
-                {/* RankingList */}
-                <RankingList 
-                  topPlayers={topPlayers}
-                  currentUser={currentUser}
-                  currentUserRank={currentUserRank}
-                  onViewAll={handleViewLeaderboard}
-                />
-                {/* MatchHistory */}
-                <MatchHistory 
-                  matches={matches}
-                  currentUser={currentUser}
-                  topPlayers={topPlayers}
-                  limit={5}
-                />
-              </Grid>
-            </Box>
+          {/* Phrase d'accroche remontée */}
+          <Box 
+            className="text-center"
+            style={{ 
+              marginTop: '-2rem',
+              marginBottom: '1rem'
+            }}
+          >
+            <Text 
+              size={{ initial: "5", sm: "6", md: "7" }}
+              className="text-white mix-blend-exclusion opacity-90 font-light italic"
+              style={{ 
+                fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+                textAlign: 'center',
+                lineHeight: '1.3'
+              }}
+            >
+              Prêt pour votre prochaine partie ?
+            </Text>
           </Box>
+
+          {/* Carte de bienvenue avec informations utilisateur */}
+          <WelcomeCard 
+            user={currentUser}
+            rank={currentUserRank}
+            stats={{ wins, totalMatches, winRate }}
+            onViewProfile={handleViewProfile}
+          />
+
+          {/* Bouton principal de jeu rapide */}
+          <QuickPlayButton onClick={handleFindOpponent} />
+
+          {/* Section inférieure avec mini-classement et historique */}
+          <Flex 
+            direction={{ initial: "column", lg: "row" }} 
+            gap={{ initial: "4", sm: "5", md: "6" }}
+            className="w-full max-w-6xl"
+            align="start"
+          >
+            {/* Mini classement (Top 5) */}
+            <Box className="flex-1 w-full">
+              <MiniLeaderboard 
+                topPlayers={topPlayers.slice(0, 5)}
+                currentUser={currentUser}
+                currentUserRank={currentUserRank}
+                onViewAll={handleViewLeaderboard}
+              />
+            </Box>
+
+            {/* Historique récent */}
+            <Box className="flex-1 w-full">
+              <RecentMatches 
+                matches={matches}
+                currentUser={currentUserWithStats}
+                topPlayers={topPlayers}
+                onViewAll={handleViewHistory}
+              />
+            </Box>
+          </Flex>
+
         </Flex>
       </Container>
     </Box>
