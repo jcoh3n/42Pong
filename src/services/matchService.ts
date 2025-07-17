@@ -1,7 +1,6 @@
 import { createClient } from "@/libs/supabase/client";
 import { Database } from "@/types/database.types";
 import { PaginatedResponse } from "./userService";
-import { eloService } from './eloService';
 
 // Define match-specific types
 export type Match = Database['public']['Tables']['Matches']['Row'];
@@ -243,32 +242,6 @@ export class MatchService {
 		if (error) {
 			console.error(`Error updating match with id ${id}:`, error);
 			throw error;
-		}
-
-		console.debug(`[updateMatch] Updated match data:`, data);
-
-		// Check if the match was just completed and has a winner
-		const wasCompleted = currentMatch?.status !== 'completed' && data.status === 'completed';
-		const hasWinner = data.winner_id && data.winner_id.trim() !== '';
-		const isRanked = data.type === 'ranked';
-
-		console.debug(`[updateMatch] wasCompleted: ${wasCompleted}, hasWinner: ${hasWinner}, isRanked: ${isRanked}`);
-
-		// Trigger ELO update only for ranked matches
-		if (wasCompleted && hasWinner && isRanked) {
-			console.log(`Ranked match ${id} completed with winner ${data.winner_id}, updating ELO ratings...`);
-			
-			// Update ELO ratings synchronously to ensure data consistency
-			try {
-				const result = await eloService.updateEloAfterMatch(data);
-				if (result.success) {
-					console.log(`ELO ratings updated successfully for ranked match ${id}:`, result.eloChange);
-				} else {
-					console.error(`Failed to update ELO ratings for ranked match ${id}:`, result.error);
-				}
-			} catch (error) {
-				console.error(`Error updating ELO ratings for ranked match ${id}:`, error);
-			}
 		}
 
 		return data;
