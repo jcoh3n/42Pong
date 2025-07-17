@@ -87,8 +87,12 @@ export type Database = {
           type: Database["public"]["Enums"]["matche_type"]
           user_1_id: string
           user_1_score: number
+          user_1_elo_before: number
+          user_1_elo_change: number
           user_2_id: string
           user_2_score: number
+          user_2_elo_before: number
+          user_2_elo_change: number
           winner_id: string | null
         }
         Insert: {
@@ -102,8 +106,12 @@ export type Database = {
           type: Database["public"]["Enums"]["matche_type"]
           user_1_id: string
           user_1_score?: number
+          user_1_elo_before?: number
+          user_1_elo_change?: number
           user_2_id: string
           user_2_score?: number
+          user_2_elo_before?: number
+          user_2_elo_change?: number
           winner_id?: string | null
         }
         Update: {
@@ -117,8 +125,12 @@ export type Database = {
           type?: Database["public"]["Enums"]["matche_type"]
           user_1_id?: string
           user_1_score?: number
+          user_1_elo_before?: number
+          user_1_elo_change?: number
           user_2_id?: string
           user_2_score?: number
+          user_2_elo_before?: number
+          user_2_elo_change?: number
           winner_id?: string | null
         }
         Relationships: [

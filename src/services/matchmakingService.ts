@@ -2,6 +2,8 @@ import { createClient, PostgrestError } from '@supabase/supabase-js';
 import { Database } from '@/types/database.types';
 import { Match } from './matchService';
 import { MatchType } from './types';
+import { userService } from './userService';
+import { calculateEloChanges } from '@/utils/eloCalculator';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -174,25 +176,73 @@ export const createMatch = async (
 ) => {
 	console.log(`Creating match between ${player1_id} and ${player2_id} with type: ${mode}`);
 
-	const { data, error } = await supabase.rpc('create_matche', {
-		player1_id,
-		player2_id,
-		matche_type: mode,
-		score_to_win: points_to_win
-	});
+	// Get current ELO scores for both players
+	const [user1, user2] = await Promise.all([
+		userService.getUserById(player1_id),
+		userService.getUserById(player2_id)
+	]);
 
-	if (!data) {
-		console.error(`Failed to create match: ${error?.message}`);
+	if (!user1 || !user2) {
+		console.error('Failed to get user data for match creation');
+		return { data: null, error: { message: 'Users not found', code: 'USERS_NOT_FOUND' } };
+	}
+
+	// Pre-calculate ELO changes for ranked matches
+	let user1EloChange = 0;
+	let user2EloChange = 0;
+	
+	if (mode === 'ranked') {
+		// Calculate potential ELO changes for both possible outcomes
+		const winnerEloChanges = calculateEloChanges({
+			winnerId: user1.id,
+			loserId: user2.id,
+			winnerCurrentElo: user1.elo_score,
+			loserCurrentElo: user2.elo_score
+		});
+
+		const loserEloChanges = calculateEloChanges({
+			winnerId: user2.id,
+			loserId: user1.id,
+			winnerCurrentElo: user2.elo_score,
+			loserCurrentElo: user1.elo_score
+		});
+
+		// Store both possible outcomes (we'll apply the correct one when match ends)
+		user1EloChange = winnerEloChanges.winnerEloChange; // If user1 wins
+		user2EloChange = loserEloChanges.winnerEloChange; // If user2 wins
+
+		console.log(`Pre-calculated ELO changes for ranked match:`, {
+			user1: { id: user1.id, currentElo: user1.elo_score, changeIfWins: user1EloChange },
+			user2: { id: user2.id, currentElo: user2.elo_score, changeIfWins: user2EloChange }
+		});
+	}
+
+	// Create the match directly with ELO data
+	const { data, error } = await supabase
+		.from('Matches')
+		.insert({
+			user_1_id: player1_id,
+			user_2_id: player2_id,
+			type: mode,
+			score_to_win: points_to_win,
+			user_1_elo_before: user1.elo_score,
+			user_2_elo_before: user2.elo_score,
+			user_1_elo_change: user1EloChange,
+			user_2_elo_change: user2EloChange,
+			status: 'ongoing'
+		})
+		.select()
+		.single();
+
+	if (error) {
+		console.error(`Failed to create match: ${error.message}`);
 		return { data: null, error };
 	}
 
-	console.log(`Match created successfully:`, data);
-	return data as {
-		data: Match;
-		error: {
-			message: string;
-			code: string;
-		};
+	console.log(`Match created successfully with pre-calculated ELO changes:`, data);
+	return {
+		data: data as Match,
+		error: null
 	};
 };
 

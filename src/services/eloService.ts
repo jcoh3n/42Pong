@@ -1,6 +1,8 @@
 import { userService } from './userService';
 import { calculateEloChanges, EloChange, formatEloChange } from '@/utils/eloCalculator';
 import { Match } from './matchService';
+import { createClient } from '@/libs/supabase/client';
+import { Database } from '@/types/database.types';
 
 export interface EloUpdateResult {
   success: boolean;
@@ -40,6 +42,62 @@ export class EloService {
         };
       }
 
+      // Use pre-calculated ELO changes if available
+      if (match.user_1_elo_change !== undefined && match.user_2_elo_change !== undefined && 
+          match.user_1_elo_before !== undefined && match.user_2_elo_before !== undefined) {
+        
+        // Determine winner and loser ELO changes
+        const isUser1Winner = match.winner_id === match.user_1_id;
+        const winnerEloChange = isUser1Winner ? match.user_1_elo_change : match.user_2_elo_change;
+        const loserEloChange = isUser1Winner ? -match.user_2_elo_change : -match.user_1_elo_change;
+        
+        const winnerNewElo = isUser1Winner ? 
+          match.user_1_elo_before + match.user_1_elo_change : 
+          match.user_2_elo_before + match.user_2_elo_change;
+        
+        const loserNewElo = isUser1Winner ? 
+          match.user_2_elo_before - match.user_2_elo_change : 
+          match.user_1_elo_before - match.user_1_elo_change;
+
+        // Apply the pre-calculated ELO changes
+        await Promise.all([
+          userService.updateEloScore(match.user_1_id, isUser1Winner ? winnerNewElo : loserNewElo),
+          userService.updateEloScore(match.user_2_id, isUser1Winner ? loserNewElo : winnerNewElo)
+        ]);
+
+        const eloChange = {
+          winnerId: match.winner_id,
+          loserId: match.user_1_id === match.winner_id ? match.user_2_id : match.user_1_id,
+          winnerEloChange,
+          loserEloChange,
+          winnerNewElo,
+          loserNewElo
+        };
+
+        console.log(`ELO Update - Ranked Match ${match.id} (using pre-calculated):`, {
+          winner: {
+            id: match.winner_id,
+            oldElo: isUser1Winner ? match.user_1_elo_before : match.user_2_elo_before,
+            newElo: winnerNewElo,
+            change: winnerEloChange
+          },
+          loser: {
+            id: match.user_1_id === match.winner_id ? match.user_2_id : match.user_1_id,
+            oldElo: isUser1Winner ? match.user_2_elo_before : match.user_1_elo_before,
+            newElo: loserNewElo,
+            change: loserEloChange
+          }
+        });
+
+        return {
+          success: true,
+          eloChange
+        };
+      }
+
+      // Fallback to old calculation method if pre-calculated values are not available
+      console.warn(`Match ${match.id} does not have pre-calculated ELO changes, falling back to calculation`);
+      
       // Get current user data for both players
       const [winner, loser] = await Promise.all([
         userService.getUserById(match.winner_id),
@@ -116,7 +174,21 @@ export class EloService {
         return 0;
       }
 
-      // Get user data for both players
+      // Use pre-calculated ELO changes stored in the match
+      if (match.user_1_elo_change !== undefined && match.user_2_elo_change !== undefined) {
+        if (userId === match.user_1_id) {
+          // Return the correct ELO change based on who won
+          return match.winner_id === match.user_1_id ? match.user_1_elo_change : -match.user_2_elo_change;
+        } else if (userId === match.user_2_id) {
+          // Return the correct ELO change based on who won
+          return match.winner_id === match.user_2_id ? match.user_2_elo_change : -match.user_1_elo_change;
+        }
+      }
+
+      // Fallback to old calculation method if pre-calculated values are not available
+      console.warn(`Match ${match.id} does not have pre-calculated ELO changes, falling back to calculation`);
+      
+      // Get current user data
       const [user1, user2] = await Promise.all([
         userService.getUserById(match.user_1_id),
         userService.getUserById(match.user_2_id)
@@ -126,11 +198,20 @@ export class EloService {
         return null;
       }
 
-      // Determine winner and loser
-      const winner = match.winner_id === user1.id ? user1 : user2;
-      const loser = match.winner_id === user1.id ? user2 : user1;
+      // Use stored ELO values from before the match if available
+      const user1EloBeforeMatch = match.user_1_elo_before || user1.elo_score;
+      const user2EloBeforeMatch = match.user_2_elo_before || user2.elo_score;
 
-      // Calculate ELO changes
+      // Determine winner and loser with their ELOs from before the match
+      const winner = match.winner_id === user1.id ? 
+        { id: user1.id, elo_score: user1EloBeforeMatch } : 
+        { id: user2.id, elo_score: user2EloBeforeMatch };
+      
+      const loser = match.winner_id === user1.id ? 
+        { id: user2.id, elo_score: user2EloBeforeMatch } : 
+        { id: user1.id, elo_score: user1EloBeforeMatch };
+
+      // Calculate ELO changes using ELOs from before the match
       const eloChange = calculateEloChanges({
         winnerId: winner.id,
         loserId: loser.id,
