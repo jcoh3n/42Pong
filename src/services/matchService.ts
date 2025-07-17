@@ -236,18 +236,17 @@ export class MatchService {
 		if (wasCompleted && hasWinner && isRanked) {
 			console.log(`Ranked match ${id} completed with winner ${data.winner_id}, updating ELO ratings...`);
 			
-			// Update ELO ratings asynchronously (don't wait for it to complete)
-			eloService.updateEloAfterMatch(data)
-				.then(result => {
-					if (result.success) {
-						console.log(`ELO ratings updated successfully for ranked match ${id}:`, result.eloChange);
-					} else {
-						console.error(`Failed to update ELO ratings for ranked match ${id}:`, result.error);
-					}
-				})
-				.catch(error => {
-					console.error(`Error updating ELO ratings for ranked match ${id}:`, error);
-				});
+			// Update ELO ratings synchronously to ensure data consistency
+			try {
+				const result = await eloService.updateEloAfterMatch(data);
+				if (result.success) {
+					console.log(`ELO ratings updated successfully for ranked match ${id}:`, result.eloChange);
+				} else {
+					console.error(`Failed to update ELO ratings for ranked match ${id}:`, result.error);
+				}
+			} catch (error) {
+				console.error(`Error updating ELO ratings for ranked match ${id}:`, error);
+			}
 		}
 
 		return data;
@@ -324,18 +323,17 @@ export class MatchService {
 			if (isRankedMatch) {
 				console.log(`Ranked match ${matchId} completed via score increment, updating ELO ratings...`);
 				
-				// Update ELO ratings asynchronously
-				eloService.updateEloAfterMatch(completedMatch)
-					.then(result => {
-						if (result.success) {
-							console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
-						} else {
-							console.error(`Failed to update ELO ratings for ranked match ${matchId}:`, result.error);
-						}
-					})
-					.catch(error => {
-						console.error(`Error updating ELO ratings for ranked match ${matchId}:`, error);
-					});
+				// Update ELO ratings synchronously to ensure data consistency
+				try {
+					const result = await eloService.updateEloAfterMatch(completedMatch);
+					if (result.success) {
+						console.log(`ELO ratings updated successfully for ranked match ${matchId}:`, result.eloChange);
+					} else {
+						console.error(`Failed to update ELO ratings for ranked match ${matchId}:`, result.error);
+					}
+				} catch (error) {
+					console.error(`Error updating ELO ratings for ranked match ${matchId}:`, error);
+				}
 			}
 		}
 
