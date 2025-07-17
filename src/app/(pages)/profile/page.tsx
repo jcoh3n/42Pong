@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { useRouter } from "next/navigation";
-import { Box, Container, Flex, Text, Heading, Button } from "@radix-ui/themes";
+import { Box, Container, Flex, Text, Heading, Button, Avatar, Card } from "@radix-ui/themes";
+import { motion } from 'framer-motion';
+import { TrendingUpIcon, TrendingDownIcon, ActivityIcon } from "lucide-react";
 import useUserMatches from "@/hooks/matches/useUserMatches";
 import useUsers from "@/hooks/users/useUsers";
 import useUserStats from "@/hooks/users/useUserStats";
@@ -10,8 +12,6 @@ import useCurrentUser from '@/hooks/useCurrentUser';
 import { LoadingState, RecentMatches } from "@/components/home";
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileDetailedStats from '@/components/profile/ProfileDetailedStats';
-import ProfileProgressChart from '@/components/profile/ProfileProgressChart';
-import ProfileMatchAnalysis from '@/components/profile/ProfileMatchAnalysis';
 import PongPaddle from '@/components/PongPaddle/PongPaddle';
 
 export default function Profile() {
@@ -37,77 +37,57 @@ export default function Profile() {
   const losses = totalMatches - wins;
   const winRate = stats?.winRate || 0;
 
-  // Statistiques avancées uniques à la page Profile
-  const calculateAdvancedStats = () => {
-    if (!matches || matches.length === 0) return null;
-
-    // Analyse des streaks
-    let currentStreak = 0;
-    let longestWinStreak = 0;
-    let longestLoseStreak = 0;
-    let tempWinStreak = 0;
-    let tempLoseStreak = 0;
-
-    // Analyse des scores
-    let totalScoreFor = 0;
-    let totalScoreAgainst = 0;
-    let perfectGames = 0; // Victoires sans encaisser de points
-    let closeGames = 0; // Matchs décidés par 1 point
-
-    // Analyse par type de match
-    const matchTypeStats = {
-      normal: { wins: 0, losses: 0, total: 0 },
-      ranked: { wins: 0, losses: 0, total: 0 },
-      friendly: { wins: 0, losses: 0, total: 0 }
-    };
-
-    matches.forEach((match, index) => {
+  // Calcul simplifié de la progression ELO
+  const calculateEloProgression = () => {
+    if (!matches || matches.length === 0) return { trend: 'stable', change: 0, recent: [] };
+    
+    // Filtrer seulement les matchs ranked pour la progression ELO
+    const rankedMatches = matches.filter(match => match.type === 'ranked');
+    
+    const recentMatches = [...rankedMatches]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 10);
+    
+    let totalEloChanges = 0;
+    let wins = 0;
+    let losses = 0;
+    let lastMatchEloChange = 0;
+    
+    recentMatches.forEach((match, index) => {
       const isWin = match.winner_id === currentUser?.id;
-      const userScore = match.user_1_id === currentUser?.id ? match.user_1_score : match.user_2_score;
-      const opponentScore = match.user_1_id === currentUser?.id ? match.user_2_score : match.user_1_score;
       
-      // Calcul des streaks
-      if (isWin) {
-        tempWinStreak++;
-        tempLoseStreak = 0;
-        longestWinStreak = Math.max(longestWinStreak, tempWinStreak);
-        if (index === 0) currentStreak = tempWinStreak;
-      } else {
-        tempLoseStreak++;
-        tempWinStreak = 0;
-        longestLoseStreak = Math.max(longestLoseStreak, tempLoseStreak);
-        if (index === 0) currentStreak = -tempLoseStreak;
+      // Récupérer le vrai changement ELO depuis la base de données
+      const userEloChange = currentUser?.id === match.user_1_id 
+        ? match.user_1_elo_change 
+        : match.user_2_elo_change;
+      
+      // Pour la tendance, on fait la somme totale
+      totalEloChanges += userEloChange || 0;
+      
+      // Pour l'affichage, on prend le changement du dernier match seulement
+      if (index === 0) {
+        lastMatchEloChange = userEloChange || 0;
       }
-
-      // Analyse des scores
-      totalScoreFor += userScore;
-      totalScoreAgainst += opponentScore;
       
-      if (isWin && opponentScore === 0) perfectGames++;
-      if (Math.abs(userScore - opponentScore) === 1) closeGames++;
-
-      // Stats par type de match
-      const matchType = match.type || 'normal';
-      if (matchTypeStats[matchType]) {
-        matchTypeStats[matchType].total++;
-        if (isWin) matchTypeStats[matchType].wins++;
-        else matchTypeStats[matchType].losses++;
+      if (isWin) {
+        wins++;
+      } else {
+        losses++;
       }
     });
-
+    
+    const trend = totalEloChanges > 0 ? 'up' : totalEloChanges < 0 ? 'down' : 'stable';
+    
     return {
-      currentStreak,
-      longestWinStreak,
-      longestLoseStreak,
-      averageScoreFor: totalMatches > 0 ? Math.round(totalScoreFor / totalMatches) : 0,
-      averageScoreAgainst: totalMatches > 0 ? Math.round(totalScoreAgainst / totalMatches) : 0,
-      perfectGames,
-      closeGames,
-      matchTypeStats
+      trend,
+      change: lastMatchEloChange, // Changement du dernier match seulement
+      recent: recentMatches.slice(0, 5),
+      recentWins: wins,
+      recentLosses: losses
     };
   };
 
-  const advancedStats = calculateAdvancedStats();
+  const eloProgression = calculateEloProgression();
 
   // Gestionnaires d'événements
   const handleViewHistory = () => router.push('/history');
@@ -124,60 +104,165 @@ export default function Profile() {
 
   return (
     <Box className="min-h-screen w-full relative">
-      {/* Container principal */}
-      <Container size="4" className="relative z-10 py-8">
+      <Container size="4" className="relative z-10">
         <Flex 
           direction="column" 
           align="center" 
-          gap={{ initial: "6", sm: "8" }}
-          className="px-4"
+          gap={{ initial: "4", sm: "6" }}
+          className="min-h-screen py-4 px-4 sm:py-8"
         >
           
-          {/* Titre principal */}
-          <Heading 
-            size={{ initial: "8", sm: "9" }}
-            weight="bold" 
-            className="text-white mix-blend-exclusion text-center"
-            style={{ 
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              letterSpacing: '-0.02em',
-              marginBottom: '2rem'
-            }}
+          {/* En-tête de profil */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full max-w-4xl"
           >
-            Analyse de Performance
-          </Heading>
+            <ProfileHeader 
+              user={currentUser}
+              rank={currentUserRank}
+              onViewLeaderboard={handleViewLeaderboard}
+            />
+          </motion.div>
 
-          {/* En-tête de profil compact */}
-          <ProfileHeader 
-            user={currentUser}
-            rank={currentUserRank}
-            onViewLeaderboard={handleViewLeaderboard}
-          />
+          {/* Statistiques détaillées */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="w-full max-w-4xl"
+          >
+            <ProfileDetailedStats 
+              basicStats={{ wins, losses, totalMatches, winRate }}
+              advancedStats={null}
+              eloScore={currentUser.elo_score}
+            />
+          </motion.div>
 
-          {/* Statistiques détaillées en grille */}
-          <ProfileDetailedStats 
-            basicStats={{ wins, losses, totalMatches, winRate }}
-            advancedStats={advancedStats}
-            eloScore={currentUser.elo_score}
-          />
+          {/* Progression ELO simplifiée */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="w-full max-w-4xl"
+          >
+            <Box className="rounded-xl bg-white/5 border border-white/10 p-4 sm:p-6">
+              <Flex direction="column" gap="4">
+                
+                {/* Titre section plus discret */}
+                <Text size="3" weight="medium" className="text-white/80">
+                  Progression Ranked
+                </Text>
 
-          {/* Graphique de progression ELO */}
-          <ProfileProgressChart 
-            matches={matches}
-            currentUser={currentUser}
-            currentElo={currentUser.elo_score}
-          />
+                {/* Contenu principal */}
+                <Flex 
+                  direction={{ initial: "column", sm: "row" }} 
+                  gap="4" 
+                  align="center"
+                  justify="between"
+                >
+                  
+                  {/* ELO et tendance */}
+                  <Flex direction="column" gap="2" align={{ initial: "center", sm: "start" }}>
+                    <Text size="2" className="text-white/60">ELO actuel</Text>
+                    <Flex align="center" gap="3">
+                      <Text size="6" weight="bold" className="text-white">
+                        {currentUser.elo_score}
+                      </Text>
+                      
+                      {/* Indicateur de tendance */}
+                      <Flex align="center" gap="2">
+                        {eloProgression.trend === 'up' && (
+                          <>
+                            <TrendingUpIcon size={16} className="text-green-400" />
+                            <Text size="2" className="text-green-400">
+                              +{Math.abs(eloProgression.change)}
+                            </Text>
+                          </>
+                        )}
+                        {eloProgression.trend === 'down' && (
+                          <>
+                            <TrendingDownIcon size={16} className="text-red-400" />
+                            <Text size="2" className="text-red-400">
+                              {eloProgression.change}
+                            </Text>
+                          </>
+                        )}
+                        {eloProgression.trend === 'stable' && (
+                          <>
+                            <ActivityIcon size={16} className="text-gray-400" />
+                            <Text size="2" className="text-gray-400">
+                              Stable
+                            </Text>
+                          </>
+                        )}
+                      </Flex>
+                    </Flex>
+                  </Flex>
 
-          {/* Analyse des matchs */}
-          <ProfileMatchAnalysis 
-            matches={matches}
-            currentUser={currentUser}
-            topPlayers={topPlayers}
-            advancedStats={advancedStats}
-          />
+                  {/* Bilan récent */}
+                  <Flex gap="6" align="center">
+                    <Flex direction="column" align="center" gap="1">
+                      <Text size="3" weight="bold" className="text-green-400">
+                        {eloProgression.recentWins}
+                      </Text>
+                      <Text size="1" className="text-white/60">Victoires</Text>
+                    </Flex>
+                    <Flex direction="column" align="center" gap="1">
+                      <Text size="3" weight="bold" className="text-red-400">
+                        {eloProgression.recentLosses}
+                      </Text>
+                      <Text size="1" className="text-white/60">Défaites</Text>
+                    </Flex>
+                  </Flex>
+                </Flex>
 
-          {/* Historique complet des matchs */}
-          <Box className="w-full max-w-6xl">
+                {/* Derniers matchs ranked */}
+                {eloProgression.recent.length > 0 && (
+                  <Box className="border-t border-white/10 pt-4">
+                    <Text size="2" className="text-white/60 mb-3 block">
+                      Derniers matchs ranked
+                    </Text>
+                    <Flex gap="3" wrap="wrap" align="center">
+                      {eloProgression.recent.map((match, index) => {
+                        const isWin = match.winner_id === currentUser?.id;
+                        return (
+                          <Box
+                            key={match.id || index}
+                            style={{
+                              width: '32px',
+                              height: '32px',
+                              borderRadius: '50%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              background: isWin ? 'rgba(59, 130, 246, 0.2)' : 'rgba(99, 102, 241, 0.2)',
+                              color: isWin ? '#60a5fa' : '#818cf8',
+                              border: isWin ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid rgba(99, 102, 241, 0.4)',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            {isWin ? 'V' : 'D'}
+                          </Box>
+                        );
+                      })}
+                    </Flex>
+                  </Box>
+                )}
+              </Flex>
+            </Box>
+          </motion.div>
+
+          {/* Historique des matchs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="w-full max-w-4xl"
+          >
             <RecentMatches 
               matches={matches}
               currentUser={{
@@ -188,7 +273,7 @@ export default function Profile() {
               topPlayers={topPlayers}
               onViewAll={handleViewHistory}
             />
-          </Box>
+          </motion.div>
 
         </Flex>
       </Container>
