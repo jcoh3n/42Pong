@@ -250,7 +250,7 @@ export class MatchService {
 		// Check if the match was just completed and has a winner
 		const wasCompleted = currentMatch?.status !== 'completed' && data.status === 'completed';
 		const hasWinner = data.winner_id && data.winner_id.trim() !== '';
-		const isRanked = data.match_type === 'ranked' || data.type === 'ranked';
+		const isRanked = data.type === 'ranked';
 
 		console.debug(`[updateMatch] wasCompleted: ${wasCompleted}, hasWinner: ${hasWinner}, isRanked: ${isRanked}`);
 
@@ -327,7 +327,7 @@ export class MatchService {
 		const user2Score = isUser1 ? match.user_2_score : newScore;
 		
 		// Check if this is a ranked match for ELO updates
-		const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
+		const isRankedMatch = match.type === 'ranked';
 		let winnerId: string | null = null;
 
 		if (user1Score >= match.score_to_win || user2Score >= match.score_to_win) {

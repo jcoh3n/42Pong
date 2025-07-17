@@ -27,7 +27,7 @@ export class EloService {
       }
 
       // Only apply ELO to ranked matches (check both possible properties)
-      const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
+      const isRankedMatch = match.type === 'ranked';
       if (!isRankedMatch) {
         return {
           success: true,
@@ -118,29 +118,9 @@ export class EloService {
       }
 
       // Only calculate for ranked matches (check both possible properties)
-      const isRankedMatch = match.match_type === 'ranked' || match.type === 'ranked';
+      const isRankedMatch = match.type === 'ranked';
       if (!isRankedMatch) {
         return null; // Return null for non-ranked matches instead of 0
-      }
-
-      // Use pre-calculated ELO changes stored in the match
-      if (match.user_1_elo_change !== undefined && match.user_2_elo_change !== undefined) {
-        // Determine who won and calculate the actual ELO change
-        if (match.winner_id === match.user_1_id) {
-          // User 1 won
-          if (userId === match.user_1_id) {
-            return match.user_1_elo_change; // Winner gets positive change
-          } else if (userId === match.user_2_id) {
-            return -match.user_1_elo_change; // Loser gets negative change
-          }
-        } else if (match.winner_id === match.user_2_id) {
-          // User 2 won
-          if (userId === match.user_1_id) {
-            return -match.user_2_elo_change; // Loser gets negative change
-          } else if (userId === match.user_2_id) {
-            return match.user_2_elo_change; // Winner gets positive change
-          }
-        }
       }
 
       // Fallback to old calculation method if pre-calculated values are not available
@@ -168,21 +148,6 @@ export class EloService {
       const loser = match.winner_id === user1.id ? 
         { id: user2.id, elo_score: user2EloBeforeMatch } : 
         { id: user1.id, elo_score: user1EloBeforeMatch };
-
-      // Calculate ELO changes using ELOs from before the match
-      const eloChange = calculateEloChanges({
-        winnerId: winner.id,
-        loserId: loser.id,
-        winnerCurrentElo: winner.elo_score,
-        loserCurrentElo: loser.elo_score
-      });
-
-      // Return the ELO change for the requested user
-      if (userId === winner.id) {
-        return eloChange.winnerEloChange;
-      } else if (userId === loser.id) {
-        return eloChange.loserEloChange;
-      }
 
       return null;
     } catch (error) {

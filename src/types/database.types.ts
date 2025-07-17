@@ -83,7 +83,6 @@ export type Database = {
       Matches: {
         Row: {
           created_at: string
-          elo_change: number | null
           finished_at: string | null
           forfeited_by: string | null
           id: string
@@ -93,11 +92,9 @@ export type Database = {
           sets_to_win: number
           status: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["matche_type"]
-          user_1_elo_before: number | null
           user_1_elo_change: number | null
           user_1_id: string
           user_1_score: number
-          user_2_elo_before: number | null
           user_2_elo_change: number | null
           user_2_id: string
           user_2_score: number
@@ -105,7 +102,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          elo_change?: number | null
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
@@ -115,11 +111,9 @@ export type Database = {
           sets_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
           type: Database["public"]["Enums"]["matche_type"]
-          user_1_elo_before?: number | null
           user_1_elo_change?: number | null
           user_1_id: string
           user_1_score?: number
-          user_2_elo_before?: number | null
           user_2_elo_change?: number | null
           user_2_id: string
           user_2_score?: number
@@ -127,7 +121,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          elo_change?: number | null
           finished_at?: string | null
           forfeited_by?: string | null
           id?: string
@@ -137,11 +130,9 @@ export type Database = {
           sets_to_win?: number
           status?: Database["public"]["Enums"]["match_status"]
           type?: Database["public"]["Enums"]["matche_type"]
-          user_1_elo_before?: number | null
           user_1_elo_change?: number | null
           user_1_id?: string
           user_1_score?: number
-          user_2_elo_before?: number | null
           user_2_elo_change?: number | null
           user_2_id?: string
           user_2_score?: number
