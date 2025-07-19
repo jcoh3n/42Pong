@@ -25,25 +25,25 @@ const GAME_MODES: GameMode[] = [
 	{
 		title: "Quick Match",
 		icon: GiPingPongBat,
-		color: "#4CAF50",
-		bgColor: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
-		glowColor: "rgba(76, 175, 80, 0.3)",
+		color: "#22c55e", // Vert (comme Victoires dans profile)
+		bgColor: "rgba(34, 197, 94, 0.12)",
+		glowColor: "rgba(34, 197, 94, 0.3)",
 		mode: 'normal',
 	},
 	{
 		title: "Ranked Match",
 		icon: FaTrophy,
-		color: "#007BFF",
-		bgColor: "linear-gradient(135deg, #007BFF 0%, #0056B3 100%)",
-		glowColor: "rgba(0, 123, 255, 0.3)",
+		color: "#3b82f6", // Bleu (comme Total dans profile)
+		bgColor: "rgba(59, 130, 246, 0.12)",
+		glowColor: "rgba(59, 130, 246, 0.3)",
 		mode: 'ranked'
 	},
 	{
 		title: "Challenge Friend",
 		icon: FaUserFriends,
-		color: "#FF9800",
-		bgColor: "linear-gradient(135deg, #FF9800 0%, #F57C00 100%)",
-		glowColor: "rgba(255, 152, 0, 0.3)",
+		color: "#f59e0b", // Orange (comme Win Rate dans profile)
+		bgColor: "rgba(245, 158, 11, 0.12)",
+		glowColor: "rgba(245, 158, 11, 0.3)",
 		mode: 'friendly'
 	}
 ];
@@ -116,33 +116,86 @@ const MatchmakingMenu = () => {
 		<div 
 			className="h-full w-full flex items-center justify-center overflow-y-auto"
 			style={{
-				minHeight: "100%"
+				minHeight: "100vh"
 			}}
 		>
-			<div className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] max-w-3xl mx-auto py-8 sm:py-12">
-				<div className="space-y-6 sm:space-y-8 md:space-y-10">
-					{GAME_MODES.map((mode) => {
+			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+				{/* Layout pour centrer les 3 éléments */}
+				<div className="flex flex-col items-center justify-center min-h-screen space-y-6 sm:space-y-8 py-8">
+					{/* Quick Match - En haut */}
+					{GAME_MODES.filter(mode => mode.mode === 'normal').map((mode) => {
 						const inModeQueue = isInQueue && matchmakingData.data?.queueData?.matche_type === mode.mode;
 						const isActive = !isInQueue || inModeQueue;
-	
 						const hasMatchmaking = mode.mode === 'normal' || mode.mode === 'ranked';
 
 						return (
-						<GameModeCard
-							key={mode.title}
-							title={mode.title}
-							icon={mode.icon}
-							color={mode.color}
-							bgColor={mode.bgColor}
-							glowColor={mode.glowColor}
-							isLoading={matchmakingIsLoading}
-							isActive={isActive}
-							onClick={() => handleGameModeClick(mode.mode)}
-							additionalContent={hasMatchmaking && isInQueue &&
-								<QueueTimer time={timeInQueue} />
-							}
-						/>
-					)})}
+							<div key={mode.title} className="w-full max-w-2xl">
+								<GameModeCard
+									title={mode.title}
+									icon={mode.icon}
+									color={mode.color}
+									bgColor={mode.bgColor}
+									glowColor={mode.glowColor}
+									isLoading={matchmakingIsLoading}
+									isActive={isActive}
+									onClick={() => handleGameModeClick(mode.mode)}
+									additionalContent={hasMatchmaking && isInQueue &&
+										<QueueTimer time={timeInQueue} />
+									}
+								/>
+							</div>
+						);
+					})}
+
+					{/* Ranked Match - Au centre */}
+					{GAME_MODES.filter(mode => mode.mode === 'ranked').map((mode) => {
+						const inModeQueue = isInQueue && matchmakingData.data?.queueData?.matche_type === mode.mode;
+						const isActive = !isInQueue || inModeQueue;
+						const hasMatchmaking = mode.mode === 'normal' || mode.mode === 'ranked';
+
+						return (
+							<div key={mode.title} className="w-full max-w-2xl">
+								<GameModeCard
+									title={mode.title}
+									icon={mode.icon}
+									color={mode.color}
+									bgColor={mode.bgColor}
+									glowColor={mode.glowColor}
+									isLoading={matchmakingIsLoading}
+									isActive={isActive}
+									onClick={() => handleGameModeClick(mode.mode)}
+									additionalContent={hasMatchmaking && isInQueue &&
+										<QueueTimer time={timeInQueue} />
+									}
+								/>
+							</div>
+						);
+					})}
+
+					{/* Challenge Friends - En bas */}
+					{GAME_MODES.filter(mode => mode.mode === 'friendly').map((mode) => {
+						const inModeQueue = isInQueue && matchmakingData.data?.queueData?.matche_type === mode.mode;
+						const isActive = !isInQueue || inModeQueue;
+						const hasMatchmaking = mode.mode === 'normal' || mode.mode === 'ranked';
+
+						return (
+							<div key={mode.title} className="w-full max-w-2xl">
+								<GameModeCard
+									title={mode.title}
+									icon={mode.icon}
+									color={mode.color}
+									bgColor={mode.bgColor}
+									glowColor={mode.glowColor}
+									isLoading={matchmakingIsLoading}
+									isActive={isActive}
+									onClick={() => handleGameModeClick(mode.mode)}
+									additionalContent={hasMatchmaking && isInQueue &&
+										<QueueTimer time={timeInQueue} />
+									}
+								/>
+							</div>
+						);
+					})}
 				</div>
 			</div>
 

@@ -22,9 +22,9 @@ const GameModeCard: React.FC<GameModeCardProps> = ({
   isActive,
   onClick,
   additionalContent,
-  color = "#0072F5",
-  bgColor = "#1a365d",
-  glowColor = "rgba(0, 114, 245, 0.2)"
+  color = "#60a5fa",
+  bgColor = "rgba(255, 255, 255, 0.15)", // Fallback
+  glowColor = "rgba(96, 165, 250, 0.3)" // Fallback
 }) => {
   return (
     <motion.div
@@ -40,75 +40,96 @@ const GameModeCard: React.FC<GameModeCardProps> = ({
         className={`
           w-full relative overflow-hidden rounded-2xl
           ${isActive ? 'shadow-2xl' : 'hover:shadow-xl'}
-          transition-all duration-200
+          transition-all duration-300
           h-[150px] sm:h-[160px] md:h-[180px] lg:h-[200px]
         `}
         style={{
-          background: bgColor,
-          border: `2px solid ${color}30`,
-          boxShadow: `0 0 20px ${glowColor}`
+          background: `linear-gradient(135deg, ${bgColor} 0%, rgba(255, 255, 255, 0.08) 100%)`,
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: `1px solid ${glowColor}`,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
         }}
       >
-        <div 
-          className="absolute inset-0"
+        {/* Effet de hover semi-transparent */}
+        <motion.div
+          className="absolute inset-0 opacity-0 transition-opacity duration-300 pointer-events-none"
           style={{
-            background: `radial-gradient(circle at 30% 50%, ${color}30, transparent 70%)`
+            background: `linear-gradient(45deg, ${color}15 0%, ${color}08 100%)`,
           }}
+          whileHover={{ opacity: 1 }}
         />
 
         <div className="absolute inset-0 flex items-center px-6 sm:px-8">
-          <div className="flex items-center gap-6 sm:gap-8">
+          <div className="flex items-center gap-6 sm:gap-8 w-full">
             <div 
               className={`
                 p-4 sm:p-5 md:p-6 rounded-xl
-                transition-colors duration-200 backdrop-blur-sm
-                ${isActive ? 'bg-white/30' : 'bg-white/20'}
-                transform-gpu hover:scale-105
+                transition-all duration-300 backdrop-blur-sm
+                ${isActive ? 'bg-white/25 scale-105' : 'bg-white/15'}
+                transform-gpu hover:scale-105 hover:bg-white/30
               `}
               style={{
-                boxShadow: `0 0 10px ${glowColor}`
+                border: `1px solid ${glowColor}`,
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3)',
               }}
             >
               <Icon 
                 className={`
-                  w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-transform
+                  w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 transition-transform duration-300
                   ${isActive ? 'scale-110' : ''}
                 `} 
-                style={{ color: 'white' }} 
+                style={{ 
+                  color: color, 
+                  filter: `drop-shadow(0 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 0 8px ${color}40)`
+                }} 
               />
             </div>
-            <div className="flex items-center gap-4">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+            
+            <div className="flex items-center justify-between w-full">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mix-blend-exclusion">
                 {title}
               </h3>
+              
+              {/* Contenu additionnel à droite */}
+              {isActive && additionalContent && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="ml-4"
+                >
+                  {additionalContent}
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
 
-        {isActive && additionalContent && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute right-6 sm:right-8 top-1/2 -translate-y-1/2"
-          >
-            {additionalContent}
-          </motion.div>
-        )}
-
+        {/* Loader overlay */}
         {isLoading && (
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
-            <div className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="absolute inset-0 bg-black/15 backdrop-blur-sm flex items-center justify-center">
+            <div 
+              className="w-8 h-8 border-3 rounded-full animate-spin"
+              style={{
+                borderWidth: '3px',
+                borderStyle: 'solid',
+                borderColor: `${color}40`,
+                borderTopColor: color,
+              }}
+            />
           </div>
         )}
 
+        {/* Effet actif subtil */}
         {isActive && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: `linear-gradient(90deg, ${color}10 0%, ${color}20 100%)`,
-              borderRadius: "inherit"
+              background: `linear-gradient(90deg, ${color}10 0%, ${color}05 100%)`,
+              borderRadius: "inherit",
+              border: `1px solid ${color}60`,
             }}
           />
         )}
