@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, Box, Flex, Text, Badge, Button } from '@radix-ui/themes';
 import { Notification } from '@/services';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-import { Component as LumaSpin } from "@/components/ui/luma-spin";
 import { InvitationStatus, isInvitationNotification, InvitationNotification } from '@/hooks/useInvitationNotifications';
 import { 
   getNotificationIcon, 
@@ -198,9 +197,15 @@ export function NotificationItem({
           >
             <Flex gap="1" align="center" justify="center">
               {isAccepting ? (
-                <Box style={{ transform: 'scale(0.4)' }}>
-                  <LumaSpin />
-                </Box>
+                <div 
+                  className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin"
+                  style={{
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderTopColor: 'white',
+                  }}
+                />
               ) : (
                 <FaCheck size={10} />
               )}
@@ -222,9 +227,15 @@ export function NotificationItem({
           >
             <Flex gap="1" align="center" justify="center">
               {isRefusing ? (
-                <Box style={{ transform: 'scale(0.4)' }}>
-                  <LumaSpin />
-                </Box>
+                <div 
+                  className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin"
+                  style={{
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderTopColor: 'white',
+                  }}
+                />
               ) : (
                 <FaTimes size={10} />
               )}

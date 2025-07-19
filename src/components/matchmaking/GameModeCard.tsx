@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from "@nextui-org/react";
 import { motion } from "framer-motion";
 import { IconType } from 'react-icons';
+import PongPaddle from '@/components/PongPaddle/PongPaddle';
 
 interface GameModeCardProps {
   title: string;
@@ -105,18 +106,12 @@ const GameModeCard: React.FC<GameModeCardProps> = ({
           </div>
         </div>
 
-        {/* Loader overlay */}
+        {/* PongPaddle loader overlay */}
         {isLoading && (
-          <div className="absolute inset-0 bg-black/15 backdrop-blur-sm flex items-center justify-center">
-            <div 
-              className="w-8 h-8 border-3 rounded-full animate-spin"
-              style={{
-                borderWidth: '3px',
-                borderStyle: 'solid',
-                borderColor: `${color}40`,
-                borderTopColor: color,
-              }}
-            />
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center">
+            <div style={{ transform: 'scale(0.5)' }}>
+              <PongPaddle />
+            </div>
           </div>
         )}
 

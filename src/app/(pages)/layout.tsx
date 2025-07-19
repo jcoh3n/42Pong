@@ -1,47 +1,51 @@
 "use client";
 
 import "./globals.css";
+import React, { useState, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from "@/components/AuthProvider";
-import Protected from "@/components/Protected";
-import { Flex } from "@radix-ui/themes";
-import "@radix-ui/themes/styles.css";
-import Sidebar from "@/components/sidebar/Sidebar";
 import ThemeLayout from "@/components/ThemeLayout";
 import { Header } from "@/components/header/Header";
-import { useState, useEffect } from "react";
+import Sidebar from "@/components/sidebar/Sidebar";
+import Protected from "@/components/Protected";
+import { Flex } from "@radix-ui/themes";
+import { Squares } from "@/components/ui/squares-background";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
-import { useScrollLock } from "@/hooks/useScrollLock";
-import { Toaster } from "react-hot-toast";
-import { Squares } from "@/components/ui/squares-background";
 
-// Les métadonnées doivent être dans un fichier séparé ou dans un layout serveur
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
   const isDesktop = useMediaQuery(MEDIA_QUERIES["2xl"]);
 
-  // Verrouiller le défilement lorsque le sidebar est ouvert sur mobile
-  useScrollLock(isSidebarOpen && !isDesktop);
-
-  // Fermer automatiquement le sidebar sur mobile lors du changement de page
+  // Automatically close sidebar on mobile when route changes
   useEffect(() => {
     if (!isDesktop) {
       setIsSidebarOpen(false);
     }
-  }, [isDesktop]);
+  }, [pathname, isDesktop]);
 
-  // Ouvrir automatiquement le sidebar sur desktop
+  // Open sidebar automatically on desktop
   useEffect(() => {
     if (isDesktop) {
       setIsSidebarOpen(true);
     }
   }, [isDesktop]);
 
-  // Gérer l'ouverture/fermeture du sidebar
+  // Scroll to top when route changes
+  useEffect(() => {
+    // Scroll the main container, not the window
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+      mainElement.scrollTo(0, 0);
+    }
+  }, [pathname]);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
