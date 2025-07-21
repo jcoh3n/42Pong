@@ -19,7 +19,9 @@ export default function LoginLayout({
       <head>
         <title>42Pong</title>
         <meta name="description" content="A Pong game for 42 students" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <link rel="icon" href="/icon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#060606" />
       </head>
       <body>
         <Toaster />

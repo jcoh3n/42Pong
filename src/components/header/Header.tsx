@@ -1,14 +1,16 @@
 "use client";
 
-import { Flex, Box, Avatar } from "@radix-ui/themes";
+import { Flex, Box, Avatar, DropdownMenu, Text } from "@radix-ui/themes";
 import { NotificationBell } from "./NotificationBell";
 import Link from "next/link";
 import useCurrentUser from "@/hooks/useCurrentUser";
-import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { HamburgerMenuIcon, ExitIcon, PersonIcon } from "@radix-ui/react-icons";
 import { MobileOnly } from "@/components/ui/ResponsiveContainer";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MEDIA_QUERIES } from "@/constants/breakpoints";
 import { MatchmakingBubble } from "./MatchmakingBubble";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
 	onMenuClick?: () => void;
@@ -17,6 +19,7 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
 	const { data: user } = useCurrentUser();
 	const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
+	const router = useRouter();
 	
 	return (
 		<Box 
@@ -78,19 +81,36 @@ export function Header({ onMenuClick }: HeaderProps) {
 						<MatchmakingBubble />
 						<MobileOnly>
 							{user && (
-								<Link href="/profile" className="no-underline text-current">
-									<Avatar
-										size="2"
-										src={user.avatar_url || undefined}
-										fallback={user.login?.[0]?.toUpperCase() || "U"}
-										radius="full"
-										className="
-											border border-gray-800 
-											transition-all duration-200 
-											hover:ring-2 hover:ring-blue-500/50
-										"
-									/>
-								</Link>
+								<DropdownMenu.Root>
+									<DropdownMenu.Trigger>
+										<Avatar
+											size="2"
+											src={user.avatar_url || undefined}
+											fallback={user.login?.[0]?.toUpperCase() || "U"}
+											radius="full"
+											className="
+												border border-gray-800 
+												transition-all duration-200 
+												hover:ring-2 hover:ring-blue-500/50
+												cursor-pointer
+											"
+										/>
+									</DropdownMenu.Trigger>
+									<DropdownMenu.Content align="end" style={{ zIndex: 9999 }}>
+										<DropdownMenu.Item onSelect={() => router.push('/profile')}>
+											<Flex gap="2" align="center">
+												<PersonIcon />
+												<Text>Profile</Text>
+											</Flex>
+										</DropdownMenu.Item>
+										<DropdownMenu.Item color="red" onSelect={() => signOut()}>
+											<Flex gap="2" align="center">
+												<ExitIcon />
+												<Text>Sign Out</Text>
+											</Flex>
+										</DropdownMenu.Item>
+									</DropdownMenu.Content>
+								</DropdownMenu.Root>
 							)}
 						</MobileOnly>
 						<NotificationBell />

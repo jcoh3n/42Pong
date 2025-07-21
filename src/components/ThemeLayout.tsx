@@ -27,8 +27,8 @@ export default function ThemeLayout({
 		<ThemeProvider attribute="class">
 			<Theme
 				appearance='dark'
-				accentColor="blue"
-				grayColor="slate"
+				accentColor="gray"
+				grayColor="gray"
 				scaling="100%"
 				radius="medium"
 				// Remove the hardcoded "dark" class that was overriding the theme

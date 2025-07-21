@@ -175,7 +175,13 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </Box>
           
           {/* Bottom Navigation */}
-          <Box p="4" className="shrink-0">
+          <Box 
+            p="4" 
+            className="shrink-0"
+            style={{
+              paddingBottom: !isDesktop ? 'calc(1rem + var(--safe-area-inset-bottom, 0px) + 20px)' : '1rem'
+            }}
+          >
             <SidebarNavItem
               onItemClick={signOut}
               icon={<ExitIcon width="20" height="20" />} 
