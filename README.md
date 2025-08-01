@@ -4,44 +4,36 @@ A real-time ping pong match tracker for 42 students.
 
 ## Live Platform
 
-Access the application at: **https://42-pong.vercel.app/**
+**https://42-pong.vercel.app/**
 
 ## Screenshots
 
-### Dashboard & Matchmaking
-Real-time matchmaking and player statistics:
+### Login
+![Login](public/screenshots/login.png)
 
-![Dashboard](public/screenshots/dashboard.png)
-*Player dashboard with live matchmaking, leaderboard preview, and match history*
+### Home Dashboard
+![Home](public/screenshots/home.png)
 
-### Game Modes
-Choose from three different ways to play:
-
-![Game Modes](public/screenshots/game-modes.png)
-*Quick Match, Ranked Match, and Challenge Friend options*
-
-
+### Match Selection
+![Match Selection](public/screenshots/choice-matchs.png)
 
 ### Leaderboard
-Global ranking system with ELO ratings:
+![Leaderboard](public/screenshots/classement.png)
 
-![Leaderboard](public/screenshots/leaderboard.png)
-*Complete leaderboard with player rankings, match counts, and win rates*
+### Match History
+![History](public/screenshots/history.png)
 
 ### Player Profile
-Detailed statistics and performance tracking:
-
-![Player Profile](public/screenshots/profile.png)
-*Individual player profile showing ELO rating and match statistics*
+![Profile](public/screenshots/profile.png)
 
 ## Features
 
-- **Multiple Game Modes**: Quick matches, ranked games, and friend challenges
-- **Real-Time Matchmaking**: Smart queue system to find opponents
-- **Live Score Tracking**: Record and track scores during physical matches
-- **ELO Rating System**: Competitive ranking for players
-- **Friend System**: Send invitations and challenge friends
-- **Match History**: Complete statistics and gameplay history
+- Multiple game modes: Quick matches, ranked games, friend challenges
+- Real-time matchmaking system
+- Live score tracking during matches
+- ELO rating system for competitive ranking
+- Friend system with invitations
+- Complete match history and statistics
 
 ## Technology Stack
 
@@ -51,7 +43,7 @@ Detailed statistics and performance tracking:
 - **Real-time**: Supabase Realtime subscriptions
 - **Deployment**: Vercel
 
-## Local Development
+## Development Setup
 
 1. Clone and install:
 ```bash
@@ -78,7 +70,12 @@ npm run dev
 ## Usage
 
 1. Sign in with your 42 School account
-2. Choose a game mode (Quick Match, Ranked, or Challenge Friend)
+2. Choose a game mode
 3. Play your physical ping pong match
 4. Record scores in real-time
 5. Track your progress and statistics
+
+## Contributors
+
+- [@me](https://github.com/jcoh3n)
+- [@iibabyy](https://github.com/iibabyy)
