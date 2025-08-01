@@ -6,26 +6,6 @@ A real-time ping pong match tracker for 42 students.
 
 **https://42-pong.vercel.app/**
 
-## Screenshots
-
-### Login
-![Login](public/screenshots/login.png)
-
-### Home Dashboard
-![Home](public/screenshots/home.png)
-
-### Match Selection
-![Match Selection](public/screenshots/choice-matchs.png)
-
-### Leaderboard
-![Leaderboard](public/screenshots/classement.png)
-
-### Match History
-![History](public/screenshots/history.png)
-
-### Player Profile
-![Profile](public/screenshots/profile.png)
-
 ## Features
 
 - Multiple game modes: Quick matches, ranked games, friend challenges
