@@ -12,7 +12,7 @@ export default function GamePage() {
 	const [currentMatchId, setCurrentMatchId] = useState<string | null>(null);
 
 	useEffect(() => {
-		if (matchmakingData.data?.data?.inMatch) {
+		if (matchmakingData.data?.data) {
 			setCurrentMatchId(matchmakingData.data?.data?.matchData?.id || null);
 		}
 
@@ -24,11 +24,7 @@ export default function GamePage() {
 
 	if (currentMatchId) {
 		return <MatchPage matchId={currentMatchId} onLeave={onCurrentMatchLeave} />;
-	} else if (matchmakingData.data?.data?.inQueue) {
-		// return queue page
 	} else {
-		// return matchmaking menu
+		return <MatchmakingMenu />;
 	}
-
-	return <MatchmakingMenu />;
 }
