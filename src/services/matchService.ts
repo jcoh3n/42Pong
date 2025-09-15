@@ -226,11 +226,9 @@ export class MatchService {
 	}
 
 	async updateMatch(id: string, updates: MatchUpdate): Promise<Match> {
-		console.debug(`[updateMatch] Updating match ${id} with:`, updates);
 
 		// Get the current match state before updating
 		const currentMatch = await this.getMatchById(id);
-		console.debug(`[updateMatch] Current match state:`, currentMatch);
 
 		const { data, error } = await this.getClient()
 			.from('Matches')
