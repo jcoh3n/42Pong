@@ -114,14 +114,11 @@ const MatchmakingMenu = () => {
 
 	return (
 		<div 
-			className="h-full w-full flex items-center justify-center overflow-y-auto"
-			style={{
-				minHeight: "100vh"
-			}}
+			className="h-full w-full grid place-items-center"
 		>
-			<div className="w-full max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
+			<div className="w-full py-10 max-w-4xl mx-auto px-4 sm:px-6 md:px-8 h-full">
 				{/* Layout pour centrer les 3 éléments */}
-				<div className="flex flex-col items-center justify-center min-h-screen space-y-6 sm:space-y-8 py-8">
+				<div className="flex flex-col items-center justify-center h-full space-y-6 sm:space-y-8 py-8">
 					{/* Quick Match - En haut */}
 					{GAME_MODES.filter(mode => mode.mode === 'normal').map((mode) => {
 						const inModeQueue = isInQueue && matchmakingData.data?.queueData?.matche_type === mode.mode;

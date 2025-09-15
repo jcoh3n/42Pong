@@ -31,7 +31,6 @@ export type MatchData = {
 	};
 	mutate: any;
 	forfeitMatch: () => Promise<void>;
-	incrementScore: () => Promise<void>;
 };
 
 const useCurrentMatch = (match_id: string): MatchData => {
@@ -86,8 +85,6 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		unsubscribeRef.current = () => supabase.removeChannel(channel);
 		hasSetupRealtimeRef.current = true;
 
-		router.push('/games');
-
 		// Clean up on unmount or when match_id changes
 		return () => {
 			if (unsubscribeRef.current) {
@@ -97,7 +94,7 @@ const useCurrentMatch = (match_id: string): MatchData => {
 			}
 		};
 
-	}, [match_id, matchMutate, supabase, router]);
+	}, [match_id, matchMutate, supabase]);
 
 	const forfeitMatch = useCallback(async () => {
 		if (!match?.id || isForfeiting || !currentUser) {
@@ -115,30 +112,6 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		}
 	}, [match?.id, matchMutate, isForfeiting, currentUser]);
 
-	const incrementScore = useCallback(async () => {
-		if (!match?.id || !currentUser?.id) {
-			return;
-		}
-
-		try {
-			// Check if the score update was successful
-			const response = await matchService.incrementUserScore(match.id, currentUser.id);
-
-			if (response.error) {
-				console.error('Failed to increment score:', response.error.message);
-				toast.error(`Failed to update score: ${response.error.message}`);
-				return;
-			}
-
-			// Log the updated score for debugging
-			console.log('Score updated successfully:', response.data?.updated_score);
-
-			matchMutate();
-		} catch (error) {
-			console.error('Error incrementing score:', error);
-		}
-	}, [match?.id, currentUser?.id, matchMutate]);
-
 	return {
 		match: match || null,
 		error: matchError,
@@ -147,7 +120,6 @@ const useCurrentMatch = (match_id: string): MatchData => {
 		isLoading: isMatchLoading,
 		isForfeiting,
 		mutate: matchMutate,
-		incrementScore,
 		forfeitMatch,
 	};
 };
