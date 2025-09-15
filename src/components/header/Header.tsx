@@ -13,10 +13,11 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 interface HeaderProps {
-	onMenuClick?: () => void;
+	onMenuClick?: (e: any) => void;
+	onClick?: (e: any) => void;
 }
 
-export function Header({ onMenuClick }: HeaderProps) {
+export function Header({ onMenuClick, onClick }: HeaderProps) {
 	const { data: user } = useCurrentUser();
 	const isDesktop = useMediaQuery(MEDIA_QUERIES['2xl']);
 	const router = useRouter();
@@ -28,6 +29,8 @@ export function Header({ onMenuClick }: HeaderProps) {
 				${isDesktop ? 'left-[332px]' : 'left-0'}
 				transition-all duration-300 p-4
 			`}
+
+			onClick={onClick}
 		>
 			<div 
 				className={`
@@ -39,7 +42,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 			>
 				{/* Blur effect background */}
 				<div 
-					className="absolute inset-0 bg-gradient-to-b from-[var(--page-gradient-from)]/50 to-[var(--page-gradient-to)]/0"
+					className="absolute inset-0 bg-gradient-to-b from-black-300/50 to-[var(--page-gradient-to)]/0"
 					style={{
 						WebkitBackdropFilter: 'blur(8px)',
 						backdropFilter: 'blur(8px)',
@@ -65,7 +68,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 							aria-label="Menu"
 							role="button"
 							tabIndex={0}
-							onKeyDown={(e) => e.key === 'Enter' && onMenuClick && onMenuClick()}
+							onKeyDown={(e) => e.key === 'Enter' && onMenuClick && onMenuClick(e)}
 						>
 							<HamburgerMenuIcon width="20" height="20" className="text-gray-400" />
 						</Box>
