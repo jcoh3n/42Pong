@@ -120,10 +120,11 @@ export class UserService {
       .single();
 
     if (error) {
-      console.error(`Error fetching user with login ${login}:`, error);
       if (error.code === 'PGRST116') {
         return null;
       }
+
+      console.error(`Error fetching user with login ${login}:`, error);
       throw error;
     }
 

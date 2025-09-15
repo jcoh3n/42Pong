@@ -57,7 +57,7 @@ export default function SettingsPage() {
     };
 
   return (
-    <Box className="min-h-screen">
+    <Box className="h-full">
       <Container size="3" py="9">
         <Flex direction="column" gap="6">
           <div className="space-y-1">

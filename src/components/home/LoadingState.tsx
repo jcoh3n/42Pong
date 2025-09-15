@@ -4,7 +4,7 @@ import PongPaddle from '@/components/PongPaddle/PongPaddle';
 
 const LoadingState: React.FC = () => {
   return (
-    <Box className="min-h-screen">
+    <Box className="h-full">
       <Container size="3" py="9">
         <Flex align="center" justify="center" className="min-h-[70vh]" direction="column" gap="4">
           <PongPaddle />

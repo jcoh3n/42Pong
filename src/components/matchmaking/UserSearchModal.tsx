@@ -235,8 +235,8 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
 			backdropFilter: 'blur(12px)',
 			}}
 		/>
-		<div className="fixed inset-0 flex items-center justify-center z-50">
-			<div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+		<div className="fixed inset-0 flex items-center justify-center z-50 overflow-hidden">
+			<div className="bg-gray-800 rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
 				<div className="flex justify-between items-center mb-4">
 				<h2 className="text-xl font-semibold text-white">Search Users</h2>
 				<button
@@ -279,7 +279,7 @@ const UserSearchModal: React.FC<UserSearchModalProps> = ({
 						: 'No pending invitations found'}
 					</div>
 				) : (
-					<div className="space-y-2">
+					<div className="space-y-2 max-h-80 overflow-y-auto">
 					{displayUsers.map((user) => (
 						<UserCard 
 						key={user.id}

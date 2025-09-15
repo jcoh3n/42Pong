@@ -113,13 +113,13 @@ export default function HistoryPage() {
   }
 
   return (
-    <Box className="min-h-screen w-full relative">
+    <Box className="h-full w-full relative">
       <Container size="4" className="relative z-10">
         <Flex 
           direction="column" 
           align="center" 
           justify="start" 
-          className="min-h-screen py-4 px-4 sm:py-8"
+          className="h-full py-4 px-4 sm:py-8"
           gap={{ initial: "4", sm: "6" }}
         >
           

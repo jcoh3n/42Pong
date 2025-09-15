@@ -39,7 +39,7 @@ export default function LoginLayout({
                 />
               </div>
               {/* Content */}
-              <div className="relative z-10 min-h-screen">
+              <div className="relative z-10 h-full">
                 {children}
               </div>
             </Box>

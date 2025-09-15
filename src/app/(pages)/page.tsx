@@ -74,19 +74,19 @@ export default function HomePage() {
   }
   
   return (
-    <Box className="min-h-screen w-full relative">
+    <Box className="h-full w-full relative">
       {/* Container principal centré */}
       <Container size="4" className="relative z-10">
         <Flex 
-          direction="column" 
+          direction="column"
           align="center" 
           justify="center" 
-          className="min-h-screen py-4 px-4 sm:py-8"
+          className="h-full my-8 py-4 px-4 sm:py-8"
           gap={{ initial: "5", sm: "7", md: "8" }}
         >
           
           {/* Phrase d'accroche remontée */}
-          <Box 
+          {/* <Box 
             className="text-center"
             style={{ 
               marginTop: '-2rem',
@@ -104,7 +104,7 @@ export default function HomePage() {
             >
               Prêt pour votre prochaine partie ?
             </Text>
-          </Box>
+          </Box> */}
 
           {/* Carte de bienvenue avec informations utilisateur */}
           <WelcomeCard 

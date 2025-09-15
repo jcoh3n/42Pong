@@ -41,13 +41,9 @@ export default function useNotifications(options: NotificationOptions = {}) {
         return { data: [], count: 0, page: 1, pageSize: 10, hasMore: false };
       }
       
-      console.log('Fetching notifications for user:', userId, 'with options:', defaultOptions);
       return await notificationService.getNotificationsByUserId(userId, defaultOptions);
     }
   );
-
-  console.log('Fetched notifications:', data);
-  
 
   // Get count of unseen notifications
   const { data: unseenData, mutate: mutateUnseen } = useSWR(
@@ -58,13 +54,11 @@ export default function useNotifications(options: NotificationOptions = {}) {
         return { count: 0 };
       }
       
-      console.log('Fetching unseen notifications count for user:', userId);
       const result = await notificationService.getNotificationsByUserId(
         userId,
         { ...defaultOptions, onlyUnseen: true, pageSize: 1 }
       );
 
-      console.log('Unseen notifications count:', result.count);
       return { count: result.count };
     }
   );
@@ -79,14 +73,12 @@ export default function useNotifications(options: NotificationOptions = {}) {
     // Create handlers for different event types
     const handlers = {
       INSERT: (payload: any) => {
-        console.log('New notification received:', payload);
         const newNotification = payload.new as Notification;
         
         // Update notifications list
         mutate(currentData => {
           if (!currentData) return currentData;
           
-          console.log('Updating notifications list with new notification:', newNotification);
           return {
             ...currentData,
             data: [newNotification, ...currentData.data],
@@ -98,14 +90,12 @@ export default function useNotifications(options: NotificationOptions = {}) {
         if (!newNotification.seen) {
           mutateUnseen(currentData => {
             if (!currentData) return { count: 1 };
-            console.log('Incrementing unseen notifications count.');
             return { count: currentData.count + 1 };
           }, false);
         }
       },
       
       UPDATE: (payload: any) => {
-        console.log('Notification updated:', payload);
         const updatedNotification = payload.new as Notification;
         const oldNotification = payload.old as Notification;
         
@@ -113,7 +103,6 @@ export default function useNotifications(options: NotificationOptions = {}) {
         if (!oldNotification.seen && updatedNotification.seen) {
           mutateUnseen(currentData => {
             if (!currentData) return { count: 0 };
-            console.log('Decrementing unseen notifications count due to seen status change.');
             return { count: Math.max(0, currentData.count - 1) };
           }, false);
         }
@@ -122,7 +111,6 @@ export default function useNotifications(options: NotificationOptions = {}) {
         mutate(currentData => {
           if (!currentData) return currentData;
           
-          console.log('Updating notification in the list:', updatedNotification);
           return {
             ...currentData,
             data: currentData.data.map(notification => 
@@ -133,14 +121,12 @@ export default function useNotifications(options: NotificationOptions = {}) {
       },
       
       DELETE: (payload: any) => {
-        console.log('Notification deleted:', payload);
         const deletedNotification = payload.old as Notification;
         
         // Update unseen count if needed
         if (!deletedNotification.seen) {
           mutateUnseen(currentData => {
             if (!currentData) return { count: 0 };
-            console.log('Decrementing unseen notifications count due to deletion.');
             return { count: Math.max(0, currentData.count - 1) };
           }, false);
         }
@@ -149,7 +135,6 @@ export default function useNotifications(options: NotificationOptions = {}) {
         mutate(currentData => {
           if (!currentData) return currentData;
           
-          console.log('Removing deleted notification from the list:', deletedNotification.id);
           return {
             ...currentData,
             data: currentData.data.filter(n => n.id !== deletedNotification.id),
@@ -175,7 +160,6 @@ export default function useNotifications(options: NotificationOptions = {}) {
     // Clean up on unmount
     return () => {
       if (unsubscribeRef.current) {
-        console.log('Cleaning up realtime subscription for user:', userId);
         unsubscribeRef.current();
         hasSetupRealtimeRef.current = false;
       }
@@ -213,14 +197,12 @@ export default function useNotifications(options: NotificationOptions = {}) {
     if (!userId) return;
     
     try {
-      console.log('Marking notification as seen:', notificationId);
       await notificationService.markAsSeen(notificationId);
       
       // Update local state optimistically
       mutate(currentData => {
         if (!currentData) return currentData;
         
-        console.log('Optimistically updating notification to seen:', notificationId);
         return {
           ...currentData,
           data: currentData.data.map(notification => 
@@ -234,7 +216,6 @@ export default function useNotifications(options: NotificationOptions = {}) {
       // Update unseen count
       mutateUnseen(currentData => {
         if (!currentData) return { count: 0 };
-        console.log('Decrementing unseen notifications count after marking as seen.');
         return { count: Math.max(0, currentData.count - 1) };
       }, false);
       
@@ -248,14 +229,12 @@ export default function useNotifications(options: NotificationOptions = {}) {
     if (!userId) return;
     
     try {
-      console.log('Marking all notifications as seen for user:', userId);
       await notificationService.markAllAsSeenForUser(userId);
       
       // Update local state optimistically
       mutate(currentData => {
         if (!currentData) return currentData;
         
-        console.log('Optimistically updating all notifications to seen.');
         return {
           ...currentData,
           data: currentData.data.map(notification => ({ ...notification, seen: true }))

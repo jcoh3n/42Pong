@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Card, Flex, Heading } from "@radix-ui/themes";
+import { Box, Card, Flex, Heading, Text } from "@radix-ui/themes";
 import { User } from '@/services';
 import PlayerScore from './PlayerScore';
 
